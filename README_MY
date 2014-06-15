@@ -1,0 +1,45 @@
+                          DChat - P2P Client
+
+  What is it?
+  -----------
+
+
+  The Latest Version
+  ------------------
+
+  Details of the latest version can be found in the file called NEWS.
+  The file ChangeLog will contain the latest changes.
+
+  Documentation
+  -------------
+
+  The documentation available as of the date of this release is
+  included in HTML format in the docs/ directory.
+
+  Installation
+  ------------
+
+  Please see the file called INSTALL.
+
+  Licensing
+  ---------
+
+  Please see the file called LICENSE.
+
+  Cryptographic Software Notice
+  -----------------------------
+
+  This distribution may include software that has been designed for use
+  with cryptographic software.  The country in which you currently reside
+  may have restrictions on the import, possession, use, and/or re-export
+  to another country, of encryption software.  BEFORE using any encryption
+  software, please check your country's laws, regulations and policies
+  concerning the import, possession, or use, and re-export of encryption
+  software, to see if this is permitted.  See <http://www.wassenaar.org/>
+  for more information.
+
+  Contacts
+  --------
+
+     o If you have a concrete bug report for DChat please contact
+       christoph.mahrl@gmail.com

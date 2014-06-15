@@ -1,0 +1,13 @@
+*.in
+*.o
+*.log
+*.PO
+config.status
+configure
+depcomp
+compile
+install-sh
+missing
+stamp-h1
+autom4te.cache/
+aclocal.m4 

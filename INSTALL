@@ -1,0 +1,19 @@
+===============
+ INSTALLATION
+===============
+
+To install dchat, the follow the steps below:
+
+1) Run the ./configure script in the untarred source archive's 
+top-level directory with whatever command line arguments you need. 
+The options that configure recognizes are usually contained in a 
+file called README.
+ 
+2) Run make. This will build the source code into an executable 
+program (or programs) and may take a few minutes or a few hours, 
+depending on the speed of the computer and the size of the 
+package. 
+
+3) Run make install. This will install the compiled binaries, 
+configuration files, and any libraries in the appropriate 
+directories. 
