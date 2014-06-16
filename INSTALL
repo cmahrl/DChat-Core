@@ -1,8 +1,9 @@
-===============
- INSTALLATION
-===============
+                          DChat - P2P Client
 
-To install dchat, the follow the steps below:
+ INSTALLATION
+ ------------
+
+Follow the steps below to install DChat:
 
 1) Run the ./configure script in the untarred source archive's 
 top-level directory with whatever command line arguments you need. 
