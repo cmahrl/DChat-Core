@@ -1,4 +1,3 @@
+* add section "COMMANDS" in man page
 * write protocol specification
 * build doxygen documentation and add to autotools /docs
-* write manpage
-* integrate ChangeLog plugin in vi
