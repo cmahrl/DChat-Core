@@ -31,11 +31,11 @@ Set the local listening port that will be used for communication with other clie
 
 .TP
 .BR \-n ", " \-\-nick  = \fINICKNAME\fR
-Set the local listening port that will be used for communication with other clients. Valid port numbers ranges from 1 - 65535.
+Set the local listening port that will be used for communication with other clients.
 
 .TP
 .BR \-d ", " \-\-dst  = \fIREMOTEIP\fR
-Set the ip address of the remote chat client to connect to. It is possible to specifiy any valid IP4 or IPV6 address.
+Set the ip address of the remote chat client to whom a connection will be established. It is possible to specifiy any valid IP4 or IPV6 address.
 
 .TP
 .BR \-r ", " \-\-rport  = \fIREMOTEPORT\fR
@@ -46,10 +46,10 @@ Set the remote port of the remote chat client who will accept connections on thi
 returns \fB0\fR on success or \fB\-1\fR if an error occured
 
 .SH SEE ALSO
-dchat(4)
+dchat(4), ip(4), ip6(4)
 
 .SH BUGS
-Communication with the local loopback interface of a machine is not supported properly. If the loopback interface is used and the client connects to another machine using a RFC1918 compliant IP address, the dchat contact exchange will not work as expected and the state of the contactlist will be undefined.
+Communication with the local loopback interface of a machine is not supported properly. If the loopback interface is used and the client connects to another machine using a RFC1918 compliant ip address, the dchat contact exchange will not work as expected and the state of the contactlist will be undefined.
 
 Network Address Translation (NAT) is not supported yet. Connecting to a client whose address is translated, will result in an undefined state of the contactlist.
 
