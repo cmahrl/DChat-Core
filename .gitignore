@@ -2,7 +2,6 @@
 *.log
 *.PO
 config.status
-configure
 depcomp
 compile
 install-sh
