@@ -3,23 +3,55 @@
 
 .TH man 1 "15 June 2014" "1.0" "dchat man page"
 .SH NAME
-dchat \- P2P Client
+dchat \- Peer-To-Peer chat client
 .SH SYNOPSIS
-dchat <INT> <LPORT> <NICK> [<DST> <RPORT>]
+.B dchat
+\fB\-i\fR \fIINTERFACE\fR
+\fB\-l\fR \fILOCALPORT\fR
+\fB\-n\fR \fINICKNAME\fR
+[ \fB\-d\fR \fIREMOTEIP\fR ]
+[ \fB\-r\fR \fIREMOTEPORT\fR ]
 
 .SH DESCRIPTION
-DChat is a chat client which utilizes peer to peer techniques in order to establish a decentral network of chat clients. For that purpose the DChat protocol is used which is based on HTTP. A detailed description of how the DChat protocol works, can be found in the file called "PROTOCOL"
+.B DChat 
+is a chat client which utilizes peer to peer techniques in order to establish a decentral network of chat clients. For that purpose the DChat protocol is used which is based on HTTP. A detailed description of how the DChat protocol works, can be found in the file called "PROTOCOL"
   
-This DChat client provides an in-chat command interpreter for convenient commands like connecting to other DChat clients, listing of current contacts, and a lot more. Commands supported by this client can be found in the manpage in the section "Commands" ( see: dchat(1) )
+This DChat client provides an in-chat command interpreter for convenient commands like connecting to other DChat clients, listing of current contacts, and a lot more. Commands supported by this client can be found in the section "Commands".
 
-Since DChat is based on a decentral network, no central server is required. Therefore as long as there are clients within the network the network will live. This means that, if implemented properly, the DChat protocol takes care for exchanging contact information between clients accross the network automatically. No user interaction is necessary.
+Since DChat is based on a decentral network, no central server is required. Therefore as long as there are clients within the network, the network will live. This means that, if implemented properly, the DChat protocol takes care for exchanging contact information between clients accross the network automatically. No user interaction is necessary.
 
 .SH OPTIONS
+.TP
+.BR \-i ", " \-\-interface  = \fIINTERFACE\fR
+Set the network interface to determine the ip address that will be used for communication with other clients.
+
+.TP
+.BR \-l ", " \-\-lport  = \fILOCALPORT\fR
+Set the local listening port that will be used for communication with other clients. Valid port numbers ranges from 1 - 65535.
+
+.TP
+.BR \-n ", " \-\-nick  = \fINICKNAME\fR
+Set the local listening port that will be used for communication with other clients. Valid port numbers ranges from 1 - 65535.
+
+.TP
+.BR \-d ", " \-\-dst  = \fIREMOTEIP\fR
+Set the ip address of the remote chat client to connect to. It is possible to specifiy any valid IP4 or IPV6 address.
+
+.TP
+.BR \-r ", " \-\-rport  = \fIREMOTEPORT\fR
+Set the remote port of the remote chat client who will accept connections on this port. Valid port numbers ranges from 1 - 65535.
+
+.SH EXIT STATUS
+.B DChat
+returns \fB0\fR on success or \fB\-1\fR if an error occured
 
 .SH SEE ALSO
+dchat(4)
 
 .SH BUGS
-No known bugs.
+Communication with the local loopback interface of a machine is not supported properly. If the loopback interface is used and the client connects to another machine using a RFC1918 compliant IP address, the dchat contact exchange will not work as expected and the state of the contactlist will be undefined.
+
+Network Address Translation (NAT) is not supported yet. Connecting to a client whose address is translated, will result in an undefined state of the contactlist.
 
 .SH AUTHOR
 Christoph Mahrl (is121018@fhstp.ac.at)

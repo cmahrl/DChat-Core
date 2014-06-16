@@ -1,6 +1,7 @@
 *.o
 *.log
 *.PO
+config.h
 config.status
 depcomp
 compile
