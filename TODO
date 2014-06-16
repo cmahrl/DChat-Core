@@ -1,0 +1,4 @@
+* write protocol specification
+* build doxygen documentation and add to autotools /docs
+* write manpage
+* integrate ChangeLog plugin in vi

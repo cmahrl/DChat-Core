@@ -2,7 +2,23 @@
 
   What is it?
   -----------
+  
+  DChat is a chat client which utilizes peer to peer techniques in order 
+  to establish a decentral network of chat clients. For that purpose the
+  DChat protocol is used which is based on HTTP. A detailed description
+  of how the DChat protocol works, can be found in the file called 
+  "PROTOCOL"
+  
+  This DChat client provides an in-chat command interpreter for convenient   commands like connecting to other DChat clients, listing of current 
+  contacts, and a lot more. Commands supported by this client can be found
+  in the manpage in the section "Commands" ( see: dchat(1) )
 
+  Since DChat is based on a decentral network, no central server is 
+  required. Therefore as long as there are clients within the network
+  the network will live. This means that, if implemented properly, the 
+  DChat protocol takes care for exchanging contact information between
+  clients accross the network automatically. No user interaction is
+  necessary.
 
   The Latest Version
   ------------------
