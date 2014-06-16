@@ -9,7 +9,8 @@
   of how the DChat protocol works, can be found in the file called 
   "PROTOCOL"
   
-  This DChat client provides an in-chat command interpreter for convenient   commands like connecting to other DChat clients, listing of current 
+  This DChat client provides an in-chat command interpreter for convenient
+  commands like connecting to other DChat clients, listing of current 
   contacts, and a lot more. Commands supported by this client can be found
   in the manpage in the section "Commands" ( see: dchat(1) )
 
