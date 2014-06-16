@@ -3,9 +3,6 @@
 *.PO
 config.h
 config.status
-depcomp
-compile
-missing
 stamp-h1
 autom4te.cache/
 aclocal.m4

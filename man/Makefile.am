@@ -1,1 +1,1 @@
-man_MANS = dchat.1
+dist_man_MANS = dchat.1
