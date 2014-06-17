@@ -1,3 +1,4 @@
 * add section "COMMANDS" in man page
 * write protocol specification
 * add to autotools /docs
+* re-write usage() in dchat.c
