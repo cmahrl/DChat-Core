@@ -56,10 +56,10 @@ int send_contacts(dchat_conf_t* cnf, int n)
     pdu.listen_port = cnf->me.lport;
 
     //!< iterate through our contactlist
-    for(i = 0; i < cnf->cl.cl_size; i++)
+    for (i = 0; i < cnf->cl.cl_size; i++)
     {
         //!< except client n to whom we sent our contactlist
-        if(n == i)
+        if (n == i)
         {
             continue;
         }
@@ -68,10 +68,10 @@ int send_contacts(dchat_conf_t* cnf, int n)
         contact = &cnf->cl.contact[i];
 
         //!< if its not an empty contact slot and contact is not temporary (has not sent "control/discover" yet)
-        if(contact->lport != 0)
+        if (contact->lport != 0)
         {
             //!< convert contact to a string
-            if((contact_str = contact_to_string(contact)) == NULL)
+            if ((contact_str = contact_to_string(contact)) == NULL)
             {
                 log_msg(LOG_WARN, "send_contacts() - Could not send contact");
                 ret = -1;
@@ -83,12 +83,11 @@ int send_contacts(dchat_conf_t* cnf, int n)
             pdu.content[pdu_len] = '\0'; //!< set the first byte to \0.. used for strcat
 
             //!< could not allocate memory for content
-            if(pdu.content == NULL)
+            if (pdu.content == NULL)
             {
                 log_msg(LOG_ERR, "send_contacts() - Could not allocate memory");
                 ret = -1;
             }
-
             else
             {
                 //!< add contact information to content
@@ -105,13 +104,13 @@ int send_contacts(dchat_conf_t* cnf, int n)
     pdu.content_length = pdu_len;
 
     //!< write pdu inkluding all addresses of our contacts
-    if((ret = write_pdu(cnf->cl.contact[n].fd, &pdu)) == -1)
+    if ((ret = write_pdu(cnf->cl.contact[n].fd, &pdu)) == -1)
     {
         log_msg(LOG_ERR, "send_contacts() failed - Could not allocate memory");
         ret = -1;
     }
 
-    if(pdu.content_length != 0)
+    if (pdu.content_length != 0)
     {
         free(pdu.content);
     }
@@ -138,12 +137,12 @@ int receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
     char* line;             //!< contact string
 
     //!< as long as the line_end index is lower than content-length
-    while(line_end < pdu->content_length)
+    while (line_end < pdu->content_length)
     {
         line_begin = line_end;
 
         //!< extract a line from the content of the pdu
-        if((line_end = get_content_part(pdu, line_begin, '\n', &line)) == -1)
+        if ((line_end = get_content_part(pdu, line_begin, '\n', &line)) == -1)
         {
             log_msg(LOG_ERR, "receive_contacts(): Could not extract line from PDU");
             ret = -1;
@@ -151,7 +150,7 @@ int receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
         }
 
         //!< parse line ane make string to contact
-        if(string_to_contact(&contact, line) == -1)
+        if (string_to_contact(&contact, line) == -1)
         {
             log_msg(LOG_WARN, "receive_contacts(): Could not convert string to contact");
             ret = -1;
@@ -159,19 +158,18 @@ int receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
         }
 
         //!< if parsed contact is unknown
-        if(find_contact(cnf, &contact, 0) == -2)
+        if (find_contact(cnf, &contact, 0) == -2)
         {
             //!< increment new contacts counter
             new_contacts++;
 
             //!< connect to new contact, add him as contact, and send contactlist to him
-            if(handle_local_conn_request(cnf, &contact.stor) == -1)
+            if (handle_local_conn_request(cnf, &contact.stor) == -1)
             {
                 log_msg(LOG_WARN,
                         "receive_contacts(): Could not execute connection request successfully");
             }
         }
-
         else
         {
             //!< we found parsed contact in contactlist -> increment known contacts counter
@@ -203,7 +201,7 @@ int check_duplicates(dchat_conf_t* cnf, int n)
     //!< check if given contact is in the contactlist
     fst_oc = find_contact(cnf, &cnf->cl.contact[n], 0);
 
-    if(fst_oc == -2)
+    if (fst_oc == -2)
     {
         return -2; //!< error contact not in list
     }
@@ -211,7 +209,7 @@ int check_duplicates(dchat_conf_t* cnf, int n)
     //!< check if given contact is in the contactlist a second time
     sec_oc = find_contact(cnf, &cnf->cl.contact[n], fst_oc + 1);
 
-    if(sec_oc == -2)
+    if (sec_oc == -2)
     {
         return -1; //!< no duplicate contact
     }
@@ -219,9 +217,9 @@ int check_duplicates(dchat_conf_t* cnf, int n)
     //!< extract port of sockaddr_storage structure
     temp = &cnf->cl.contact[fst_oc];
 
-    if(ip_version(&temp->stor) == 4)
+    if (ip_version(&temp->stor) == 4)
     {
-        if(temp->lport == ntohs(((struct sockaddr_in*) &temp->stor)->sin_port))
+        if (temp->lport == ntohs(((struct sockaddr_in*) &temp->stor)->sin_port))
         {
             //!< if listening port equlals port of sockaddr_storage
             //!< then the client has connected to the other client
@@ -230,7 +228,6 @@ int check_duplicates(dchat_conf_t* cnf, int n)
             //!< been accepted
             accept_contact = sec_oc;
         }
-
         else
         {
             //!< otherwise it is the other way round
@@ -238,16 +235,14 @@ int check_duplicates(dchat_conf_t* cnf, int n)
             accept_contact = fst_oc;
         }
     }
-
     //!< do the same for ipv6
-    else if(ip_version(&temp->stor) == 6)
+    else if (ip_version(&temp->stor) == 6)
     {
-        if(temp->lport == ntohs(((struct sockaddr_in6*) &temp->stor)->sin6_port))
+        if (temp->lport == ntohs(((struct sockaddr_in6*) &temp->stor)->sin6_port))
         {
             connect_contact = fst_oc;
             accept_contact = sec_oc;
         }
-
         else
         {
             connect_contact = sec_oc;
@@ -258,7 +253,7 @@ int check_duplicates(dchat_conf_t* cnf, int n)
     //!< compare IP and LPORT
     //!< the client with the greater tuple will close the "connect" connection
     //!< the client with the lower tuple will close the "accept" connection
-    if(ip_version(&cnf->me.stor) == 4 && ip_version(&cnf->cl.contact[n].stor) == 4)
+    if (ip_version(&cnf->me.stor) == 4 && ip_version(&cnf->cl.contact[n].stor) == 4)
     {
         in_addr_t me_addr = ((struct sockaddr_in*) &cnf->me.stor)->sin_addr.s_addr;
         in_addr_t n_addr = ((struct sockaddr_in*)
@@ -267,38 +262,33 @@ int check_duplicates(dchat_conf_t* cnf, int n)
         //!< if local ip address is greater than the remote one
         //!< than the index of the  contact, who got added because of a "connect",
         //!< will be returned
-        if(me_addr > n_addr)
+        if (me_addr > n_addr)
         {
             return connect_contact;
         }
-
         //!< otherwise it is the other way round
-        else if(me_addr < n_addr)
+        else if (me_addr < n_addr)
         {
             return accept_contact;
         }
-
         //!< if ip addresses are equal, do the same for the listening port
-        else if(cnf->me.lport > cnf->cl.contact[n].lport)
+        else if (cnf->me.lport > cnf->cl.contact[n].lport)
         {
             return connect_contact;
         }
-
-        else if(cnf->me.lport < cnf->cl.contact[n].lport)
+        else if (cnf->me.lport < cnf->cl.contact[n].lport)
         {
             return accept_contact;
         }
-
         else
         {
             log_msg(LOG_ERR, "Contact is stored twice in contactlist");
             return accept_contact;
         }
     }
-
     //!< do the same for ipv6 (see above)
-    else if(ip_version(&cnf->me.stor) == 6 &&
-            ip_version(&cnf->cl.contact[n].stor) == 6)
+    else if (ip_version(&cnf->me.stor) == 6 &&
+             ip_version(&cnf->cl.contact[n].stor) == 6)
     {
         int mem_ret;
         struct in6_addr me_addr = ((struct sockaddr_in6*) &cnf->me.stor)->sin6_addr;
@@ -306,47 +296,40 @@ int check_duplicates(dchat_conf_t* cnf, int n)
                                   &cnf->cl.contact[n].stor)->sin6_addr;
         mem_ret = memcmp(&me_addr, &n_addr, sizeof(struct in6_addr));
 
-        if(mem_ret > 0)
+        if (mem_ret > 0)
         {
             return connect_contact;
         }
-
-        else if(mem_ret < 0)
+        else if (mem_ret < 0)
         {
             return accept_contact;
         }
-
-        else if(cnf->me.lport > cnf->cl.contact[n].lport)
+        else if (cnf->me.lport > cnf->cl.contact[n].lport)
         {
             return connect_contact;
         }
-
-        else if(cnf->me.lport < cnf->cl.contact[n].lport)
+        else if (cnf->me.lport < cnf->cl.contact[n].lport)
         {
             return accept_contact;
         }
-
         else
         {
             log_msg(LOG_ERR, "Contact is stored twice in contactlist");
             return accept_contact;
         }
     }
-
     //!< ipv6 rules ipv4
-    else if(ip_version(&cnf->me.stor) == 6 &&
-            ip_version(&cnf->cl.contact[n].stor) == 4)
+    else if (ip_version(&cnf->me.stor) == 6 &&
+             ip_version(&cnf->cl.contact[n].stor) == 4)
     {
         return connect_contact;
     }
-
     //!< see above
-    else if(ip_version(&cnf->me.stor) == 4 &&
-            ip_version(&cnf->cl.contact[n].stor) == 6)
+    else if (ip_version(&cnf->me.stor) == 4 &&
+             ip_version(&cnf->cl.contact[n].stor) == 6)
     {
         return accept_contact;
     }
-
     else
     {
         log_msg(LOG_ERR, "Incompatible ip address format");
@@ -371,7 +354,7 @@ char* contact_to_string(contact_t* contact)
     //!< convert ip to a string
     client_addr = &contact->stor;
 
-    if((ipv = ip_version(client_addr)) == 4)
+    if ((ipv = ip_version(client_addr)) == 4)
     {
         //!< get ip4 string
         inet_ntop(
@@ -381,8 +364,7 @@ char* contact_to_string(contact_t* contact)
             INET_ADDRSTRLEN
         );
     }
-
-    else if(ipv == 6)
+    else if (ipv == 6)
     {
         //!< get ip6 string
         inet_ntop(
@@ -392,7 +374,6 @@ char* contact_to_string(contact_t* contact)
             INET6_ADDRSTRLEN
         );
     }
-
     else
     {
         log_msg(LOG_ERR, "Contact has an invalid ip address");
@@ -406,7 +387,7 @@ char* contact_to_string(contact_t* contact)
     contact_len = strlen(addr_str) + strlen(port_str) + 4;
 
     //!< allocate memory for the contact string repr.
-    if((contact_str = malloc(contact_len)) == NULL)
+    if ((contact_str = malloc(contact_len)) == NULL)
     {
         log_msg(LOG_ERR, "contact_to_string() failed - Could not allocate memory");
         return NULL;
@@ -438,63 +419,59 @@ int string_to_contact(contact_t* contact, char* string)
     char* save_ptr; //!< pointer for strtok_r
 
     //!< split ip from string
-    if((ip = strtok_r(string, " ", &save_ptr)) == NULL)
+    if ((ip = strtok_r(string, " ", &save_ptr)) == NULL)
     {
         log_msg(LOG_ERR, "string_to_contact() - Could not parse ip address");
         return -1;
     }
 
     //!< split port from string
-    if((port = strtok_r(NULL, "\n", &save_ptr)) == NULL)
+    if ((port = strtok_r(NULL, "\n", &save_ptr)) == NULL)
     {
         log_msg(LOG_ERR, "string_to_contact() - Could not parse port");
         return -1;
     }
 
     //!< could line be splittet into ip and port?
-    if(ip != NULL && port != NULL)
+    if (ip != NULL && port != NULL)
     {
         //!< convert port string to integer
         contact->lport = atoi(port);
 
         //!< ipv4 address?
-        if(strchr(ip, '.') != NULL)
+        if (strchr(ip, '.') != NULL)
         {
             //!< convert ipv4 address and port
-            if(inet_pton(AF_INET, ip,
-                         &(((struct sockaddr_in*) &contact->stor)->sin_addr)) == 1)
+            if (inet_pton(AF_INET, ip,
+                          &(((struct sockaddr_in*) &contact->stor)->sin_addr)) == 1)
             {
                 //!< set ip and port in scocketaddress
                 ((struct sockaddr_in*) &contact->stor)->sin_family = AF_INET;
                 ((struct sockaddr_in*) &contact->stor)->sin_port = htons(atoi(port));
             }
-
             else
             {
                 log_msg(LOG_WARN, "string_to_contact() - Corrupt ip4 address");
                 return -1;
             }
         }
-
         //!< ipv6 address?
-        else if(strchr(ip, ':') != NULL)
+        else if (strchr(ip, ':') != NULL)
         {
             //!< convert ipv4 address and port
-            if(inet_pton(AF_INET6, ip,
-                         &(((struct sockaddr_in6*) &contact->stor)->sin6_addr)) == 1)
+            if (inet_pton(AF_INET6, ip,
+                          &(((struct sockaddr_in6*) &contact->stor)->sin6_addr)) == 1)
             {
                 //!< set ip and port in scocketaddress
                 ((struct sockaddr_in6*) &contact->stor)->sin6_family = AF_INET6;
                 ((struct sockaddr_in6*) &contact->stor)->sin6_port = htons(atoi(port));
             }
-
             else
             {
                 log_msg(LOG_WARN, "string_to_contact() - Corrupt ip6 address");
                 return -1;
             }
         }
-
         else
         {
             log_msg(LOG_WARN, "string_to_contact() - Corrupt ip '%s'", ip);
@@ -519,13 +496,13 @@ int realloc_contactlist(dchat_conf_t* cnf, int newsize)
     contact_t* old_contact_list;
 
     //!< size may not be lower than 1 and not be lower than the amount of contacts actually used
-    if(newsize < 1 || newsize < cnf->cl.used_contacts)
+    if (newsize < 1 || newsize < cnf->cl.used_contacts)
     {
         return -2;
     }
 
     //!< reserve memory for new contactlist
-    if((new_contact_list = malloc(newsize * sizeof(contact_t))) == NULL)
+    if ((new_contact_list = malloc(newsize * sizeof(contact_t))) == NULL)
     {
         log_msg(LOG_ERR, "realloc_contactlist() failed - Could not allocate memory");
         return -1;
@@ -537,9 +514,9 @@ int realloc_contactlist(dchat_conf_t* cnf, int newsize)
     memset(new_contact_list, 0, newsize * sizeof(contact_t));
 
     //!< copy contacts to new contactlist
-    for(i = 0; i < cnf->cl.cl_size; i++)
+    for (i = 0; i < cnf->cl.cl_size; i++)
     {
-        if(old_contact_list[i].fd)
+        if (old_contact_list[i].fd)
         {
             memcpy(new_contact_list + j, old_contact_list + i, sizeof(contact_t));
             j++;
@@ -568,19 +545,19 @@ int add_contact(dchat_conf_t* cnf, int fd, struct sockaddr_storage* ss)
     int i;
 
     //!< if contactlist is full - resize it so that we can store more contacts in it
-    if(cnf->cl.used_contacts == cnf->cl.cl_size)
+    if (cnf->cl.used_contacts == cnf->cl.cl_size)
     {
-        if((realloc_contactlist(cnf, cnf->cl.cl_size + INIT_CONTACTS)) < 0)
+        if ((realloc_contactlist(cnf, cnf->cl.cl_size + INIT_CONTACTS)) < 0)
         {
             return -1;
         }
     }
 
     //!< search for an empty place to store the new contact
-    for(i = 0; i < cnf->cl.cl_size; i++)
+    for (i = 0; i < cnf->cl.cl_size; i++)
     {
         //!< if fd is 0 -> this place can be used to store a new contact
-        if(!cnf->cl.contact[i].fd)
+        if (!cnf->cl.contact[i].fd)
         {
             cnf->cl.contact[i].fd = fd;
             memcpy(&cnf->cl.contact[i].stor, ss, sizeof(*ss));
@@ -602,7 +579,7 @@ int add_contact(dchat_conf_t* cnf, int fd, struct sockaddr_storage* ss)
 int del_contact(dchat_conf_t* cnf, int n)
 {
     //!< is index 'n' a valid index?
-    if((n < 0) || (n >= cnf->cl.cl_size))
+    if ((n < 0) || (n >= cnf->cl.cl_size))
     {
         log_msg(LOG_ERR, "del_contact() - Index out of bounds '%d'", n);
         return -1;
@@ -615,10 +592,10 @@ int del_contact(dchat_conf_t* cnf, int n)
 
     //!< if contacts counter has been decreased INIT_CONTACTS time, resize the contactlist to free
     //!< unused memory
-    if((cnf->cl.used_contacts == (cnf->cl.cl_size - INIT_CONTACTS)) &&
-            cnf->cl.used_contacts != 0)
+    if ((cnf->cl.used_contacts == (cnf->cl.cl_size - INIT_CONTACTS)) &&
+        cnf->cl.used_contacts != 0)
     {
-        if((realloc_contactlist(cnf, cnf->cl.cl_size - INIT_CONTACTS)) < 0)
+        if ((realloc_contactlist(cnf, cnf->cl.cl_size - INIT_CONTACTS)) < 0)
         {
             return -1;
         }
@@ -642,31 +619,30 @@ int find_contact(dchat_conf_t* cnf, contact_t* contact, int begin)
     contact_t* c;
 
     //!< is begin a valid index?
-    if(begin < 0 || begin >= cnf->cl.cl_size)
+    if (begin < 0 || begin >= cnf->cl.cl_size)
     {
         return -2;
     }
 
     //!< iterate through contactlist, but first check
     //!< if the contact represents ourself
-    for(i = -1; i < cnf->cl.cl_size; i++)
+    for (i = -1; i < cnf->cl.cl_size; i++)
     {
         //!< first check if the given contact matches ourself
-        if(i == -1)
+        if (i == -1)
         {
             c = &cnf->me;
             i = begin - 1;
         }
-
         else
         {
             c = &cnf->cl.contact[i];
         }
 
         //!< dont check empty contacts or temporary contacts
-        if(c->lport)
+        if (c->lport)
         {
-            if(strcmp(contact_to_string(contact), contact_to_string(c)) == 0)
+            if (strcmp(contact_to_string(contact), contact_to_string(c)) == 0)
             {
                 return i;
             }

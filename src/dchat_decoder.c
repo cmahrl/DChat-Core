@@ -51,116 +51,105 @@ int decode_header(dchat_pdu_t* pdu, char* line)
     int cmp_offset = 0; //!< header value offset
 
     //!< split line: header format -> key:value
-    if((key = strtok_r(line, delim, &save_ptr)) == NULL)
+    if ((key = strtok_r(line, delim, &save_ptr)) == NULL)
     {
         return -1;
     }
-
-    else if((value = strtok_r(NULL, delim, &save_ptr)) == NULL)
+    else if ((value = strtok_r(NULL, delim, &save_ptr)) == NULL)
     {
         return -1;
     }
-
     else
     {
         //!< first character must be a whitespace
-        if(strncmp(value, " ", 1) != 0)
+        if (strncmp(value, " ", 1) != 0)
         {
             return -1;
         }
-
         else
         {
             cmp_offset++;    //!< increase offset
         }
 
         //!< check header type
-        if(strcmp(key, "Content-Type") == 0)
+        if (strcmp(key, "Content-Type") == 0)
         {
             //!< is offset within range?
-            if(cmp_offset >= strlen(value))
+            if (cmp_offset >= strlen(value))
             {
                 return -1;
             }
 
             //!< check value type
-            if(!strncmp(&value[cmp_offset], "text/plain", 10))
+            if (!strncmp(&value[cmp_offset], "text/plain", 10))
             {
                 pdu->content_type = CT_TXT_PLAIN;
                 cmp_offset += 10;
             }
-
-            else if(!strncmp(&value[cmp_offset], "application/octet", 17))
+            else if (!strncmp(&value[cmp_offset], "application/octet", 17))
             {
                 pdu->content_type = CT_APPL_OCT;
                 cmp_offset += 17;
             }
-
-            else if(!strncmp(&value[cmp_offset], "control/discover", 16))
+            else if (!strncmp(&value[cmp_offset], "control/discover", 16))
             {
                 pdu->content_type = CT_CTRL_DISC;
                 cmp_offset += 16;
             }
-
-            else if(!strncmp(&value[cmp_offset], "control/replay", 14))
+            else if (!strncmp(&value[cmp_offset], "control/replay", 14))
             {
                 pdu->content_type = CT_CTRL_RPLY;
                 cmp_offset += 14;
             }
-
             else
             {
                 return -1;
             }
 
             //!< is offset within range?
-            if(cmp_offset >= strlen(value))
+            if (cmp_offset >= strlen(value))
             {
                 return -1;
             }
 
             term = &value[cmp_offset];
         }
-
-        else if(strcmp(key, "Content-Length") == 0)
+        else if (strcmp(key, "Content-Length") == 0)
         {
             //!< convert string to int
             pdu->content_length = (int) strtol(value, &save_ptr, 10);
 
             //!< check if its a valid content-length
-            if(pdu->content_length < 0 || pdu->content_length > MAX_CONTENT_LEN)
+            if (pdu->content_length < 0 || pdu->content_length > MAX_CONTENT_LEN)
             {
                 return -1;
             }
 
             term = save_ptr;
         }
-
-        else if(strcmp(key, "Listen-Port") == 0)
+        else if (strcmp(key, "Listen-Port") == 0)
         {
             //!< convert string to int
             pdu->listen_port = (int) strtol(value, &save_ptr, 10);
 
             //!< check if it is a valid port
-            if(pdu->listen_port < 1 || pdu->listen_port > 65535)
+            if (pdu->listen_port < 1 || pdu->listen_port > 65535)
             {
                 return -1;
             }
 
             term = save_ptr;
         }
-
         else
         {
             return -1;
         }
 
         //!< check if value is terminated properly
-        if(!strcmp(term, "\r\n") || !strcmp(term, "\n"))
+        if (!strcmp(term, "\r\n") || !strcmp(term, "\n"))
         {
             return 0;
         }
-
         else
         {
             return -1;
@@ -185,7 +174,7 @@ int read_line(int fd, char** line)
     //!< allocate memory for user input
     *line = malloc(max_line);
 
-    if(*line == NULL)
+    if (*line == NULL)
     {
         return -1;
     }
@@ -194,21 +183,20 @@ int read_line(int fd, char** line)
     linep = *line;
 
     //!< until \n is found
-    while(1)
+    while (1)
     {
         //!< have 99 characters been read (excluding \0)?
-        if((len + 1) % max_line == 0)
+        if ((len + 1) % max_line == 0)
         {
             //!< realloc memory for line
             tmp = realloc(*line, max_line *= 2);
 
-            if(tmp == NULL)
+            if (tmp == NULL)
             {
                 log_errno(LOG_ERR, "realloc failed in read_line");
                 free(*line);
                 return -1;
             }
-
             else
             {
                 *line = tmp;
@@ -217,21 +205,20 @@ int read_line(int fd, char** line)
         }
 
         //!< read 1 character from file descriptor
-        if((ret = read(fd, linep, 1)) == -1)
+        if ((ret = read(fd, linep, 1)) == -1)
         {
             free(*line);
             return -1;
         }
-
         //!< EOF
-        else if(ret == 0)
+        else if (ret == 0)
         {
             free(*line);
             return 0;
         }
 
         //!< line end
-        if(*(linep) == '\n')
+        if (*(linep) == '\n')
         {
             *(linep + 1) = '\0'; //!< Terminate
             return len + 1;
@@ -260,7 +247,7 @@ int read_pdu(int fd, dchat_pdu_t** pdu)
     int len = 0;    //!< amount of bytes read in total
 
     //!< allocate memory for PDU
-    if((*pdu = malloc(sizeof(struct dchat_pdu))) == NULL)
+    if ((*pdu = malloc(sizeof(struct dchat_pdu))) == NULL)
     {
         log_errno(LOG_ERR, "malloc failed in read_pdu");
         return -1;
@@ -270,14 +257,14 @@ int read_pdu(int fd, dchat_pdu_t** pdu)
     memset(*pdu, 0, sizeof(struct dchat_pdu));
 
     //!< read each line of the received pdu
-    if((ret = read_line(fd, &line)) == -1 || !ret)
+    if ((ret = read_line(fd, &line)) == -1 || !ret)
     {
         free(*pdu);
         return ret;
     }
 
     //!< first line has to be "DCHAT: 1.0"
-    if(strcmp(line, "DCHAT: 1.0\n") != 0 && strcmp(line, "DCHAT: 1.0\r\n") != 0)
+    if (strcmp(line, "DCHAT: 1.0\n") != 0 && strcmp(line, "DCHAT: 1.0\r\n") != 0)
     {
         free(line);
         free(*pdu);
@@ -289,10 +276,10 @@ int read_pdu(int fd, dchat_pdu_t** pdu)
 
     //!< read header lines from file descriptors, until
     //!< an empty line is received
-    while(1)
+    while (1)
     {
         //!< read line: -1 = error, 0 = EOF
-        if((ret = read_line(fd, &line)) == -1 || ret == 0)
+        if ((ret = read_line(fd, &line)) == -1 || ret == 0)
         {
             free(line);
             free(*pdu);
@@ -302,14 +289,13 @@ int read_pdu(int fd, dchat_pdu_t** pdu)
         len += strlen(line);
 
         //!< decode read line as header
-        if((ret = decode_header(*pdu, line)) == -1)
+        if ((ret = decode_header(*pdu, line)) == -1)
         {
             //!< if line is not a header, it must be an empty line
-            if(strcmp(line, "\n") == 0 || strcmp(line, "\r\n") == 0)
+            if (strcmp(line, "\n") == 0 || strcmp(line, "\r\n") == 0)
             {
                 break; //!< All headers have been read
             }
-
             else
             {
                 free(line);
@@ -322,7 +308,7 @@ int read_pdu(int fd, dchat_pdu_t** pdu)
     }
 
     //!< has content type been specified?
-    if((*pdu)->content_type == 0 || (*pdu)->listen_port == 0)
+    if ((*pdu)->content_type == 0 || (*pdu)->listen_port == 0)
     {
         free(line);
         free(*pdu);
@@ -335,10 +321,10 @@ int read_pdu(int fd, dchat_pdu_t** pdu)
 
     //!< read content frm file descriptor
     //!< read x bytes defined by Content-Length
-    for(b = 0, contentp = (*pdu)->content; b < (*pdu)->content_length;
-            b++, contentp++, len++)
+    for (b = 0, contentp = (*pdu)->content; b < (*pdu)->content_length;
+         b++, contentp++, len++)
     {
-        if((ret = read(fd, contentp, 1)) == -1 || !ret)
+        if ((ret = read(fd, contentp, 1)) == -1 || !ret)
         {
             free((*pdu)->content);
             free(*pdu);
@@ -368,65 +354,65 @@ char* encode_header(dchat_pdu_t* pdu, int header_id)
     int mem_free = 0;       //!< defines if value must be freed
 
     //!< which header should be crafted?
-    switch(header_id)
+    switch (header_id)
     {
-    //!< first search header key, then set header key string
-    case HDR_CONTENT_TYPE:
-        header = "Content-Type";
-        len = strlen(header); //!< reserve 12 bytes for "Content-Type"
+        //!< first search header key, then set header key string
+        case HDR_CONTENT_TYPE:
+            header = "Content-Type";
+            len = strlen(header); //!< reserve 12 bytes for "Content-Type"
 
-        switch(pdu->content_type)
-        {
-        //!< if header-key = Content-Type, search and set header value
-        case CT_TXT_PLAIN:
-            value = "text/plain";
+            switch (pdu->content_type)
+            {
+                //!< if header-key = Content-Type, search and set header value
+                case CT_TXT_PLAIN:
+                    value = "text/plain";
+                    break;
+
+                case CT_APPL_OCT:
+                    value = "application/octet";
+                    break;
+
+                case CT_CTRL_DISC:
+                    value = "control/discover";
+                    break;
+
+                case CT_CTRL_RPLY:
+                    value = "control/replay";
+                    break;
+
+                default:
+                    return NULL; //!< ERROR
+            }
+
+            len += strlen(value); //!< reserve another x bytes for the Content-Type value
             break;
 
-        case CT_APPL_OCT:
-            value = "application/octet";
+        case HDR_CONTENT_LENGTH:
+            header = "Content-Length";
+            len = strlen(header);
+            value = malloc(MAX_INT_STR + 1);
+            snprintf(value, MAX_INT_STR, "%d", pdu->content_length);
+            len += strlen(value);
+            mem_free = 1; //!< value must be freed
             break;
 
-        case CT_CTRL_DISC:
-            value = "control/discover";
-            break;
-
-        case CT_CTRL_RPLY:
-            value = "control/replay";
+        case HDR_LISTEN_PORT:
+            header = "Listen-Port";
+            len = strlen(header);
+            value = malloc(MAX_INT_STR + 1);
+            snprintf(value, MAX_INT_STR, "%d", pdu->listen_port);
+            len += strlen(value);
+            mem_free = 1; //!< value must be freed
             break;
 
         default:
             return NULL; //!< ERROR
-        }
-
-        len += strlen(value); //!< reserve another x bytes for the Content-Type value
-        break;
-
-    case HDR_CONTENT_LENGTH:
-        header = "Content-Length";
-        len = strlen(header);
-        value = malloc(MAX_INT_STR + 1);
-        snprintf(value, MAX_INT_STR, "%d", pdu->content_length);
-        len += strlen(value);
-        mem_free = 1; //!< value must be freed
-        break;
-
-    case HDR_LISTEN_PORT:
-        header = "Listen-Port";
-        len = strlen(header);
-        value = malloc(MAX_INT_STR + 1);
-        snprintf(value, MAX_INT_STR, "%d", pdu->listen_port);
-        len += strlen(value);
-        mem_free = 1; //!< value must be freed
-        break;
-
-    default:
-        return NULL; //!< ERROR
     }
 
     len += 4; //!< add three bytes for ':', a " ", '\n' and '\0';
 
     //!< allocate memory for header string
-    if((ret = malloc(len)) == NULL)
+    if ((ret = malloc(len)) == NULL)
     {
         return NULL;
     }
@@ -440,7 +426,7 @@ char* encode_header(dchat_pdu_t* pdu, int header_id)
     strncat(ret, "\n", 1);
     ret[len - 1] = '\0';
 
-    if(mem_free == 1)  //!< if value has been allocated dynamically
+    if (mem_free == 1) //!< if value has been allocated dynamically
     {
         free(value);
     }
@@ -463,7 +449,7 @@ int write_line(int fd, char* buf)
     int wr_len;
 
     //!< allocate memory for line to write
-    if((line = malloc(strlen(buf) + 3)) == NULL)  //!< +2 for \r\n and \0
+    if ((line = malloc(strlen(buf) + 3)) == NULL) //!< +2 for \r\n and \0
     {
         return -1;
     }
@@ -472,7 +458,7 @@ int write_line(int fd, char* buf)
     ret = strncpy(line, buf, strlen(buf));
     line[strlen(buf)] = '\0';
 
-    if(ret != line)
+    if (ret != line)
     {
         free(line);
         return -1;
@@ -481,14 +467,14 @@ int write_line(int fd, char* buf)
     //!< append \r\n
     ret = strncat(line, "\r\n", 2);
 
-    if(ret != line)
+    if (ret != line)
     {
         free(line);
         return -1;
     }
 
     //!< write line
-    if((wr_len = write(fd, line, strlen(line))) == -1)
+    if ((wr_len = write(fd, line, strlen(line))) == -1)
     {
         free(line);
         return -1;
@@ -521,20 +507,18 @@ int write_pdu(int fd, dchat_pdu_t* pdu)
     int pdulen=0;                    //total length of PDU
 
     ///get Content-Type string
-    if((content_type = encode_header(pdu, HDR_CONTENT_TYPE)) == NULL)
+    if ((content_type = encode_header(pdu, HDR_CONTENT_TYPE)) == NULL)
     {
         return -1;
     }
-
     //get Content-Length string
-    else if((content_length = encode_header(pdu, HDR_CONTENT_LENGTH)) == NULL)
+    else if ((content_length = encode_header(pdu, HDR_CONTENT_LENGTH)) == NULL)
     {
         free(content_type);
         return -1;
     }
-
     //get Listen-Port string
-    else if((listen_port = encode_header(pdu, HDR_LISTEN_PORT)) == NULL)
+    else if ((listen_port = encode_header(pdu, HDR_LISTEN_PORT)) == NULL)
     {
         free(content_type);
         free(content_length);
@@ -551,7 +535,7 @@ int write_pdu(int fd, dchat_pdu_t* pdu)
     //allocate memory for pdu
     pdu_raw = malloc(pdulen + 1);
 
-    if(pdu_raw == NULL)
+    if (pdu_raw == NULL)
     {
         log_msg(LOG_ERR, "write_pdu() failed - could not allocate memory");
         return -1;
@@ -580,9 +564,9 @@ int write_pdu(int fd, dchat_pdu_t* pdu)
  */
 void free_pdu(dchat_pdu_t* pdu)
 {
-    if(pdu != NULL)
+    if (pdu != NULL)
     {
-        if(pdu->content != NULL)
+        if (pdu->content != NULL)
         {
             free(pdu->content);
         }
@@ -608,17 +592,17 @@ int get_content_part(dchat_pdu_t* pdu, int offset, char term, char** content)
     char* ptr; //!< content pointer
 
     //!< check if offset is within the content
-    if(offset >= pdu->content_length)
+    if (offset >= pdu->content_length)
     {
         return -1;
     }
 
     //!< determine line end -> \n or end of content
-    for(ptr = (pdu->content + offset), line_end = offset; *ptr != term &&
-            line_end < pdu->content_length; ptr++, line_end++);
+    for (ptr = (pdu->content + offset), line_end = offset; *ptr != term &&
+         line_end < pdu->content_length; ptr++, line_end++);
 
     //!< if end of content is reached before \n
-    if(line_end == pdu->content_length && *(ptr - 1) != term)
+    if (line_end == pdu->content_length && *(ptr - 1) != term)
     {
         log_msg(LOG_ERR, "get_content_part() - Could not parse line");
         return -1;
@@ -627,7 +611,7 @@ int get_content_part(dchat_pdu_t* pdu, int offset, char term, char** content)
     //!< reserve enough space for line + \0
     *content = malloc(line_end + 2); //!< +1 since its an index and +1 for \0
 
-    if(*content == NULL)
+    if (*content == NULL)
     {
         log_msg(LOG_ERR, "get_content_part() - Could not allocate memory");
         return -1;

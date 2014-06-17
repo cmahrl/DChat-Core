@@ -36,16 +36,14 @@
  */
 int ip_version(struct sockaddr_storage* address)
 {
-    if(address->ss_family == AF_INET)
+    if (address->ss_family == AF_INET)
     {
         return 4;
     }
-
-    else if(address->ss_family == AF_INET6)
+    else if (address->ss_family == AF_INET6)
     {
         return 6;
     }
-
     else
     {
         return -1;
@@ -61,13 +59,13 @@ int connect_to(struct sockaddr* sa)
 {
     int s; //!< socket file descriptor
 
-    if((s = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+    if ((s = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
         log_errno(LOG_ERR, "socket() failed in connect_to()");
         return -1;
     }
 
-    if(connect(s, sa, sizeof(struct sockaddr_in)) == -1)
+    if (connect(s, sa, sizeof(struct sockaddr_in)) == -1)
     {
         log_errno(LOG_ERR, "connect() failed");
         close(s);
@@ -108,7 +106,7 @@ void print_dchat_msg(char* msg, int out_fd)
     //!< is file descriptor stdout or stderr?
     //!< if yes -> clear input from stdin in terminal and
     //!< return cursor to the beginning of the current line
-    if(out_fd == 1 || out_fd == 2)
+    if (out_fd == 1 || out_fd == 2)
     {
         ansi_term_clear_line(out_fd);
         ansi_term_cr(out_fd);
@@ -117,7 +115,7 @@ void print_dchat_msg(char* msg, int out_fd)
     dprintf(out_fd, "%s", msg); //!< print message
 
     //!< append \n if line was not terminated with \n
-    if(msg[strlen(msg) - 1] != '\n')
+    if (msg[strlen(msg) - 1] != '\n')
     {
         dprintf(out_fd, "\n");
     }

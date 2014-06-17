@@ -34,6 +34,6 @@ int th_main_loop(dchat_conf_t* cnf);
 //*********************************
 //      MISC FUNCTIONS
 //*********************************
-void usage(char* app);
+void usage();
 
 #endif

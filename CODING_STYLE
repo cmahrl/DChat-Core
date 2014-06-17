@@ -1,0 +1,8 @@
+                          DChat - P2P Client
+
+FORMAT
+------
+
+The following astyle format options are used for the source files of this project:
+
+astyle --style=allman --indent=spaces=4 --indent-switches --indent-preproc-define --indent-col1-comments --min-conditional-indent=0 --break-blocks --pad-header --delete-empty-lines --align-pointer=type --add-brackets --convert-tabs --max-code-length=80 --break-after-logical --mode=c
