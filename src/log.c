@@ -1,3 +1,7 @@
+/** @file log.c
+ *  This file contains functions to log messages with syslog loglevels to a file stream
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -17,9 +21,9 @@
 #define LOG_PRI(p) ((p) & LOG_PRIMASK)
 #endif
 
-//! FILE pointer to log
+// FILE pointer to log
 static FILE* log_ = NULL;
-//! log level
+// log level
 static int level_ = LOG_DEBUG;
 static const char* flty_[8] = {"emerg", "alert", "crit", "err", "warning", "notice", "info", "debug"};
 
@@ -30,7 +34,8 @@ static void __attribute__((constructor)) init_log0(void)
 }
 
 
-/*! Log a message to a file.
+/** 
+ *  Log a message to a file.
  *  @param out Open FILE pointer
  *  @param lf Logging priority (equal to syslog)
  *  @param fmt Format string
@@ -60,10 +65,10 @@ static void vlog_msgf(FILE* out, int lf, const char* fmt, va_list ap)
 }
 
 
-/*! Log a message. This function automatically determines
- *  to which streams the message is logged.
- *  @param lf Log priority.
- *  @param fmt Format string.
+/** 
+ *  Log a message. This function automatically determines to which streams the message is logged.
+ *  @param lf Log priority
+ *  @param fmt Format string
  *  @param ... arguments
  */
 void log_msg(int lf, const char* fmt, ...)
@@ -75,14 +80,23 @@ void log_msg(int lf, const char* fmt, ...)
 }
 
 
+/** 
+ *  Log a message together with a string representation of errno as error.
+ *  @param lf  Log priority
+ *  @param str String to log
+ */
 void log_errno(int lf, const char* str)
 {
     log_msg(lf, "%s: '%s'", str, strerror(errno));
 }
 
 
-/*! This function output len bytes starting at buf in hexadecimal numbers.
- *  */
+/** 
+ * This function output len bytes starting at buf in hexadecimal numbers.
+ * @param lf  Log priority
+ * @param buf Pointer to buffer
+ * @param len Amount of bytes that shall be printed
+ */
 void log_hex(int lf, const void* buf, int len)
 {
     static const char hex[] = "0123456789abcdef";

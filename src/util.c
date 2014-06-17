@@ -1,21 +1,6 @@
-/*!
- * =====================================================================================
- *
- *       Filename:  util.c
- *
- *    Description:  This file contains several miscellanious utility functions.
- *
- *        Version:  1.0
- *        Created:  06/08/14 09:34:39
- *       Revision:  none
- *       Compiler:  gcc
- *
- *         Author:  Christoph Mahrl (clm), christoph.mahrl@gmail.com
- *   Organization:  IT-Security
- *
- * =====================================================================================
+/** @file util.c
+ *  This file contains several miscellanious utility functions.
  */
-
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -30,8 +15,9 @@
 #include "dchat_h/log.h"
 
 
-/*! Determine the address family of the given address.
- *  @param address: Pointer to address to check the address family for
+/** 
+ *  Determines the address family of the given socket address structure.
+ *  @param address Pointer to address to check the address family for
  *  @return 4 if AF_INET is used, 6 if AF_INET6 is used or -1 in every other case
  */
 int ip_version(struct sockaddr_storage* address)
@@ -51,13 +37,14 @@ int ip_version(struct sockaddr_storage* address)
 }
 
 
-/*!Function connects to remote socket described by sa.
- * @param sa pointer to initalized sockaddr structure.
- * @return Returns file descriptor of new socket or -1 in case of error
+/**
+ * Connects to a remote socket using the given socket address.
+ * @param sa Pointer to initalized sockaddr structure.
+ * @return file descriptor of new socket or -1 in case of error
  */
 int connect_to(struct sockaddr* sa)
 {
-    int s; //!< socket file descriptor
+    int s; // socket file descriptor
 
     if ((s = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
@@ -76,20 +63,22 @@ int connect_to(struct sockaddr* sa)
 }
 
 
-/*! Prints the ansi escape code for clearing the current line
- *  in a terminal
- *  @param out_fd: File descriptor where the escape code
+/** 
+ *  Prints the ansi escape code for clearing the current line in a 
+ *  terminal
+ *  @param out_fd File descriptor where the escape code
  *                will be written to
  */
 void ansi_term_clear_line(int out_fd)
 {
-    dprintf(out_fd, "\x1B[2K"); //!< erase stdin input
+    dprintf(out_fd, "\x1B[2K"); // erase stdin input
 }
 
 
-/*! Prints the ansi escape code for carriage return in a terminal
- * @param out_fd: File descriptor where the escape code
- *                will be written to
+/** 
+ * Prints the ansi escape code for carriage return in a terminal
+ * @param out_fd File descriptor where the escape code
+ *               will be written to
  */
 void ansi_term_cr(int out_fd)
 {
@@ -97,36 +86,43 @@ void ansi_term_cr(int out_fd)
 }
 
 
-/*! Prints the given message string to the given output file descriptor.
- *  @param msg:    Text message to print
- *  @param out_fd: File descriptor where the message will be written to
+/** 
+ *  Prints a chat message to a file descriptor.
+ *  Prints the given message string to the given output file descriptor.
+ *  Before the message is printed, the current line in the terminal is
+ *  cleared and the cursor is resetted to the beginning of the line.
+ *  After the message is printed, the line buffer of GNU readline 
+ *  containing the userinput is reprinted to the terminal.
+ *  @param msg    Text message to print
+ *  @param out_fd File descriptor where the message will be written to
  */
 void print_dchat_msg(char* msg, int out_fd)
 {
-    //!< is file descriptor stdout or stderr?
-    //!< if yes -> clear input from stdin in terminal and
-    //!< return cursor to the beginning of the current line
+    // is file descriptor stdout or stderr?
+    // if yes -> clear input from stdin in terminal and
+    // return cursor to the beginning of the current line
     if (out_fd == 1 || out_fd == 2)
     {
         ansi_term_clear_line(out_fd);
         ansi_term_cr(out_fd);
     }
 
-    dprintf(out_fd, "%s", msg); //!< print message
+    dprintf(out_fd, "%s", msg); // print message
 
-    //!< append \n if line was not terminated with \n
+    // append \n if line was not terminated with \n
     if (msg[strlen(msg) - 1] != '\n')
     {
         dprintf(out_fd, "\n");
     }
 
-    rl_forced_update_display(); //!< redraw stdin
+    rl_forced_update_display(); // redraw stdin
 }
 
 
-/*! Define the maximum of two given integers.
- *  @param a: first integer
- *  @param b: second integer
+/** 
+ *  Define the maximum of two given integers.
+ *  @param a First integer
+ *  @param b Second integer
  *  @return either a or b, depending on which one is bigger
  */
 int max(int a, int b)

@@ -1,12 +1,17 @@
 /** @file dchat.c
-   This file is the main file for DChat and contains, besides the main function,
-   several core functions like:
-
-   -) Handler for accepting connections
-   -) Handler for user input
-   -) Handler for remote data
-   -) Handler for file sharing
-*/
+ *  This file is the main file for DChat and contains, besides the main function,
+ *  several core functions. 
+ *  
+ *  Core functions are:
+ *
+ *  -) Handler for accepting connections
+ *  
+ *  -) Handler for user input
+ *  
+ *  -) Handler for remote data
+ *  
+ *  -) Handler for file sharing
+ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -45,13 +50,13 @@ int ret_exit_ = EXIT_SUCCESS; //!< return value on termination
 int
 main(int argc, char** argv)
 {
-    int acpt_port;                //!< local listening port
-    int remote_port;              //!< port of remote client
-    char* interface = NULL;       //!< interface to bind to
-    char* remote_address = NULL;  //!< ip of remote client
-    char* nickname = NULL;        //!< nickname to use within chat
+    int acpt_port;                // local listening port
+    int remote_port;              // port of remote client
+    char* interface = NULL;       // interface to bind to
+    char* remote_address = NULL;  // ip of remote client
+    char* nickname = NULL;        // nickname to use within chat
     //FIXME: use sockaddr_storage for IP6 support
-    struct sockaddr_in da;        //!< socket address for remote client
+    struct sockaddr_in da;        // socket address for remote client
 
     // see usage
     if (argc < 4 || argc == 5 || argc > 6)
@@ -120,7 +125,7 @@ main(int argc, char** argv)
 int
 init(dchat_conf_t* cnf, char* interface, int acpt_port, char* nickname)
 {
-    struct sigaction sa_terminate; //!< signal action for program termination
+    struct sigaction sa_terminate; // signal action for program termination
     sa_terminate.sa_handler = terminate;
     sigemptyset(&sa_terminate.sa_mask);
     sa_terminate.sa_flags = 0;
@@ -205,13 +210,13 @@ int
 init_global_config(dchat_conf_t* cnf, char* interface, int acpt_port,
                    char* nickname)
 {
-    struct ifaddrs* ifaddr;   //!< information of all network interfaces
-    struct ifaddrs* ifa;      //!< interface pointer
-    struct sockaddr sa;       //!< socket address for local client
-    char addr_str[INET6_ADDRSTRLEN + 1];  //!< ip as string
-    int s;                    //!< local socket descriptor
-    int on = 1;               //!< turn on a socket option
-    int found_int = 0;        //!< check if interface was found
+    struct ifaddrs* ifaddr;   // information of all network interfaces
+    struct ifaddrs* ifa;      // interface pointer
+    struct sockaddr sa;       // socket address for local client
+    char addr_str[INET6_ADDRSTRLEN + 1];  // ip as string
+    int s;                    // local socket descriptor
+    int on = 1;               // turn on a socket option
+    int found_int = 0;        // check if interface was found
 
     // create socket
     if ((s = socket(AF_INET, SOCK_STREAM, 0)) == -1)
@@ -406,7 +411,7 @@ terminate(int sig)
 int
 handle_local_input(dchat_conf_t* cnf, char* line)
 {
-    dchat_pdu_t msg; //!< pdu containing the chat text message
+    dchat_pdu_t msg; // pdu containing the chat text message
     int i, ret = 0, len, cmd;
 
     // user entered command
@@ -471,7 +476,7 @@ handle_local_input(dchat_conf_t* cnf, char* line)
 
 
 /**
- * Handles PDU data received from a remote client.
+ * Handles PDUs received from a remote client.
  * Reads in a PDU from a certain contact file descriptor and interpretes its
  * headers and handles its content.
  * @param cnf Pointer to global configuration holding the contactlist
@@ -596,7 +601,7 @@ handle_remote_input(dchat_conf_t* cnf, int n)
  * Handles local connection requests from the user.
  * Connects to the remote client with the given socket address, who will
  * be added as contact. This new contact will be sent that all of our known
- * contacts as specified in the DCHAT protocol.
+ * contacts as specified in the DChat protocol.
  * @param cnf Pointer to global configuration holding the contactlist
  * @param da Destination address to connect to
  * @return The index where the contact has been added in the contactlist,
@@ -605,8 +610,8 @@ handle_remote_input(dchat_conf_t* cnf, int n)
 int
 handle_local_conn_request(dchat_conf_t* cnf, struct sockaddr_storage* da)
 {
-    int s; //!< socket of the contact we have connected to
-    int n; //!< index of the contact in our contactlist
+    int s; // socket of the contact we have connected to
+    int n; // index of the contact in our contactlist
 
     // connect to given address
     if ((s = connect_to((struct sockaddr*) da)) == -1)
@@ -658,10 +663,10 @@ handle_local_conn_request(dchat_conf_t* cnf, struct sockaddr_storage* da)
 int
 handle_remote_conn_request(dchat_conf_t* cnf)
 {
-    int s;                      //!< socket file descriptor
-    int n;                      //!< index of new contact
-    struct sockaddr_storage ss; //!< socketaddress of new contact
-    socklen_t socklen;          //!< length of socketaddress
+    int s;                      // socket file descriptor
+    int n;                      // index of new contact
+    struct sockaddr_storage ss; // socketaddress of new contact
+    socklen_t socklen;          // length of socketaddress
     socklen = sizeof(ss);
 
     // accept connection request
@@ -697,8 +702,8 @@ handle_remote_conn_request(dchat_conf_t* cnf)
 void*
 th_new_conn(dchat_conf_t* cnf)
 {
-    struct sockaddr_storage da; //!< destination address to connect to
-    char c = '1';               //!< will be written to `cl_change`
+    struct sockaddr_storage da; // destination address to connect to
+    char c = '1';               // will be written to `cl_change`
     int ret;
 
     for (;;)
@@ -749,9 +754,9 @@ th_new_conn(dchat_conf_t* cnf)
 void*
 th_new_input(dchat_conf_t* cnf)
 {
-    char prompt[MAX_NICKNAME + 8]; //!< readline prompt contains nickname
-    char* line;                    //!< line read from stdin
-    int len;                       //!< length of line
+    char prompt[MAX_NICKNAME + 8]; // readline prompt contains nickname
+    char* line;                    // line read from stdin
+    int len;                       // length of line
     // Assemble prompt for GNU readline
     prompt[0] = '\0';
     strncat(prompt, "Me (", 4);
@@ -812,11 +817,11 @@ th_new_input(dchat_conf_t* cnf)
 int
 th_main_loop(dchat_conf_t* cnf)
 {
-    fd_set rset; //!< list of readable file descriptors
-    int nfds;    //!< number of fd in rset
-    int ret;     //!< return value
-    char c;      //!< for pipe: th_new_conn
-    char* line;  //!< line returned from GNU readline
+    fd_set rset; // list of readable file descriptors
+    int nfds;    // number of fd in rset
+    int ret;     // return value
+    char c;      // for pipe: th_new_conn
+    char* line;  // line returned from GNU readline
     int i;
 
     for (;;)

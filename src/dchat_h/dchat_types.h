@@ -31,8 +31,10 @@ typedef struct contact
 {
     int fd;     //!< file descriptor of TCP session
     int lport;  //!< listening port
-
-    union       //!< ip address
+    /**
+     * Socket address of contact 
+     */
+    union       
     {
         struct sockaddr_in v4addr;
         struct sockaddr_in6 v6addr;
