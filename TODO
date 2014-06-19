@@ -1,4 +1,9 @@
+=============UNDONE================
+* add getopt() in dchat.c
+* re-write usage() in dchat.c
 * add section "COMMANDS" in man page
 * write protocol specification
-* add to autotools /docs
-* re-write usage() in dchat.c
+
+
+==============DONE=================
+* doxygen documentation with autotools
