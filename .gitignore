@@ -5,7 +5,6 @@ config.h
 config.status
 stamp-h1
 autom4te.cache/
-aclocal.m4
 doc/
 Makefile
 dchat
