@@ -1,6 +1,7 @@
 =============UNDONE================
 * add getopt() in dchat.c
 * re-write usage() in dchat.c
+* IPv6 support
 * add section "COMMANDS" in man page
 * write protocol specification
 
