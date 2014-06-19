@@ -23,7 +23,7 @@ DX_INIT_DOXYGEN([dchat], [doxygen.cfg])
 
 # Checks for libraries.
 AC_CHECK_LIB([readline], [readline])
-AX_PTHREAD
+AX_PTHREAD([LIBS+="$PTHREAD_CFLAGS $PTHREAD_LIBS"])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h limits.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h syslog.h unistd.h])
