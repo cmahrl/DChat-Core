@@ -53,6 +53,7 @@
 #include <signal.h>
 #include <ifaddrs.h>
 #include <unistd.h>
+#include <getopt.h>
 
 #include "dchat_h/dchat.h"
 #include "dchat_h/dchat_types.h"
@@ -70,38 +71,142 @@ int ret_exit_ = EXIT_SUCCESS; //!< return value on termination
 int
 main(int argc, char** argv)
 {
-    int acpt_port;                // local listening port
-    int remote_port;              // port of remote client
-    char* interface = NULL;       // interface to bind to
-    char* remote_address = NULL;  // ip of remote client
-    char* nickname = NULL;        // nickname to use within chat
+    int acpt_port   = DEFAULT_PORT; // local listening port
+    int remote_port = DEFAULT_PORT; // port of remote client
+    int option;                     // getopt option                     
+    int required  = 0;              // counter for required options
+    int found_int = 0;              // check existence of network int
+    char* interface      = NULL;    // interface to bind to
+    char* remote_address = NULL;    // ip of remote client
+    char* nickname       = NULL;    // nickname to use within chat
+    char* term;                     // used for strtol
     //FIXME: use sockaddr_storage for IP6 support
-    struct sockaddr_in da;        // socket address for remote client
-
-    // see usage
-    if (argc < 4 || argc == 5 || argc > 6)
+    struct sockaddr_in da;          // socket address for remote client
+    struct sockaddr_storage sa;     // local socket address
+    struct ifaddrs* ifaddr;         // info of all network interfaces
+    struct ifaddrs* ifa;            // interface pointer
+    //options for execution in terminal
+    struct option long_options[] = 
     {
+        {"interface", required_argument, 0, 'i'},
+        {"lport", required_argument, 0, 'l'},
+        {"nick", required_argument, 0, 'n'},
+        {"dst", required_argument, 0, 'd'},
+        {"rport", required_argument, 0, 'r'},
+    };
+
+    // parse commandline options
+    while(1)
+    {
+        option = getopt_long(argc, argv, "i:l:n:d:r:", long_options, 0);  
+        // end of options
+        if(option == -1)
+        {
+            break;
+        }
+
+        switch(option)
+        {
+            case 'i':
+                interface = optarg;
+                required++;
+            break;
+
+            case 'l':
+                acpt_port = (int) strtol(optarg, &term, 10);
+                if(acpt_port < 0 || acpt_port > 65535 || *term != '\0'){
+                    log_msg(LOG_ERR, "Invalid listening port '%s'", optarg);
+                    usage();
+                    return EXIT_FAILURE;
+                }
+            break;
+
+            case 'n':
+                nickname = optarg;
+                required++;
+            break;
+
+            case 'd':
+                remote_address = optarg;               
+            break;
+
+            case 'r':
+                remote_port = (int) strtol(optarg, &term, 10);
+                if(remote_port < 0 || remote_port > 65535 || *term != '\0'){
+                    log_msg(LOG_ERR, "Invalid remote port '%s'", optarg);
+                    usage();
+                    return EXIT_FAILURE;
+                }
+            break;
+
+            // invalid option - getopt prints error msg
+            case '?':
+            default:
+                usage();
+                return EXIT_FAILURE;
+        }
+    }
+    
+    // int and nick are mandatory; only options arguments are allowed
+    if(required < 2 || optind < argc){
         usage();
         return EXIT_FAILURE;
     }
-    else
+
+    if (getifaddrs(&ifaddr) == -1) 
     {
-        interface = argv[1];
-        acpt_port = atoi(argv[2]);
-        nickname = argv[3];
+        log_msg(LOG_ERR, "main(): getifaddrs() failed"); 
+        return (EXIT_FAILURE);
+    }
+
+    // iterate through network interfaces and set ip of interface
+    memset(&sa, 0, sizeof(sa));
+    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
+    {
+        // FIXME: Support for IPv6
+        if (ifa->ifa_addr != NULL && ifa->ifa_addr->sa_family == AF_INET)
+        {
+            // is it the interface we are looking for?
+            if (!strncmp(interface, ifa->ifa_name, strlen(ifa->ifa_name)))
+            {
+                if (ifa->ifa_addr != NULL)
+                {
+                    // temporarily store address
+                    memcpy(&sa, ifa->ifa_addr, sizeof(struct sockaddr));
+                    found_int = 1;    // we found the given interface
+                    break;
+                }
+                else
+                {
+                    freeifaddrs(ifaddr);
+                    log_msg(LOG_ERR,
+                            "Interface '%s' does not have an ip address bound to it",
+                            ifa->ifa_name);
+                    return EXIT_FAILURE;
+                }
+            }
+        }
+    }
+
+    freeifaddrs(ifaddr);
+
+    // network interface has not been found
+    if (!found_int)
+    {
+        log_msg(LOG_ERR, "Interface '%s' not found", interface);
+        usage();
+        return EXIT_FAILURE;
     }
 
     // init dchat (e.g. global configuration, listening socket, threads, ...)
-    if (init(&cnf, interface, acpt_port, nickname) == -1)
+    if (init(&cnf, &sa, acpt_port, nickname) == -1)
     {
         return EXIT_FAILURE;
     }
 
-    // has a remoteaddress and a remoteport been specified?
-    if (argc == 6)
+    // has a remoteaddress been specified? if y: connect to it
+    if (remote_address != NULL)
     {
-        remote_address = argv[4];
-        remote_port = atoi(argv[5]);
         // init socket address structure
         memset(&da, 0, sizeof(da));
         da.sin_family = AF_INET;
@@ -121,7 +226,7 @@ main(int argc, char** argv)
                       "main(): Could not execute connection request successfully");
         }
     }
-
+    
     // main chat loop
     ret_exit_ = th_main_loop(&cnf);
     // free resources and terminate this process
@@ -137,13 +242,13 @@ main(int argc, char** argv)
  * gets initialized with the listening socket, nickname and other basic things.
  * @see init_global_config()
  * @param cnf The global dchat config
- * @param interface Interface to bind to (e.g. eth0)
+ * @param sa  Socket address containing the ip address to bind to
  * @param acpt_port Local listening port
  * @param nickname Nickname used for chatting
  * @return 0 on successful initialization, -1 in case of error
  */
 int
-init(dchat_conf_t* cnf, char* interface, int acpt_port, char* nickname)
+init(dchat_conf_t* cnf, struct sockaddr_storage* sa, int acpt_port, char* nickname)
 {
     struct sigaction sa_terminate; // signal action for program termination
     sa_terminate.sa_handler = terminate;
@@ -162,7 +267,7 @@ init(dchat_conf_t* cnf, char* interface, int acpt_port, char* nickname)
     }
 
     // init the listening socket
-    if (init_global_config(cnf, interface, acpt_port, nickname) == -1)
+    if (init_global_config(cnf, sa, acpt_port, nickname) == -1)
     {
         return -1;
     }
@@ -221,18 +326,15 @@ init(dchat_conf_t* cnf, char* interface, int acpt_port, char* nickname)
  * and the given port and sets the nickname. All configuration settings will
  * be stored in the global config.
  * @param cnf Pointer to global configuration structure
- * @param interface Network interface to bind to
+ * @param sa  Socket address containing the ip address to bind to
  * @param acpt_port Port to bind to and listen for incoming connetion requests
  * @param nickname Nickname used for this chat session
  * @return socket descriptor or -1 if an error occurs
  */
 int
-init_global_config(dchat_conf_t* cnf, char* interface, int acpt_port,
+init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa, int acpt_port,
                    char* nickname)
 {
-    struct ifaddrs* ifaddr;   // information of all network interfaces
-    struct ifaddrs* ifa;      // interface pointer
-    struct sockaddr sa;       // socket address for local client
     char addr_str[INET6_ADDRSTRLEN + 1];  // ip as string
     int s;                    // local socket descriptor
     int on = 1;               // turn on a socket option
@@ -253,68 +355,18 @@ init_global_config(dchat_conf_t* cnf, char* interface, int acpt_port,
         return -1;
     }
 
-    // get information about all network interfaces
-    if (getifaddrs(&ifaddr) == -1)
-    {
-        log_errno(LOG_ERR, "getifaddrs() failed");
-        close(s);
-        return -1;
-    }
-
-    // iterate through network interfaces and set ip of interface
-    memset(&sa, 0, sizeof(sa));
-
-    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
-    {
-        // FIXME: Support for IPv6
-        if (ifa->ifa_addr != NULL && ifa->ifa_addr->sa_family == AF_INET)
-        {
-            // is it the interface we are looking for?
-            if (!strncmp(interface, ifa->ifa_name, strlen(ifa->ifa_name)))
-            {
-                if (ifa->ifa_addr != NULL)
-                {
-                    // temporarily store address
-                    memcpy(&sa, ifa->ifa_addr, sizeof(struct sockaddr));
-                    found_int = 1;    // we found the given interface
-                    break;
-                }
-                else
-                {
-                    log_msg(LOG_ERR,
-                            "Interface '%s' does not have an ip address bound to it",
-                            ifa->ifa_name);
-                    close(s);
-                    freeifaddrs(ifaddr);
-                    return -1;
-                }
-            }
-        }
-    }
-
-    // interface has not been found
-    if (!found_int)
-    {
-        log_msg(LOG_ERR, "Interface '%s' not found", interface);
-        close(s);
-        freeifaddrs(ifaddr);
-        return -1;
-    }
-
-    freeifaddrs(ifaddr);
-
     // add port to socketaddress structure
-    if (ip_version((struct sockaddr_storage*) &sa) == 4)
+    if (ip_version(sa) == 4)
     {
-        ((struct sockaddr_in*) &sa)->sin_port = htons(acpt_port);
+        ((struct sockaddr_in*) sa)->sin_port = htons(acpt_port);
     }
-    else if (ip_version((struct sockaddr_storage*) &sa) == 6)
+    else if (ip_version(sa) == 6)
     {
-        ((struct sockaddr_in6*) &sa)->sin6_port = htons(acpt_port);
+        ((struct sockaddr_in6*) sa)->sin6_port = htons(acpt_port);
     }
 
-    // bind socket to a specified interface e.g. "eth0"
-    if (bind(s, &sa, sizeof(struct sockaddr)) == -1)
+    // bind socket to a socket address
+    if (bind(s, (struct sockaddr*) sa, sizeof(struct sockaddr)) == -1)
     {
         log_errno(LOG_ERR, "bind() failed");
         close(s);
@@ -331,16 +383,16 @@ init_global_config(dchat_conf_t* cnf, char* interface, int acpt_port,
 
     // log, where on which address and port this client will be
     // listening
-    if (ip_version((struct sockaddr_storage*) &sa) == 4)
+    if (ip_version(sa) == 4)
     {
         log_msg(LOG_INFO, "Listening on '%s:%d'",
-                inet_ntop(AF_INET, &((struct sockaddr_in*) &sa)->sin_addr,
+                inet_ntop(AF_INET, &((struct sockaddr_in*) sa)->sin_addr,
                           addr_str, INET_ADDRSTRLEN), acpt_port);
     }
-    else if (ip_version((struct sockaddr_storage*) &sa) == 6)
+    else if (ip_version(sa) == 6)
     {
         log_msg(LOG_INFO, "Listening on '%s:%d'",
-                inet_ntop(AF_INET6, &((struct sockaddr_in6*) &sa)->sin6_addr,
+                inet_ntop(AF_INET6, &((struct sockaddr_in6*) sa)->sin6_addr,
                           addr_str, INET6_ADDRSTRLEN), acpt_port);
     }
 
@@ -354,7 +406,7 @@ init_global_config(dchat_conf_t* cnf, char* interface, int acpt_port,
     strncat(cnf->me.name, nickname, MAX_NICKNAME); // set nickname
     cnf->me.lport = acpt_port; // set listening-port
     // set socket address, where this client is listening
-    memcpy(&cnf->me.stor, &sa, sizeof(struct sockaddr_storage));
+    memcpy(&cnf->me.stor, sa, sizeof(struct sockaddr_storage));
     cnf->acpt_fd = s; // set socket file descriptor
     return s;
 }
@@ -988,19 +1040,13 @@ th_main_loop(dchat_conf_t* cnf)
 void
 usage()
 {
-    fprintf(stderr, "Usage: %s <INT> <LPORT> <NICK> [<DST> <RPORT>]\n",
-            PACKAGE_STRING);
-    fprintf(stderr, "Arguments:\n");
-    fprintf(stderr,
-            "  INT   ...  mandatory; Interface where a tcp socket will be bound to and listening (e.g. en0, ...)\n");
-    fprintf(stderr,
-            "  LPORT ...  mandatory; Port where %s will be listening for incoming TCP SYN requests\n",
-            PACKAGE_STRING);
-    fprintf(stderr,
-            "  NICK  ...  mandatory; Defines the nickname that will be used for a chat session\n");
-    fprintf(stderr,
-            "  DST   ...  optional; Remote IP address of a client to connect with and start a chat\n");
-    fprintf(stderr,
-            "  RPORT ...  optional(*); Remote TCP-Port of a client waiting for connection requests on this port\n");
-    fprintf(stderr, "\n  (*) Option is required if DST is specified!\n");
+    fprintf(stdout, "Usage:\n");
+    fprintf(stdout, "  %s  -i  INTERFACE  -n  NICKNAME  [-l  LOCALPORT]  [-d  REMOTEIP] [-r  REMOTEPORT]\n\n", PACKAGE_NAME);
+    fprintf(stdout, "Options:\n");
+    fprintf(stdout, "  -i, --interface=INTERFACE\n");
+    fprintf(stdout, "  -n, --nick=NICKNAME\n");
+    fprintf(stdout, "  -l, --lport=LOCALPORT\n");
+    fprintf(stdout, "  -d, --dst=REMOTEIP\n");
+    fprintf(stdout, "  -r, --rport=REMOTEPORT\n");
+    fprintf(stdout, "\nMore detailed information can be found in the manpage. See dchat(1)");
 }

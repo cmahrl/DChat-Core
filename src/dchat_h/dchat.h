@@ -24,11 +24,15 @@
 #include <sys/socket.h>
 #include "dchat_types.h"
 
+
+#define DEFAULT_PORT 7777
+
+
 //*********************************
 //      INIT/DESTROY FUNCTIONS
 //*********************************
-int init(dchat_conf_t* cnf, char* interface, int acpt_port, char* nickname);
-int init_global_config(dchat_conf_t* cnf, char* interface, int acpt_port,
+int init(dchat_conf_t* cnf, struct sockaddr_storage* sa, int acpt_port, char* nickname);
+int init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa, int acpt_port,
                        char* nickname);
 void destroy(dchat_conf_t* cnf);
 

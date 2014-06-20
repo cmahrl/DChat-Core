@@ -26,9 +26,10 @@ AC_CHECK_LIB([readline], [readline])
 AX_PTHREAD([LIBS+="$PTHREAD_CFLAGS $PTHREAD_LIBS"])
 
 # Checks for header files.
-AC_CHECK_HEADERS([arpa/inet.h limits.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h syslog.h unistd.h])
+AC_CHECK_HEADERS([arpa/inet.h limits.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h syslog.h unistd.h getopt.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_CHECK_FUNCS([getopt_long])
 
 # Checks for library functions.
 AC_FUNC_MALLOC

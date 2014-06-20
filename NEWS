@@ -1,2 +1,5 @@
                           DChat - P2P Client
 
+2014-06-20:
+    DChat is now supporting short and long options using getopt.
+    Available options can be found in the manpage.

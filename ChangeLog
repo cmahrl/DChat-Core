@@ -1,1 +1,9 @@
+2014-06-20  Christoph Mahrl <is121018@fhstp.ac.at>
+
+	* src/dchat.c: 
+		-) in main(): supporting getopt_long()
+		-) moved getifaddr() to parse network interfaces from
+		   init_global_config() to main()
+	* src/dchat.c: 
+	    -) updated usage()
 
