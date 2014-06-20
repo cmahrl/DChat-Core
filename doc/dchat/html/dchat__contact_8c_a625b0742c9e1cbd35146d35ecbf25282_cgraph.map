@@ -1,0 +1,7 @@
+<map id="send_contacts" name="send_contacts">
+<area shape="rect" id="node2" href="$dchat__contact_8c.html#ac15f4eb395316547db5ceba947a2f3b9" title="Converts a contact into a string. " alt="" coords="163,5,287,32"/>
+<area shape="rect" id="node4" href="$log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="357,56,429,83"/>
+<area shape="rect" id="node5" href="$dchat__decoder_8c.html#af4aaf258b8866187ed65d6d1c23083cb" title="Converts a PDU to a string that will be written to a file descriptor. " alt="" coords="185,107,265,133"/>
+<area shape="rect" id="node3" href="$util_8c.html#a279f65250f814269adbaadf7f94680c5" title="Determines the address family of the given socket address structure. " alt="" coords="352,5,435,32"/>
+<area shape="rect" id="node6" href="$dchat__decoder_8c.html#ae5745b50cd3cc0aa6228e35d08690fdc" title="Crafts a DChat header string. " alt="" coords="336,107,451,133"/>
+</map>

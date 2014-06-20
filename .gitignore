@@ -6,4 +6,4 @@ config.status
 stamp-h1
 autom4te.cache/
 Makefile
-dchat
+src/dchat

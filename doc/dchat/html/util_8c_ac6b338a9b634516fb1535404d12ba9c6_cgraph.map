@@ -1,0 +1,4 @@
+<map id="print_dchat_msg" name="print_dchat_msg">
+<area shape="rect" id="node2" href="$util_8c.html#a9b2b1cd61b591b14b2abf2cedb0cac30" title="Prints the ansi escape code for clearing the current line in a terminal. " alt="" coords="174,5,319,32"/>
+<area shape="rect" id="node3" href="$util_8c.html#a50e43a9ed79e266413404db5c414b92c" title="Prints the ansi escape code for carriage return in a terminal. " alt="" coords="197,56,296,83"/>
+</map>

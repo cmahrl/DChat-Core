@@ -1,0 +1,5 @@
+<map id="terminate" name="terminate">
+<area shape="rect" id="node2" href="$dchat_8c.html#a103bc702ed34e7ba88e166b169cfe464" title="Frees all global config resources used. " alt="" coords="171,5,237,32"/>
+<area shape="rect" id="node3" href="$util_8c.html#a9b2b1cd61b591b14b2abf2cedb0cac30" title="Prints the ansi escape code for clearing the current line in a terminal. " alt="" coords="131,56,277,83"/>
+<area shape="rect" id="node4" href="$util_8c.html#a50e43a9ed79e266413404db5c414b92c" title="Prints the ansi escape code for carriage return in a terminal. " alt="" coords="155,107,253,133"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="handle_local_input" name="handle_local_input">
+<area shape="rect" id="node2" href="$dchat__cmd_8c.html#a02a55875d8dace649fd51091f9a4dc0b" title="Parses the given string and executes it if it is a command. " alt="" coords="187,107,275,133"/>
+<area shape="rect" id="node4" href="$log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="520,183,592,209"/>
+<area shape="rect" id="node8" href="$log_8c.html#a447124894e44d19ff906633927930c19" title="Log a message together with a string representation of errno as error. " alt="" coords="191,259,270,285"/>
+<area shape="rect" id="node9" href="$dchat__decoder_8c.html#af4aaf258b8866187ed65d6d1c23083cb" title="Converts a PDU to a string that will be written to a file descriptor. " alt="" coords="191,309,271,336"/>
+<area shape="rect" id="node3" href="$dchat__cmd_8c.html#a704170b8cd6bd8927f648bdcb7510452" title="In&#45;chat command to establish a new connection. " alt="" coords="323,5,466,32"/>
+<area shape="rect" id="node5" href="$dchat__cmd_8c.html#a69b01cf50ab64d9d015318477cbe11c1" title="In&#45;chat command to show all available commands. " alt="" coords="335,157,455,184"/>
+<area shape="rect" id="node6" href="$dchat__cmd_8c.html#a2a8ff695818e8d48087afa6b9fe27e14" title="In&#45;chat command to list contacts of local contactlist. " alt="" coords="339,56,451,83"/>
+<area shape="rect" id="node7" href="$util_8c.html#a279f65250f814269adbaadf7f94680c5" title="Determines the address family of the given socket address structure. " alt="" coords="515,56,597,83"/>
+<area shape="rect" id="node10" href="$dchat__decoder_8c.html#ae5745b50cd3cc0aa6228e35d08690fdc" title="Crafts a DChat header string. " alt="" coords="337,360,452,387"/>
+</map>
