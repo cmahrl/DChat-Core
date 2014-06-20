@@ -1047,6 +1047,6 @@ usage()
     fprintf(stdout, "  -n, --nick=NICKNAME\n");
     fprintf(stdout, "  -l, --lport=LOCALPORT\n");
     fprintf(stdout, "  -d, --dst=REMOTEIP\n");
-    fprintf(stdout, "  -r, --rport=REMOTEPORT\n");
-    fprintf(stdout, "\nMore detailed information can be found in the manpage. See dchat(1)");
+    fprintf(stdout, "  -r, --rport=REMOTEPORT\n\n");
+    fprintf(stdout, "More detailed information can be found in the manpage. See dchat(1)\n");
 }
