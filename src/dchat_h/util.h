@@ -14,7 +14,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with DChat.  If not, see <http://www.gnu.org/licenses/>. 
+ *  along with DChat.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -40,6 +40,10 @@ int connect_to(struct sockaddr* sa);
 //*********************************
 void ansi_term_clear_line(int out_fd);
 void ansi_term_cr(int out_fd);
+char* ansi_color_bold_yellow();
+char* ansi_color_bold_cyan();
+char* ansi_color_bold_red();
+char* ansi_reset_attributes();
 void print_dchat_msg(char* msg, int out_fd);
 
 

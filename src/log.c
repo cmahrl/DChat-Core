@@ -34,7 +34,7 @@ static void __attribute__((constructor)) init_log0(void)
 }
 
 
-/** 
+/**
  *  Log a message to a file.
  *  @param out Open FILE pointer
  *  @param lf Logging priority (equal to syslog)
@@ -65,7 +65,7 @@ static void vlog_msgf(FILE* out, int lf, const char* fmt, va_list ap)
 }
 
 
-/** 
+/**
  *  Log a message. This function automatically determines to which streams the message is logged.
  *  @param lf Log priority
  *  @param fmt Format string
@@ -80,7 +80,7 @@ void log_msg(int lf, const char* fmt, ...)
 }
 
 
-/** 
+/**
  *  Log a message together with a string representation of errno as error.
  *  @param lf  Log priority
  *  @param str String to log
@@ -91,7 +91,7 @@ void log_errno(int lf, const char* str)
 }
 
 
-/** 
+/**
  * This function output len bytes starting at buf in hexadecimal numbers.
  * @param lf  Log priority
  * @param buf Pointer to buffer

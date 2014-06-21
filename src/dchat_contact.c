@@ -14,7 +14,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with DChat.  If not, see <http://www.gnu.org/licenses/>. 
+ *  along with DChat.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -40,9 +40,9 @@
 #include "dchat_h/util.h"
 
 
-/** 
+/**
  *  Sends local contactlist to a contact.
- *  Sends all known contacts stored in the contactlist within the global config 
+ *  Sends all known contacts stored in the contactlist within the global config
  *  in form of a "control/discover" PDU to the given contact.
  *  @param cnf Pointer to global configuration holding the contactlist
  *  @param n   Index of contact to whom we send our contactlist (excluding him)
@@ -56,7 +56,7 @@ int send_contacts(dchat_conf_t* cnf, int n)
     int ret;            // return value
     int pdu_len = 0;    // total content length of pdu-packet that will be sent
     contact_t* contact; // contact that will be converted to a string
-                        // zero out new pdu and set initial dchat headers
+    // zero out new pdu and set initial dchat headers
     memset(&pdu, 0, sizeof(pdu));
     pdu.content_type = CT_CTRL_DISC;
     pdu.content_length = 0;
@@ -126,12 +126,12 @@ int send_contacts(dchat_conf_t* cnf, int n)
 }
 
 
-/** 
+/**
  *  Contacts transferred via PDU will be added to the contactlist.
  *  Parses the contact information stored in the given PDU, connects to this remote client
  *  , if this client is unknown, the local contactlist within the global config will be sent
  *  to him. Finally the remote client is added as contact to the local contactlist.
- *  For every parsed contact information, this procedure is repeated. 
+ *  For every parsed contact information, this procedure is repeated.
  *  @param cnf Pointer to global configuration holding the contactlist
  *  @param pdu PDU with the contact information in its content
  *  @return amount of new contacts added to the contactlist, -1 on error
@@ -194,13 +194,13 @@ int receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
 }
 
 
-/** 
+/**
  *  Checks the local contactlist for duplicates.
  *  Checks if there are duplicate contacts in the contactlist. Contacts
  *  with the same listening port and ip address are considered as duplicate.
  *  If there are duplicates, the index of the contact which should be deleted
  *  will be returned. This function implements the duplicate detection
- *  mechanismn of the DChat protocol. Therefore for further information read 
+ *  mechanismn of the DChat protocol. Therefore for further information read
  *  the DChat protocol specification for detecting and removing duplicates.
  *  @see find_contact()
  *  @param cnf Pointer to global configuration holding the contactlist
@@ -354,7 +354,7 @@ int check_duplicates(dchat_conf_t* cnf, int n)
 }
 
 
-/** 
+/**
  *  Converts a contact into a string.
  *  This function converts a contact into a string representation. The string
  *  of the contact will then be returned and should be freed.
@@ -424,9 +424,9 @@ char* contact_to_string(contact_t* contact)
 }
 
 
-/** 
+/**
  *  Converts a string into a contact.
- *  Converts a string containing contact information into a contact structure. 
+ *  Converts a string containing contact information into a contact structure.
  *  The string has to be in the form of: <ip> <port>\n
  *  Further details can be found in the DChat protocol specification
  *  @see contact_to_string()
@@ -504,7 +504,7 @@ int string_to_contact(contact_t* contact, char* string)
 }
 
 
-/** 
+/**
  *  Resizes the contactlist.
  *  Function to resize the contactlist to a given size. Old contacts are copied to the new
  *  resized contact list if they fit in it
@@ -557,7 +557,7 @@ int realloc_contactlist(dchat_conf_t* cnf, int newsize)
 }
 
 
-/** 
+/**
  *  Adds a new contact to the local contactlist.
  *  The given socket descriptor and socket address of the remote client will
  *  be used to add a new contact to the contactlist holded by the global config.
@@ -598,7 +598,7 @@ int add_contact(dchat_conf_t* cnf, int fd, struct sockaddr_storage* ss)
 }
 
 
-/** 
+/**
  *  Deletes a contact from the local contactlist.
  *  Deletes a contact from the contact list holded by the global config.
  *  @param cnf Pointer to dchat_conf_t structure holding the contact list
@@ -634,10 +634,10 @@ int del_contact(dchat_conf_t* cnf, int n)
 }
 
 
-/** 
+/**
  *  Searches a contact in the local contactlist.
- *  Searches for a contact in the contactlist holded within the global config 
- *  and returns its index in the contactlist. To find a contact, its socket address 
+ *  Searches for a contact in the contactlist holded within the global config
+ *  and returns its index in the contactlist. To find a contact, its socket address
  *  and listening port will be used
  *  @param cnf     Pointer to global configuration holding the contactlist
  *  @param contact Pointer to contact to search for

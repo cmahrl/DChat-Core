@@ -14,7 +14,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with DChat.  If not, see <http://www.gnu.org/licenses/>. 
+ *  along with DChat.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -52,9 +52,9 @@ typedef struct contact
     int fd;     //!< file descriptor of TCP session
     int lport;  //!< listening port
     /**
-     * Socket address of contact 
+     * Socket address of contact
      */
-    union       
+    union
     {
         struct sockaddr_in v4addr;
         struct sockaddr_in6 v6addr;
@@ -90,7 +90,7 @@ typedef struct dchat_conf
     int cl_change[2];           //!< pipe to signal wait loop from connect
     int user_input[2];          //!< pipe to signal a new user input from stdin
     pthread_t conn_th;          //!< thread responsible for new connections
-    pthread_t userin_th;        //!< thread responsible for user input
+    pthread_t select_th;        //!< thread responsible for select(2) fd
 } dchat_conf_t;
 
 #endif

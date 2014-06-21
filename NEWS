@@ -1,5 +1,11 @@
                           DChat - P2P Client
 
+2014-06-21:
+    Fixed bug that caused the client to execute the termination
+    signal handler twice and therefore print "Good Bye" two times.
+    User prompt is now colored yellow, while text messages from
+    other users will be colored cyan.
+
 2014-06-20:
     DChat is now supporting short and long options using getopt.
     Available options can be found in the manpage.

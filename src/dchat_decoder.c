@@ -14,7 +14,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with DChat.  If not, see <http://www.gnu.org/licenses/>. 
+ *  along with DChat.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -40,13 +40,13 @@
 #include "dchat_h/util.h"
 
 
-/** 
+/**
  *  Decodes a string into a DChat header.
  *  Attempts to decode the given \n terminated line and sets corresponding header attributes
  *  in the given pdu.
  *  @param pdu  Pointer to PDU structure where header attributes will be set
  *  @param line Line to parse for dchat-headers; must be \n terminated
- *  @return 0 if line is a dchat header, -1 otherwise 
+ *  @return 0 if line is a dchat header, -1 otherwise
  */
 int decode_header(dchat_pdu_t* pdu, char* line)
 {
@@ -165,11 +165,11 @@ int decode_header(dchat_pdu_t* pdu, char* line)
 }
 
 
-/** 
+/**
  *  Read a line terminated with \\n from a file descriptor.
  *  Reads a line from the given file descriptor until \\n is found.
  *  @param fd   File descriptor to read from
- *  @param line Double pointer used for dynamic memory allocation since 
+ *  @param line Double pointer used for dynamic memory allocation since
  *              characters will be stored on the heap.
  *  @return: length of bytes read, 0 on EOF, -1 on error
  */
@@ -239,14 +239,14 @@ int read_line(int fd, char** line)
 }
 
 
-/** 
+/**
  *  Read a whole DChat PDU from a file descriptor.
  *  Read linewise from a file descriptor to form a dynamically allocated dchat protocol data unit.
  *  Information read from the file descriptor will be stored in this pdu.
  *  @param fd  File descriptor to read from
  *  @param pdu Double pointer to a PDU that will be assigned the address of the dynamically allocated
  *             PDU structure. Therefore it is recommended to free it, if this structure is not used anymore.
- *  @return amount of bytes read in total if a protocol data unit has been read successfully, 0 on EOF , 
+ *  @return amount of bytes read in total if a protocol data unit has been read successfully, 0 on EOF ,
  *  -1 on error
  */
 int read_pdu(int fd, dchat_pdu_t** pdu)
@@ -348,7 +348,7 @@ int read_pdu(int fd, dchat_pdu_t** pdu)
 }
 
 
-/** 
+/**
  *  Crafts a DChat header string.
  *  Crafts a header string according to the given header_id (see: dchat_encoder.h) together
  *  with the header information stored in the PDU structure.
@@ -500,7 +500,7 @@ int write_line(int fd, char* buf)
 }
 
 
-/** 
+/**
  * Converts a PDU to a string that will be written to a file descriptor.
  * Converts the given PDU to string which then will be written to the given file descriptor.
  * First the headers of the PDU will be written, then an empty line and at last the content.
@@ -573,7 +573,7 @@ int write_pdu(int fd, dchat_pdu_t* pdu)
 }
 
 
-/** 
+/**
  *  Frees all resources dynamically allocated for a PDU structure.
  *  This function frees the allocated memory for the content of this
  *  PDU and the dynamically allocated memory for this PDU itself.
@@ -597,7 +597,7 @@ void free_pdu(dchat_pdu_t* pdu)
 /**
  *  Extracts a fraction of the content.
  *  Part of the content of a PDU will be extracted beginning at offset and
- *  ending at the given terminating character term. The partial content, given 
+ *  ending at the given terminating character term. The partial content, given
  *  as double pointer should be freed after the successfull call of this function.
  *  @param pdu      Pointer to a pdu containing the content
  *  @param offset   Offset where the extraction will begin

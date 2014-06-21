@@ -14,7 +14,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with DChat.  If not, see <http://www.gnu.org/licenses/>. 
+ *  along with DChat.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -138,7 +138,7 @@ void parse_cmd_help(void)
 }
 
 
-/** 
+/**
  *  In-chat command to list contacts of local contactlist.
  *  @param cnf Global config structure
  *  @return 0 if no error and -1 on error
@@ -200,11 +200,11 @@ int parse_cmd_list(dchat_conf_t* cnf)
 }
 
 
-/** 
+/**
  *  Parses the given string and executes it if it is a command.
  *  @param cnf Global config structure
  *  @param buf Userinput
- *  @return 0 if the input was a command, -1 on error, -2 on syntax error 
+ *  @return 0 if the input was a command, -1 on error, -2 on syntax error
  */
 int parse_cmd(dchat_conf_t* cnf, char* buf)
 {

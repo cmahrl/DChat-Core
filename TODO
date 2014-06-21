@@ -1,10 +1,16 @@
-=============UNDONE================
-* add getopt() in dchat.c
-* re-write usage() in dchat.c
+                          DChat - P2P Client
+
+==================UNDONE======================
+* adpat DChat protocol, so that nicknames
+  will be sent as headers.
 * IPv6 support
 * add section "COMMANDS" in man page
 * write protocol specification
 
 
-==============DONE=================
+==================DONE=======================
 * doxygen documentation with autotools
+* add getopt() in dchat.c
+* re-write usage() in dchat.c
+* fix multiple execution of termination 
+  signal handler

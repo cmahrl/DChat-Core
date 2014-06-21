@@ -14,7 +14,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with DChat.  If not, see <http://www.gnu.org/licenses/>. 
+ *  along with DChat.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -31,8 +31,10 @@
 //*********************************
 //      INIT/DESTROY FUNCTIONS
 //*********************************
-int init(dchat_conf_t* cnf, struct sockaddr_storage* sa, int acpt_port, char* nickname);
-int init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa, int acpt_port,
+int init(dchat_conf_t* cnf, struct sockaddr_storage* sa, int acpt_port,
+         char* nickname);
+int init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa,
+                       int acpt_port,
                        char* nickname);
 void destroy(dchat_conf_t* cnf);
 
@@ -51,8 +53,8 @@ int handle_remote_conn_request(dchat_conf_t* cnf);
 //      THREAD FUNCTIONS
 //*********************************
 void* th_new_conn(dchat_conf_t* cnf);
-void* th_new_input(dchat_conf_t* cnf);
-int th_main_loop(dchat_conf_t* cnf);
+int th_new_input(dchat_conf_t* cnf);
+void*  th_main_loop(dchat_conf_t* cnf);
 
 
 //*********************************

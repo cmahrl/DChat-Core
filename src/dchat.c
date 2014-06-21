@@ -14,22 +14,22 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with DChat.  If not, see <http://www.gnu.org/licenses/>. 
+ *  along with DChat.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
 /** @file dchat.c
  *  This file is the main file for DChat and contains, besides the main function,
- *  several core functions. 
- *  
+ *  several core functions.
+ *
  *  Core functions are:
  *
  *  -) Handler for accepting connections
- *  
+ *
  *  -) Handler for user input
- *  
+ *
  *  -) Handler for remote data
- *  
+ *
  *  -) Handler for file sharing
  */
 
@@ -65,17 +65,16 @@
 
 
 dchat_conf_t cnf;             //!< global dchat configuration structure
-int ret_exit_ = EXIT_SUCCESS; //!< return value on termination
-
 
 int
 main(int argc, char** argv)
 {
     int acpt_port   = DEFAULT_PORT; // local listening port
     int remote_port = DEFAULT_PORT; // port of remote client
-    int option;                     // getopt option                     
+    int option;                     // getopt option
     int required  = 0;              // counter for required options
     int found_int = 0;              // check existence of network int
+    int ret;
     char* interface      = NULL;    // interface to bind to
     char* remote_address = NULL;    // ip of remote client
     char* nickname       = NULL;    // nickname to use within chat
@@ -86,58 +85,65 @@ main(int argc, char** argv)
     struct ifaddrs* ifaddr;         // info of all network interfaces
     struct ifaddrs* ifa;            // interface pointer
     //options for execution in terminal
-    struct option long_options[] = 
+    struct option long_options[] =
     {
         {"interface", required_argument, 0, 'i'},
         {"lport", required_argument, 0, 'l'},
-        {"nick", required_argument, 0, 'n'},
-        {"dst", required_argument, 0, 'd'},
+        {"nickname", required_argument, 0, 'n'},
+        {"dest", required_argument, 0, 'd'},
         {"rport", required_argument, 0, 'r'},
     };
 
     // parse commandline options
-    while(1)
+    while (1)
     {
-        option = getopt_long(argc, argv, "i:l:n:d:r:", long_options, 0);  
+        option = getopt_long(argc, argv, "i:l:n:d:r:", long_options, 0);
+
         // end of options
-        if(option == -1)
+        if (option == -1)
         {
             break;
         }
 
-        switch(option)
+        switch (option)
         {
             case 'i':
                 interface = optarg;
                 required++;
-            break;
+                break;
 
             case 'l':
                 acpt_port = (int) strtol(optarg, &term, 10);
-                if(acpt_port < 0 || acpt_port > 65535 || *term != '\0'){
+
+                if (acpt_port < 0 || acpt_port > 65535 || *term != '\0')
+                {
                     log_msg(LOG_ERR, "Invalid listening port '%s'", optarg);
                     usage();
                     return EXIT_FAILURE;
                 }
-            break;
+
+                break;
 
             case 'n':
                 nickname = optarg;
                 required++;
-            break;
+                break;
 
             case 'd':
-                remote_address = optarg;               
-            break;
+                remote_address = optarg;
+                break;
 
             case 'r':
                 remote_port = (int) strtol(optarg, &term, 10);
-                if(remote_port < 0 || remote_port > 65535 || *term != '\0'){
+
+                if (remote_port < 0 || remote_port > 65535 || *term != '\0')
+                {
                     log_msg(LOG_ERR, "Invalid remote port '%s'", optarg);
                     usage();
                     return EXIT_FAILURE;
                 }
-            break;
+
+                break;
 
             // invalid option - getopt prints error msg
             case '?':
@@ -146,21 +152,23 @@ main(int argc, char** argv)
                 return EXIT_FAILURE;
         }
     }
-    
+
     // int and nick are mandatory; only options arguments are allowed
-    if(required < 2 || optind < argc){
+    if (required < 2 || optind < argc)
+    {
         usage();
         return EXIT_FAILURE;
     }
 
-    if (getifaddrs(&ifaddr) == -1) 
+    if (getifaddrs(&ifaddr) == -1)
     {
-        log_msg(LOG_ERR, "main(): getifaddrs() failed"); 
+        log_msg(LOG_ERR, "main(): getifaddrs() failed");
         return (EXIT_FAILURE);
     }
 
     // iterate through network interfaces and set ip of interface
     memset(&sa, 0, sizeof(sa));
+
     for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next)
     {
         // FIXME: Support for IPv6
@@ -226,12 +234,12 @@ main(int argc, char** argv)
                       "main(): Could not execute connection request successfully");
         }
     }
-    
+
     // main chat loop
-    ret_exit_ = th_main_loop(&cnf);
-    // free resources and terminate this process
-    raise(SIGTERM);
-    return EXIT_SUCCESS;
+    ret = th_new_input(&cnf);
+    // cleanup all ressources
+    destroy(&cnf);
+    return ret == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 
@@ -248,11 +256,21 @@ main(int argc, char** argv)
  * @return 0 on successful initialization, -1 in case of error
  */
 int
-init(dchat_conf_t* cnf, struct sockaddr_storage* sa, int acpt_port, char* nickname)
+init(dchat_conf_t* cnf, struct sockaddr_storage* sa, int acpt_port,
+     char* nickname)
 {
     struct sigaction sa_terminate; // signal action for program termination
+    sigset_t sigmask;
+    sigemptyset(&sigmask);
+    sigaddset(&sigmask, SIGHUP);
+    sigaddset(&sigmask, SIGQUIT);
+    sigaddset(&sigmask, SIGINT);
+    sigaddset(&sigmask, SIGTERM);
+    // all threads should block the following signals
+    pthread_sigmask(SIG_BLOCK, &sigmask, NULL);
     sa_terminate.sa_handler = terminate;
-    sigemptyset(&sa_terminate.sa_mask);
+    // do not allow interruption of a signal handler
+    sa_terminate.sa_mask = sigmask;
     sa_terminate.sa_flags = 0;
     sigaction(SIGHUP, &sa_terminate, NULL);   // terminal line hangup
     sigaction(SIGQUIT, &sa_terminate, NULL);  // quit programm
@@ -310,12 +328,14 @@ init(dchat_conf_t* cnf, struct sockaddr_storage* sa, int acpt_port, char* nickna
 
     // create new thread for handling userinput from stdin
     if (pthread_create
-        (&cnf->userin_th, NULL, (void* (*)(void*)) th_new_input, cnf) == -1)
+        (&cnf->select_th, NULL, (void* (*)(void*)) th_main_loop, cnf) == -1)
     {
         log_errno(LOG_ERR, "pthread_create() failed");
         return -1;
     }
 
+    // main thread should not block any signals
+    pthread_sigmask(SIG_UNBLOCK, &sigmask, NULL);
     return 0;
 }
 
@@ -332,7 +352,8 @@ init(dchat_conf_t* cnf, struct sockaddr_storage* sa, int acpt_port, char* nickna
  * @return socket descriptor or -1 if an error occurs
  */
 int
-init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa, int acpt_port,
+init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa,
+                   int acpt_port,
                    char* nickname)
 {
     char addr_str[INET6_ADDRSTRLEN + 1];  // ip as string
@@ -421,27 +442,24 @@ init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa, int acpt_port
 void
 destroy(dchat_conf_t* cnf)
 {
-    int i;
-
-    // close file descriptors of contacts
-    for (i = 0; i < cnf->cl.cl_size; i++)
-    {
-        if (cnf->cl.contact[i].fd)
-        {
-            close(cnf->cl.contact[i].fd);
-        }
-    }
-
-    // close write pipe for thread function th_new_conn
-    close(cnf->connect_fd[1]);
-    // close write pipe for main thread function th_main_loop
-    close(cnf->cl_change[1]);
-    // close write pipe for thread function th_new_input
-    close(cnf->user_input[1]);
-    // close local listening socket
-    close(cnf->acpt_fd);
     // destroy contact mutex
     pthread_mutex_destroy(&cnf->cl.cl_mx);
+    // cancel connection thread
+    pthread_cancel(cnf->conn_th);
+    // wait for termination of connection thread
+    pthread_join(cnf->conn_th, NULL);
+    // cancel select thread
+    pthread_cancel(cnf->select_th);
+    // wait for termination of select thread
+    pthread_join(cnf->select_th, NULL);
+    // close write pipe for thread function th_new_conn
+    close(cnf->connect_fd[1]);
+    // close write pipe for thread function th_new_input
+    close(cnf->user_input[1]);
+    // delete readline prompt and return to beginning of current line
+    ansi_term_clear_line(cnf->out_fd);
+    ansi_term_cr(cnf->out_fd);
+    dprintf(cnf->out_fd, "Good Bye!\n");
 }
 
 
@@ -451,8 +469,7 @@ destroy(dchat_conf_t* cnf)
  * descriptors, pipes, etc... and that terminates this process afterwards.
  * This function will be called whenever this program should terminate (e.g
  * SIGTERM, SIGQUIT, ...) or on EOF of stdin.
- * Exit status of the process will be 0 on success, or a non-zero value
- * in case of error.
+ * Exit status of the process will be EXIT_SUCCESS
  * @see destroy()
  * @param sig Type of signal (e.g SIGTERM, SIGQUIT, ...)
  */
@@ -461,12 +478,7 @@ terminate(int sig)
 {
     // free all resources used like file descriptors, sockets, ...
     destroy(&cnf);
-    // delete readline prompt and return to beginning of current line
-    ansi_term_clear_line(cnf.out_fd);
-    ansi_term_cr(cnf.out_fd);
-    dprintf(cnf.out_fd, "Good Bye!\n");
-    // terminate process
-    ret_exit_ == 0 ? exit(EXIT_SUCCESS) : exit(EXIT_FAILURE);
+    exit(EXIT_SUCCESS);
 }
 
 
@@ -521,7 +533,7 @@ handle_local_input(dchat_conf_t* cnf, char* line)
             // append the content
             msg.content[0] = '\0';
             strncat(msg.content, cnf->me.name, strlen(cnf->me.name));
-            strncat(msg.content, ": ", 2);
+            strncat(msg.content, "> ", 2);
             strncat(msg.content, line, strlen(line));
             msg.content_length = len; // length of content excluding \0
 
@@ -761,6 +773,21 @@ handle_remote_conn_request(dchat_conf_t* cnf)
 
 
 /**
+ * Cleanup ressources used by the thread `conn_th` holded by the
+ * global config.
+ * Closes the reading pipe `connect_fd` and the writing pipe end
+ * of `cl_change` stored in the global config.
+ */
+void
+cleanup_th_new_conn(void* arg)
+{
+    /// close pipes used for in `th_new_conn`
+    close(cnf.connect_fd[0]);
+    close(cnf.cl_change[1]);
+}
+
+
+/**
  * Thread function that reads a socket address from a pipe and connects to this
  * address.
  * Establishes new connections to the given addresses read from the global config
@@ -777,6 +804,10 @@ th_new_conn(dchat_conf_t* cnf)
     struct sockaddr_storage da; // destination address to connect to
     char c = '1';               // will be written to `cl_change`
     int ret;
+    // setup cleanup handler and cancelation attributes
+    pthread_cleanup_push(cleanup_th_new_conn, NULL);
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
     for (;;)
     {
@@ -789,8 +820,6 @@ th_new_conn(dchat_conf_t* cnf)
         // EOF
         if (!ret)
         {
-            close(cnf->connect_fd[0]);
-            close(cnf->cl_change[1]);
             break;
         }
 
@@ -811,6 +840,8 @@ th_new_conn(dchat_conf_t* cnf)
         pthread_mutex_unlock(&cnf->cl.cl_mx);
     }
 
+    // execute cleanup handler
+    pthread_cleanup_pop(1);
     pthread_exit(NULL);
 }
 
@@ -822,8 +853,9 @@ th_new_conn(dchat_conf_t* cnf)
  * First the length (int) of the string will be written to the pipe and then each
  * byte of the string. On EOF of stdin 0 will be written
  * @param cnf: Pointer to global config to write to the pipe `user_input`
+ * @return 0 on success, -1 in case of error
  */
-void*
+int
 th_new_input(dchat_conf_t* cnf)
 {
     char prompt[MAX_NICKNAME + 8]; // readline prompt contains nickname
@@ -831,9 +863,10 @@ th_new_input(dchat_conf_t* cnf)
     int len;                       // length of line
     // Assemble prompt for GNU readline
     prompt[0] = '\0';
-    strncat(prompt, "Me (", 4);
+    strncat(prompt, ansi_color_bold_yellow(), strlen(ansi_color_bold_yellow()));
     strncat(prompt, cnf->me.name, MAX_NICKNAME);
-    strncat(prompt, "): ", 3);
+    strncat(prompt, "> ", 2);
+    strncat(prompt, ansi_reset_attributes(), strlen(ansi_reset_attributes()));
 
     while (1)
     {
@@ -843,9 +876,6 @@ th_new_input(dchat_conf_t* cnf)
         // EOF or user has entered "/exit"
         if (line == NULL || !strcmp(line, "/exit"))
         {
-            // since EOF is not a signal - raise SIGTERM
-            // to terminate this process
-            raise(SIGTERM);
             break;
         }
         else
@@ -856,24 +886,67 @@ th_new_input(dchat_conf_t* cnf)
             if (len == 0)
             {
                 len = 1;
-                write(cnf->user_input[1], &len, sizeof(int));
-                write(cnf->user_input[1], "\n", len);
+
+                if (write(cnf->user_input[1], &len, sizeof(int)) == -1)
+                {
+                    return -1;
+                }
+
+                if (write(cnf->user_input[1], "\n", len) == -1)
+                {
+                    return -1;
+                }
             }
             else
             {
                 // first write length of string
-                write(cnf->user_input[1], &len, sizeof(int));
+                if (write(cnf->user_input[1], &len, sizeof(int)) == -1)
+                {
+                    return -1;
+                }
+
                 // then write the bytes of the string
-                write(cnf->user_input[1], line, len);
+                if (write(cnf->user_input[1], line, len) == -1)
+                {
+                    return -1;
+                }
             }
 
             free(line);
         }
     }
 
-    pthread_exit(NULL);
+    return 0;
 }
 
+
+/**
+ * Cleanup ressources used by the thread `select_th` holded by the
+ * global config.
+ * Closes the listening port, every contact file descriptor and
+ * the reading pipe end of `user_input` and `cl_change`.
+ */
+void
+cleanup_th_main_loop(void* arg)
+{
+    int i;
+    // close local listening socket
+    close(cnf.acpt_fd);
+
+    // close file descriptors of contacts
+    for (i = 0; i < cnf.cl.cl_size; i++)
+    {
+        if (cnf.cl.contact[i].fd)
+        {
+            close(cnf.cl.contact[i].fd);
+        }
+    }
+
+    //close pipe stdin
+    close(cnf.user_input[0]);
+    // close write pipe for main thread function th_main_loop
+    close(cnf.cl_change[0]);
+}
 
 /**
  * Main chat loop of this client.
@@ -884,9 +957,8 @@ th_new_input(dchat_conf_t* cnf)
  * descriptor can be read, this function will take action depending on which file
  * descriptor is able to read from.
  * @param cnf Pointer to global config holding all kind of file descriptors
- * @return 0 or -1 in case of error
  */
-int
+void*
 th_main_loop(dchat_conf_t* cnf)
 {
     fd_set rset; // list of readable file descriptors
@@ -895,6 +967,10 @@ th_main_loop(dchat_conf_t* cnf)
     char c;      // for pipe: th_new_conn
     char* line;  // line returned from GNU readline
     int i;
+    // setup cleanup handler and cancelation attributes
+    pthread_cleanup_push(cleanup_th_main_loop, NULL);
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
     for (;;)
     {
@@ -940,7 +1016,8 @@ th_main_loop(dchat_conf_t* cnf)
             else
             {
                 log_errno(LOG_ERR, "select() failed");
-                return -1;
+                //return -1;
+                break;
             }
         }
 
@@ -949,27 +1026,30 @@ th_main_loop(dchat_conf_t* cnf)
         if (FD_ISSET(cnf->user_input[0], &rset))
         {
             nfds--;
-            // read length of string from pipe
-            read(cnf->user_input[0], &ret, sizeof(int));
 
-            // EOF
-            if (!ret)
+            // read length of string from pipe
+            if (read(cnf->user_input[0], &ret, sizeof(int)) < 0)
             {
-                close(cnf->user_input[0]);
-                return 0;
+                break;
             }
 
             // allocate memory for the string entered from user
             line = malloc(ret + 1);
+
             // read string
-            read(cnf->user_input[0], line, ret);
+            if (read(cnf->user_input[0], line, ret) < 0 || ret <= 0)
+            {
+                free(line);
+                break;
+            }
+
             line[ret] = '\0';
             pthread_mutex_lock(&cnf->cl.cl_mx);
 
             // handle user input
             if ((ret = handle_local_input(cnf, line)) == -1)
             {
-                return -1;
+                break;
             }
 
             pthread_mutex_unlock(&cnf->cl.cl_mx);
@@ -986,7 +1066,7 @@ th_main_loop(dchat_conf_t* cnf)
             // handle new connection request
             if ((ret = handle_remote_conn_request(cnf)) == -1)
             {
-                return -1;
+                break;
             }
             else
             {
@@ -1002,10 +1082,9 @@ th_main_loop(dchat_conf_t* cnf)
             nfds--;
 
             // !< EOF
-            if (!read(cnf->cl_change[0], &c, sizeof(c)))
+            if (read(cnf->cl_change[0], &c, sizeof(c)) < 0)
             {
-                close(cnf->cl_change[0]);
-                return 0;
+                break;
             }
         }
 
@@ -1031,6 +1110,10 @@ th_main_loop(dchat_conf_t* cnf)
 
         pthread_mutex_unlock(&cnf->cl.cl_mx);
     }
+
+    //execute cleanup handler
+    pthread_cleanup_pop(1);
+    pthread_exit(NULL);
 }
 
 
@@ -1041,12 +1124,15 @@ void
 usage()
 {
     fprintf(stdout, "Usage:\n");
-    fprintf(stdout, "  %s  -i  INTERFACE  -n  NICKNAME  [-l  LOCALPORT]  [-d  REMOTEIP] [-r  REMOTEPORT]\n\n", PACKAGE_NAME);
+    fprintf(stdout,
+            "  %s  -i  INTERFACE  -n  NICKNAME  [-l  LOCALPORT]  [-d  REMOTEIP] [-r  REMOTEPORT]\n\n",
+            PACKAGE_NAME);
     fprintf(stdout, "Options:\n");
     fprintf(stdout, "  -i, --interface=INTERFACE\n");
-    fprintf(stdout, "  -n, --nick=NICKNAME\n");
+    fprintf(stdout, "  -n, --nickname=NICKNAME\n");
     fprintf(stdout, "  -l, --lport=LOCALPORT\n");
-    fprintf(stdout, "  -d, --dst=REMOTEIP\n");
+    fprintf(stdout, "  -d, --dest=REMOTEIP\n");
     fprintf(stdout, "  -r, --rport=REMOTEPORT\n\n");
-    fprintf(stdout, "More detailed information can be found in the manpage. See dchat(1)\n");
+    fprintf(stdout,
+            "More detailed information can be found in the manpage. See dchat(1)\n");
 }

@@ -1,9 +1,39 @@
+2014-06-21  Christoph Mahrl <is121018@fhstp.ac.at>
+
+	* src/dchat.c: 
+		-) in `init()`: added sigmask to block certain signals
+		-) `th_new_input()` is now the main thread function. Changed
+		   return value to int. 0 will be returned on success and
+		   -1 if an error occured.
+		   Also the prompt is now colored yellow by calling the
+		   function `ansi_color_bold_yellow()`.
+		-) in `th_new_conn()`: added thread cancelation and cleanup 
+		   handler
+		-) in `th_main_loop()`: added thread cancelation and cleanup
+		   handler; changed return value to void* - nothing will
+		   be returned.
+		-) in `main()`: no signals will be raised for termination
+		   instead `destroy()` will be called directly and a return
+		   happens afterwards.
+		   Changed names of long options from `dst` to `dest`and
+		   `nick` to `nickname`
+
+	* src/util.c: 
+		-) added ansi terminal escape code functions to print colors
+		   and reset attributes.
+		-) `print_dchat_msg()` calls `ansi_color_bold_cyan()` to
+		   colorize the text message cyan.
+
+	* src/dchat_h/dchat_types.h: 
+		-) in struct `dchat_conf`: added pthread_t `select_th` and
+		   removed pthread_t `userin_th`.
+
 2014-06-20  Christoph Mahrl <is121018@fhstp.ac.at>
 
 	* src/dchat.c: 
-		-) in main(): supporting getopt_long()
-		-) moved getifaddr() to parse network interfaces from
-		   init_global_config() to main()
+		-) in `main()`: supporting getopt_long()
+		-) moved `getifaddr()` to parse network interfaces from
+		   `init_global_config()` to `main()`
 	* src/dchat.c: 
-	    -) updated usage()
+	    -) updated `usage(`)
 

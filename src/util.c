@@ -14,7 +14,7 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with DChat.  If not, see <http://www.gnu.org/licenses/>. 
+ *  along with DChat.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -35,7 +35,7 @@
 #include "dchat_h/log.h"
 
 
-/** 
+/**
  *  Determines the address family of the given socket address structure.
  *  @param address Pointer to address to check the address family for
  *  @return 4 if AF_INET is used, 6 if AF_INET6 is used or -1 in every other case
@@ -83,8 +83,8 @@ int connect_to(struct sockaddr* sa)
 }
 
 
-/** 
- *  Prints the ansi escape code for clearing the current line in a 
+/**
+ *  Prints the ansi escape code for clearing the current line in a
  *  terminal
  *  @param out_fd File descriptor where the escape code
  *                will be written to
@@ -95,7 +95,7 @@ void ansi_term_clear_line(int out_fd)
 }
 
 
-/** 
+/**
  * Prints the ansi escape code for carriage return in a terminal
  * @param out_fd File descriptor where the escape code
  *               will be written to
@@ -106,12 +106,39 @@ void ansi_term_cr(int out_fd)
 }
 
 
-/** 
+/**
+ * Returns the ansi escape code string for bold yellow color.
+ */
+char* ansi_color_bold_yellow()
+{
+    return "\x1B[1;33m";
+}
+
+
+/**
+ * Returns the ansi escape code string for bold cyan color.
+ */
+char* ansi_color_bold_cyan()
+{
+    return "\x1B[1;36m";
+}
+
+
+/**
+ * Returns the ansi escape code string for resetting attributes.
+ */
+char* ansi_reset_attributes()
+{
+    return "\x1B[0m";
+}
+
+
+/**
  *  Prints a chat message to a file descriptor.
  *  Prints the given message string to the given output file descriptor.
  *  Before the message is printed, the current line in the terminal is
  *  cleared and the cursor is resetted to the beginning of the line.
- *  After the message is printed, the line buffer of GNU readline 
+ *  After the message is printed, the line buffer of GNU readline
  *  containing the userinput is reprinted to the terminal.
  *  @param msg    Text message to print
  *  @param out_fd File descriptor where the message will be written to
@@ -126,8 +153,10 @@ void print_dchat_msg(char* msg, int out_fd)
         ansi_term_clear_line(out_fd);
         ansi_term_cr(out_fd);
     }
-
+    
+    dprintf(out_fd, "%s", ansi_color_bold_cyan()); // colorize msg
     dprintf(out_fd, "%s", msg); // print message
+    dprintf(out_fd, "%s", ansi_reset_attributes()); // remote color
 
     // append \n if line was not terminated with \n
     if (msg[strlen(msg) - 1] != '\n')
@@ -139,7 +168,7 @@ void print_dchat_msg(char* msg, int out_fd)
 }
 
 
-/** 
+/**
  *  Define the maximum of two given integers.
  *  @param a First integer
  *  @param b Second integer
