@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 
 #include "dchat_h/dchat_contact.h"
 #include "dchat_h/dchat_types.h"
@@ -219,6 +220,11 @@ check_duplicates(dchat_conf_t* cnf, int n)
     int accept_contact = 0;  // index of contact from whom we accepted a connection
     // check if given contact is in the contactlist
     fst_oc = find_contact(cnf, &cnf->cl.contact[n], 0);
+
+    // contact is this client
+    if(fst_oc == -1){
+        return n;
+    }
 
     if (fst_oc == -2)
     {
@@ -554,11 +560,11 @@ realloc_contactlist(dchat_conf_t* cnf, int newsize)
         }
     }
 
-    // free old contactlist
-    free(cnf->cl.contact);
     // set new size and point to new contactlist in the global config
     cnf->cl.cl_size = newsize;
     cnf->cl.contact = new_contact_list;
+    // free old contactlist
+    free(old_contact_list);
     return 0;
 }
 

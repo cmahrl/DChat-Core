@@ -6,6 +6,18 @@
 		-) `print_dchat_msg`: added new parameter `nickname` 
 		    to function signature.
 
+	* src/dchat.c: 
+		-) in `main()`: for remote connections `sockaddr_storage`
+		   will be used. If a remote port has been specified
+		   but no remote address, it will connect to the address
+		   stored as listening ip in the global config to the 
+		   specified port.
+
+	* src/dchat_contact.c: 
+		-) in `check_duplicates()`: compares own contact info
+		   with the client stored in the contactlist. If it is
+		   us, the index will be returned (for deletion).
+
 	* src/dchat_decoder.c: 
 		-) supporing nicknames in functions `decode_header()`
 		   and `encode_header()`

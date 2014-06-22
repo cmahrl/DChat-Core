@@ -70,7 +70,7 @@ int
 main(int argc, char** argv)
 {
     int acpt_port   = DEFAULT_PORT; // local listening port
-    int remote_port = DEFAULT_PORT; // port of remote client
+    int remote_port = -1;           // port of remote client
     int option;                     // getopt option
     int required  = 0;              // counter for required options
     int found_int = 0;              // check existence of network int
@@ -80,7 +80,7 @@ main(int argc, char** argv)
     char* nickname       = NULL;    // nickname to use within chat
     char* term;                     // used for strtol
     //FIXME: use sockaddr_storage for IP6 support
-    struct sockaddr_in da;          // socket address for remote client
+    struct sockaddr_storage da;     // socket address for remote client
     struct sockaddr_storage sa;     // local socket address
     struct ifaddrs* ifaddr;         // info of all network interfaces
     struct ifaddrs* ifa;            // interface pointer
@@ -212,20 +212,44 @@ main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    // has a remoteaddress been specified? if y: connect to it
-    if (remote_address != NULL)
+    // has a remote- address/port been specified? if y: connect to it
+    if (remote_address != NULL || remote_port != -1)
     {
-        // init socket address structure
-        memset(&da, 0, sizeof(da));
-        da.sin_family = AF_INET;
-        da.sin_port = htons(remote_port);
-
-        // init ip address in socket address structure
-        if (inet_pton(AF_INET, remote_address, &da.sin_addr) != 1)
+        if(remote_port == -1)
         {
-            log_errno(LOG_ERR, "wrong format of ip address");
+            remote_port = DEFAULT_PORT;
         }
 
+        //init destination socket address
+        memset(&da, 0, sizeof(da));
+        // init ip address in socket address structure
+        // if no remote adress has been specified, use source address
+        if(remote_address == NULL)
+        {
+            memcpy(&da, &sa, sizeof(struct sockaddr_storage));
+            if(ip_version(&da) == 4){
+                ((struct sockaddr_in*)&da)->sin_port = htons(remote_port);
+            }
+            else if(ip_version(&da) == 6){
+                ((struct sockaddr_in6*)&da)->sin6_port = htons(remote_port);
+            }
+        }
+        else if (inet_pton(AF_INET, remote_address, &((struct sockaddr_in*)&da)->sin_addr) == 1)
+        {
+            ((struct sockaddr_in*)&da)->sin_port = htons(remote_port);
+            ((struct sockaddr_in*)&da)->sin_family = AF_INET;
+        }
+        else if (inet_pton(AF_INET6, remote_address, &((struct sockaddr_in6*)&da)->sin6_addr) == 1)
+        {
+            ((struct sockaddr_in6*)&da)->sin6_port = htons(remote_port);
+            ((struct sockaddr_in6*)&da)->sin6_family = AF_INET6;
+        }
+        else{
+            log_msg(LOG_ERR, "wrong format of ip address");
+            usage();
+            return EXIT_FAILURE;
+        }
+        pthread_mutex_lock(&cnf.cl.cl_mx);
         // connect to remote client and send contactlist
         if (handle_local_conn_request(&cnf, (struct sockaddr_storage*) &da) ==
             -1)
@@ -233,6 +257,7 @@ main(int argc, char** argv)
             log_errno(LOG_WARN,
                       "main(): Could not execute connection request successfully");
         }
+        pthread_mutex_unlock(&cnf.cl.cl_mx);
     }
 
     // main chat loop
@@ -575,6 +600,9 @@ handle_remote_input(dchat_conf_t* cnf, int n)
     int fd;           // file descriptor of a contact
     fd = cnf->cl.contact[n].fd;
 
+    printf("Remote input\n");
+    fflush(stdout);
+
     // read pdu from file descriptor (-1 indicates error)
     if ((len = read_pdu(fd, &pdu)) == -1)
     {
@@ -723,7 +751,6 @@ handle_local_conn_request(dchat_conf_t* cnf, struct sockaddr_storage* da)
                 cnf->cl.contact[n].lport =
                     ntohs(((struct sockaddr_in6*) da)->sin6_port);
             }
-
             // send all our known contacts to the newly connected client
             send_contacts(cnf, n);
         }

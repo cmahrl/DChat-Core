@@ -1,5 +1,11 @@
                           DChat - P2P Client
 
+2014-06-22:
+    When option `-r / --rport` but no option `-d / --dest` has 
+    been specified, DChat will use the local listening ip address
+    of the client and the remote port specified with `-r / --rport` 
+    for connection.
+
 2014-06-21:
     Fixed bug that caused the client to execute the termination
     signal handler twice and therefore print "Good Bye" two times.
