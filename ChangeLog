@@ -1,3 +1,22 @@
+2014-06-22  Christoph Mahrl <is121018@fhstp.ac.at>
+
+	* src/util.c:
+		-) changed function signature and renamed function
+		   `ansi_ter_clear_line()` and `ansi_term_cr()`.
+		-) `print_dchat_msg`: added new parameter `nickname` 
+		    to function signature.
+
+	* src/dchat_decoder.c: 
+		-) supporing nicknames in functions `decode_header()`
+		   and `encode_header()`
+
+	* src/dchat_h/dchat_decoder.h: 
+		-) added preproc define header field `HDR_NICKNAME`.
+
+	* src/dchat_h/dchat_types.h: 
+	    -) in struct `dchat_pdu`: added new header field 
+		   nickname.
+
 2014-06-21  Christoph Mahrl <is121018@fhstp.ac.at>
 
 	* src/dchat.c: 

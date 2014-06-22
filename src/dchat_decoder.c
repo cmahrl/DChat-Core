@@ -48,7 +48,8 @@
  *  @param line Line to parse for dchat-headers; must be \n terminated
  *  @return 0 if line is a dchat header, -1 otherwise
  */
-int decode_header(dchat_pdu_t* pdu, char* line)
+int
+decode_header(dchat_pdu_t* pdu, char* line)
 {
     char* save_ptr;     // used for strtok and strtol
     char* key;          // header key (e.g. Content-Type)
@@ -56,6 +57,7 @@ int decode_header(dchat_pdu_t* pdu, char* line)
     char* term;         // pointer to terminating chars of the line (e.g "\r\n")
     char* delim = ":";  // delimiter char
     int cmp_offset = 0; // header value offset
+    int len;
 
     // split line: header format -> key:value
     if ((key = strtok_r(line, delim, &save_ptr)) == NULL)
@@ -147,6 +149,33 @@ int decode_header(dchat_pdu_t* pdu, char* line)
 
             term = save_ptr;
         }
+        else if(strcmp(key, "Nickname") == 0){
+           len = strlen(&value[cmp_offset]) - 1; // skip \n
+           if(value[cmp_offset + len - 2] == '\r') // skip \r 
+           {
+               len--;
+           }
+
+           pdu->nickname = malloc(len + 1);
+           if(pdu->nickname == NULL){
+               log_errno(LOG_ERR, "decode_header(): Could not allocate memory");
+               return -1;
+           }
+           pdu->nickname[0] = '\0';
+           if(len <= MAX_NICKNAME)
+           {
+               // copy whole nickname without (\r)\n
+               strncat(pdu->nickname, &value[cmp_offset], len); 
+           }
+           else
+           {
+               // copy MAX_NICKNAME bytes of nickname without (\r)\n
+               strncat(pdu->nickname, &value[cmp_offset], MAX_NICKNAME);
+           }
+
+           // check if value string has been terminated properly
+           term = &value[strlen(value) - 1]; // must be \n
+        }
         else
         {
             return -1;
@@ -173,7 +202,8 @@ int decode_header(dchat_pdu_t* pdu, char* line)
  *              characters will be stored on the heap.
  *  @return: length of bytes read, 0 on EOF, -1 on error
  */
-int read_line(int fd, char** line)
+int
+read_line(int fd, char** line)
 {
     char* linep;        // line pointer
     char* tmp = NULL;   // used for realloc
@@ -249,7 +279,8 @@ int read_line(int fd, char** line)
  *  @return amount of bytes read in total if a protocol data unit has been read successfully, 0 on EOF ,
  *  -1 on error
  */
-int read_pdu(int fd, dchat_pdu_t** pdu)
+int
+read_pdu(int fd, dchat_pdu_t** pdu)
 {
     char* line;     // line read from file descriptor
     char* contentp; // content pointer
@@ -358,7 +389,8 @@ int read_pdu(int fd, dchat_pdu_t** pdu)
  *  @return  Pointer to a header string (stored on heap -> must be freed) or NULL on error
  *           This string is not terminated with \\n or \\r\\n respectively
  */
-char* encode_header(dchat_pdu_t* pdu, int header_id)
+char*
+encode_header(dchat_pdu_t* pdu, int header_id)
 {
     char* ret = NULL;       // return value
     char* header = NULL;    // header key string
@@ -418,6 +450,13 @@ char* encode_header(dchat_pdu_t* pdu, int header_id)
             mem_free = 1; // value must be freed
             break;
 
+        case HDR_NICKNAME:
+            header = "Nickname";
+            len = strlen(header);
+            value = pdu->nickname; 
+            len += strlen(value);
+            break;
+
         default:
             return NULL; // ERROR
     }
@@ -457,7 +496,8 @@ char* encode_header(dchat_pdu_t* pdu, int header_id)
  *              The buffer must be \0 terminated!
  *  @return Amount of bytes that have been written (inkl. appended \\r\\n)
  */
-int write_line(int fd, char* buf)
+int
+write_line(int fd, char* buf)
 {
     char* line;
     char* ret;
@@ -510,12 +550,14 @@ int write_line(int fd, char* buf)
  * @return Amount of bytes of content that that have been written. This should be equal
  *         to the value defined in the attribute "content_length" of the given PDU structure
  */
-int write_pdu(int fd, dchat_pdu_t* pdu)
+int
+write_pdu(int fd, dchat_pdu_t* pdu)
 {
     char* version = "DCHAT: 1.0\n";  //Version of DCHAT
     char* content_type;              //Content-Type header string
     char* content_length;            //Conent-Length header string
     char* listen_port;               //Listening-Port header string
+    char* nickname = NULL;           //nickname string
     char* pdu_raw;                   //final PDU
     int ret;                         //return value
     int pdulen=0;                    //total length of PDU
@@ -538,12 +580,24 @@ int write_pdu(int fd, dchat_pdu_t* pdu)
         free(content_length);
         return -1;
     }
+    //nickname is optional
+    else if(pdu->nickname != NULL){
+        //get Nickname string
+        if ((nickname = encode_header(pdu, HDR_NICKNAME)) == NULL)
+        {
+            free(content_type);
+            free(content_length);
+            free(listen_port);
+            return -1;
+        }
+    }
 
-    //determine length of pdu
     pdulen  = strlen(version);
     pdulen += strlen(content_type);
     pdulen += strlen(content_length);
     pdulen += strlen(listen_port);
+    if(nickname != NULL)
+        pdulen += strlen(nickname);
     pdulen += 1; //for empty line
     pdulen += pdu->content_length;
     //allocate memory for pdu
@@ -561,6 +615,8 @@ int write_pdu(int fd, dchat_pdu_t* pdu)
     strncat(pdu_raw, content_type, strlen(content_type));
     strncat(pdu_raw, content_length, strlen(content_length));
     strncat(pdu_raw, listen_port, strlen(listen_port));
+    if(nickname != NULL)
+        strncat(pdu_raw, nickname, strlen(nickname));
     strncat(pdu_raw, "\n", 1);
     strncat(pdu_raw, pdu->content, pdu->content_length);
     //write pdu to file descriptor
@@ -580,13 +636,17 @@ int write_pdu(int fd, dchat_pdu_t* pdu)
  *  @param pdu Pointer to a pdu that has been dynamically allocated
  *             and should be freed
  */
-void free_pdu(dchat_pdu_t* pdu)
+void
+free_pdu(dchat_pdu_t* pdu)
 {
     if (pdu != NULL)
     {
         if (pdu->content != NULL)
         {
             free(pdu->content);
+        }
+        if( pdu->nickname != NULL){
+            free(pdu->nickname);
         }
 
         free(pdu);
@@ -606,7 +666,8 @@ void free_pdu(dchat_pdu_t* pdu)
  *  @return Returns offset where the terminating character has
  *          been found in the content of the pdu, -1 on error
  */
-int get_content_part(dchat_pdu_t* pdu, int offset, char term, char** content)
+int
+get_content_part(dchat_pdu_t* pdu, int offset, char term, char** content)
 {
     int line_end; // detected end of line, represented as index
     char* ptr;    // content pointer

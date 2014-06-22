@@ -457,8 +457,8 @@ destroy(dchat_conf_t* cnf)
     // close write pipe for thread function th_new_input
     close(cnf->user_input[1]);
     // delete readline prompt and return to beginning of current line
-    ansi_term_clear_line(cnf->out_fd);
-    ansi_term_cr(cnf->out_fd);
+    dprintf(cnf->out_fd, "%s", ansi_clear_line());
+    dprintf(cnf->out_fd, "%s", ansi_cr());
     dprintf(cnf->out_fd, "Good Bye!\n");
 }
 
@@ -512,7 +512,6 @@ handle_local_input(dchat_conf_t* cnf, char* line)
     // no command has been entered
     else
     {
-        len = strlen(cnf->me.name) + 2;  // memory for local nickname +2 for ": "
         len += strlen(line);             // memory for text message
 
         if (len != 0)
@@ -521,6 +520,7 @@ handle_local_input(dchat_conf_t* cnf, char* line)
             memset(&msg, 0, sizeof(msg));
             msg.content_type = CT_TXT_PLAIN;
             msg.listen_port = cnf->me.lport;
+            msg.nickname = cnf->me.name;
 
             // allocate memory the size of nickname + 2 + text message
             if ((msg.content = malloc(len + 1)) == NULL)
@@ -532,8 +532,6 @@ handle_local_input(dchat_conf_t* cnf, char* line)
 
             // append the content
             msg.content[0] = '\0';
-            strncat(msg.content, cnf->me.name, strlen(cnf->me.name));
-            strncat(msg.content, "> ", 2);
             strncat(msg.content, line, strlen(line));
             msg.content_length = len; // length of content excluding \0
 
@@ -622,7 +620,7 @@ handle_remote_input(dchat_conf_t* cnf, int n)
         memcpy(txt_msg, pdu->content, pdu->content_length);
         txt_msg[pdu->content_length] = '\0';
         // print text message
-        print_dchat_msg(txt_msg, cnf->out_fd);
+        print_dchat_msg(pdu->nickname, txt_msg, cnf->out_fd);
         free(txt_msg);
     }
     /*

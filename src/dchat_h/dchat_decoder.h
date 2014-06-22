@@ -35,6 +35,7 @@
 #define HDR_CONTENT_TYPE   1
 #define HDR_CONTENT_LENGTH 2
 #define HDR_LISTEN_PORT    3
+#define HDR_NICKNAME       4
 
 
 //*********************************

@@ -40,7 +40,8 @@
  *  @param address Pointer to address to check the address family for
  *  @return 4 if AF_INET is used, 6 if AF_INET6 is used or -1 in every other case
  */
-int ip_version(struct sockaddr_storage* address)
+int
+ip_version(struct sockaddr_storage* address)
 {
     if (address->ss_family == AF_INET)
     {
@@ -62,7 +63,8 @@ int ip_version(struct sockaddr_storage* address)
  * @param sa Pointer to initalized sockaddr structure.
  * @return file descriptor of new socket or -1 in case of error
  */
-int connect_to(struct sockaddr* sa)
+int
+connect_to(struct sockaddr* sa)
 {
     int s; // socket file descriptor
 
@@ -84,32 +86,31 @@ int connect_to(struct sockaddr* sa)
 
 
 /**
- *  Prints the ansi escape code for clearing the current line in a
- *  terminal
- *  @param out_fd File descriptor where the escape code
- *                will be written to
+ *  Returns the ansi escape code string for clearing the current line
+ *  in a terminal.
  */
-void ansi_term_clear_line(int out_fd)
+char*
+ansi_clear_line()
 {
-    dprintf(out_fd, "\x1B[2K"); // erase stdin input
+    return "\x1B[2K"; // erase stdin input
 }
 
 
 /**
- * Prints the ansi escape code for carriage return in a terminal
- * @param out_fd File descriptor where the escape code
- *               will be written to
+ * Retruns the ansi escape code string for carriage return .
  */
-void ansi_term_cr(int out_fd)
+char*
+ansi_cr()
 {
-    dprintf(out_fd, "\r");
+    return "\r";
 }
 
 
 /**
  * Returns the ansi escape code string for bold yellow color.
  */
-char* ansi_color_bold_yellow()
+char*
+ansi_color_bold_yellow()
 {
     return "\x1B[1;33m";
 }
@@ -118,7 +119,8 @@ char* ansi_color_bold_yellow()
 /**
  * Returns the ansi escape code string for bold cyan color.
  */
-char* ansi_color_bold_cyan()
+char*
+ansi_color_bold_cyan()
 {
     return "\x1B[1;36m";
 }
@@ -127,7 +129,8 @@ char* ansi_color_bold_cyan()
 /**
  * Returns the ansi escape code string for resetting attributes.
  */
-char* ansi_reset_attributes()
+char*
+ansi_reset_attributes()
 {
     return "\x1B[0m";
 }
@@ -140,23 +143,19 @@ char* ansi_reset_attributes()
  *  cleared and the cursor is resetted to the beginning of the line.
  *  After the message is printed, the line buffer of GNU readline
  *  containing the userinput is reprinted to the terminal.
- *  @param msg    Text message to print
+ *  @param nickanem Nickname of the client from whom we received a message
+ *  @param msg      Text message to print
  *  @param out_fd File descriptor where the message will be written to
  */
-void print_dchat_msg(char* msg, int out_fd)
+void
+print_dchat_msg(char* nickname, char* msg, int out_fd)
 {
-    // is file descriptor stdout or stderr?
-    // if yes -> clear input from stdin in terminal and
-    // return cursor to the beginning of the current line
-    if (out_fd == 1 || out_fd == 2)
-    {
-        ansi_term_clear_line(out_fd);
-        ansi_term_cr(out_fd);
-    }
-    
-    dprintf(out_fd, "%s", ansi_color_bold_cyan()); // colorize msg
-    dprintf(out_fd, "%s", msg); // print message
-    dprintf(out_fd, "%s", ansi_reset_attributes()); // remote color
+    dprintf(out_fd, "%s", ansi_clear_line());
+    dprintf(out_fd, "%s", ansi_cr());
+    dprintf(out_fd, "%s", ansi_color_bold_cyan());  // colorize msg
+    dprintf(out_fd, "%s> ", nickname);              // print nickname
+    dprintf(out_fd, "%s", ansi_reset_attributes()); // reset color
+    dprintf(out_fd, "%s", msg);                     // print message
 
     // append \n if line was not terminated with \n
     if (msg[strlen(msg) - 1] != '\n')
@@ -174,7 +173,8 @@ void print_dchat_msg(char* msg, int out_fd)
  *  @param b Second integer
  *  @return either a or b, depending on which one is bigger
  */
-int max(int a, int b)
+int
+max(int a, int b)
 {
     return a > b ? a : b;
 }

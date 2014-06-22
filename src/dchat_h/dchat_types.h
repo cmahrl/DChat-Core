@@ -38,10 +38,11 @@
  */
 typedef struct dchat_pdu
 {
-    int content_type;   //!< type of message
-    char* content;      //!< content part of message
-    int content_length; //!< lengh of content
-    int listen_port;    //!< listening port of the client
+    int content_type;                //!< type of message
+    char* content;                   //!< content part of message
+    int content_length;              //!< lengh of content
+    int listen_port;                 //!< listening port of the client
+    char* nickname;                  //!< nickname of the client
 } dchat_pdu_t;
 
 /*!
@@ -60,10 +61,10 @@ typedef struct contact
         struct sockaddr_in6 v6addr;
         struct sockaddr_storage stor;
     };
-    char buf[FRAME_BUF_LEN];    //!< framing buffer
-    int len;                    //!< number of bytes in buffer
-    int chatrooms;              //!< member of this chat rooms
-    char name[32];              //!< nickname
+    char buf[FRAME_BUF_LEN];     //!< framing buffer
+    int len;                     //!< number of bytes in buffer
+    int chatrooms;               //!< member of this chat rooms
+    char name[MAX_NICKNAME + 1]; //!< nickname
 } contact_t;
 
 /*!

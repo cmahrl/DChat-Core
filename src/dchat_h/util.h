@@ -38,13 +38,13 @@ int connect_to(struct sockaddr* sa);
 //*********************************
 //       PRINTING FUNCTIONS
 //*********************************
-void ansi_term_clear_line(int out_fd);
-void ansi_term_cr(int out_fd);
+char* ansi_clear_line();
+char* ansi_cr();
 char* ansi_color_bold_yellow();
 char* ansi_color_bold_cyan();
 char* ansi_color_bold_red();
 char* ansi_reset_attributes();
-void print_dchat_msg(char* msg, int out_fd);
+void print_dchat_msg(char* nickname, char* msg, int out_fd);
 
 
 //*********************************

@@ -48,7 +48,8 @@
  *  @param n   Index of contact to whom we send our contactlist (excluding him)
  *  @return amount of bytes that have been written as content, -1 on error
  */
-int send_contacts(dchat_conf_t* cnf, int n)
+int
+send_contacts(dchat_conf_t* cnf, int n)
 {
     dchat_pdu_t pdu;    // pdu with contact information
     char* contact_str;  // pointer to a string representation of a contact
@@ -136,7 +137,8 @@ int send_contacts(dchat_conf_t* cnf, int n)
  *  @param pdu PDU with the contact information in its content
  *  @return amount of new contacts added to the contactlist, -1 on error
  */
-int receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
+int
+receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
 {
     contact_t contact;
     int ret = 0;            // return value
@@ -207,7 +209,8 @@ int receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
  *  @param n   Index of contact to check for duplicates
  *  @return index of duplicate, -1 if there are no duplicates, -2 on error
  */
-int check_duplicates(dchat_conf_t* cnf, int n)
+int
+check_duplicates(dchat_conf_t* cnf, int n)
 {
     int fst_oc;              // index of first occurance of contact
     int sec_oc;              // index of duplicate
@@ -361,7 +364,8 @@ int check_duplicates(dchat_conf_t* cnf, int n)
  *  @param contact Pointer to contact that should be converted to a string
  *  @return String representation of contact, NULL on error
  */
-char* contact_to_string(contact_t* contact)
+char*
+contact_to_string(contact_t* contact)
 {
     char* contact_str; // pointer to string repr. of contact
     char addr_str[INET6_ADDRSTRLEN + 1]; // ip address of contact
@@ -433,7 +437,8 @@ char* contact_to_string(contact_t* contact)
  *  @param contact: Pointer to contact that should be converted to a string
  *  @return 0 if conversion was successful, -1 on error
  */
-int string_to_contact(contact_t* contact, char* string)
+int
+string_to_contact(contact_t* contact, char* string)
 {
     char* ip;       // ip address string (splitted from line)
     char* port;     // port string (splitted from line)
@@ -513,7 +518,8 @@ int string_to_contact(contact_t* contact, char* string)
  *  @return 0 on success, -1 on error, -2 if the new size is lower than the amount of contacts
  *          actually stored within the contactlist
  */
-int realloc_contactlist(dchat_conf_t* cnf, int newsize)
+int
+realloc_contactlist(dchat_conf_t* cnf, int newsize)
 {
     int i, j = 0;
     contact_t* new_contact_list;
@@ -567,7 +573,8 @@ int realloc_contactlist(dchat_conf_t* cnf, int newsize)
  *  @return index of contact list, where new contact has been added or -1 if contact
  *          list is full
  */
-int add_contact(dchat_conf_t* cnf, int fd, struct sockaddr_storage* ss)
+int
+add_contact(dchat_conf_t* cnf, int fd, struct sockaddr_storage* ss)
 {
     int i;
 
@@ -605,7 +612,8 @@ int add_contact(dchat_conf_t* cnf, int fd, struct sockaddr_storage* ss)
  *  @param n   Index of customer in the customer list
  *  @return 0 on success, -1 if index is out of bounds
  */
-int del_contact(dchat_conf_t* cnf, int n)
+int
+del_contact(dchat_conf_t* cnf, int n)
 {
     // is index 'n' a valid index?
     if ((n < 0) || (n >= cnf->cl.cl_size))
@@ -644,7 +652,8 @@ int del_contact(dchat_conf_t* cnf, int n)
  *  @param begin   Index where the search will begin in the contactlist
  *  @return index of contact, -1 if the contact represents ourself, -2 if not found
  */
-int find_contact(dchat_conf_t* cnf, contact_t* contact, int begin)
+int
+find_contact(dchat_conf_t* cnf, contact_t* contact, int begin)
 {
     int i;
     contact_t* c;

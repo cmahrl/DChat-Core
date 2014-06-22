@@ -43,7 +43,8 @@
  * @return  -1 if error occurs, 0 if no error, -2 for invalid ip-address
  *          -3 for invalid port
  */
-int parse_cmd_connect(dchat_conf_t* cnf, char* cmd)
+int
+parse_cmd_connect(dchat_conf_t* cnf, char* cmd)
 {
     struct sockaddr_storage ss;
     char* address;
@@ -123,7 +124,8 @@ int parse_cmd_connect(dchat_conf_t* cnf, char* cmd)
  * Function to establish new connections to other clients
  * @param cnf Global config structure
  */
-void parse_cmd_help(void)
+void
+parse_cmd_help(void)
 {
     // print the available commands
     log_msg(LOG_INFO, "\nThe following commands are available: \n"
@@ -143,7 +145,8 @@ void parse_cmd_help(void)
  *  @param cnf Global config structure
  *  @return 0 if no error and -1 on error
  */
-int parse_cmd_list(dchat_conf_t* cnf)
+int
+parse_cmd_list(dchat_conf_t* cnf)
 {
     int i, count = 0;
     char address[INET6_ADDRSTRLEN + 1];
@@ -206,7 +209,8 @@ int parse_cmd_list(dchat_conf_t* cnf)
  *  @param buf Userinput
  *  @return 0 if the input was a command, -1 on error, -2 on syntax error
  */
-int parse_cmd(dchat_conf_t* cnf, char* buf)
+int
+parse_cmd(dchat_conf_t* cnf, char* buf)
 {
     int ret;
 

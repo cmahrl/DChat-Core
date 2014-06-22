@@ -28,7 +28,8 @@ static int level_ = LOG_DEBUG;
 static const char* flty_[8] = {"emerg", "alert", "crit", "err", "warning", "notice", "info", "debug"};
 
 
-static void __attribute__((constructor)) init_log0(void)
+static void
+__attribute__((constructor)) init_log0(void)
 {
     log_ = stderr;
 }
@@ -41,7 +42,8 @@ static void __attribute__((constructor)) init_log0(void)
  *  @param fmt Format string
  *  @param ap Variable parameter list
  */
-static void vlog_msgf(FILE* out, int lf, const char* fmt, va_list ap)
+static void
+vlog_msgf(FILE* out, int lf, const char* fmt, va_list ap)
 {
     int level = LOG_PRI(lf);
     char buf[1024];
@@ -71,7 +73,8 @@ static void vlog_msgf(FILE* out, int lf, const char* fmt, va_list ap)
  *  @param fmt Format string
  *  @param ... arguments
  */
-void log_msg(int lf, const char* fmt, ...)
+void
+log_msg(int lf, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -85,7 +88,8 @@ void log_msg(int lf, const char* fmt, ...)
  *  @param lf  Log priority
  *  @param str String to log
  */
-void log_errno(int lf, const char* str)
+void
+log_errno(int lf, const char* str)
 {
     log_msg(lf, "%s: '%s'", str, strerror(errno));
 }
@@ -97,7 +101,8 @@ void log_errno(int lf, const char* str)
  * @param buf Pointer to buffer
  * @param len Amount of bytes that shall be printed
  */
-void log_hex(int lf, const void* buf, int len)
+void
+log_hex(int lf, const void* buf, int len)
 {
     static const char hex[] = "0123456789abcdef";
     char tbuf[100];
