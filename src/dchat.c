@@ -467,8 +467,6 @@ init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa,
 void
 destroy(dchat_conf_t* cnf)
 {
-    // destroy contact mutex
-    pthread_mutex_destroy(&cnf->cl.cl_mx);
     // cancel connection thread
     pthread_cancel(cnf->conn_th);
     // wait for termination of connection thread
@@ -477,6 +475,8 @@ destroy(dchat_conf_t* cnf)
     pthread_cancel(cnf->select_th);
     // wait for termination of select thread
     pthread_join(cnf->select_th, NULL);
+    // destroy contact mutex
+    pthread_mutex_destroy(&cnf->cl.cl_mx);
     // close write pipe for thread function th_new_conn
     close(cnf->connect_fd[1]);
     // close write pipe for thread function th_new_input
@@ -599,9 +599,6 @@ handle_remote_input(dchat_conf_t* cnf, int n)
     int len;          // amount of bytes read
     int fd;           // file descriptor of a contact
     fd = cnf->cl.contact[n].fd;
-
-    printf("Remote input\n");
-    fflush(stdout);
 
     // read pdu from file descriptor (-1 indicates error)
     if ((len = read_pdu(fd, &pdu)) == -1)
