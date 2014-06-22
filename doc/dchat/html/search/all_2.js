@@ -6,6 +6,8 @@ var searchData=
   ['cl_5fchange',['cl_change',['../structdchat__conf.html#ae8394e19cec9b873370aa9dd06ac1efe',1,'dchat_conf']]],
   ['cl_5fmx',['cl_mx',['../structcontactlist.html#a26d783739522c3228f89a83d0573027d',1,'contactlist']]],
   ['cl_5fsize',['cl_size',['../structcontactlist.html#a72803d360b8d9a802130f3d9abf358f6',1,'contactlist']]],
+  ['cleanup_5fth_5fmain_5floop',['cleanup_th_main_loop',['../dchat_8c.html#ab40992a684f2718a616237fd50fe9be5',1,'dchat.c']]],
+  ['cleanup_5fth_5fnew_5fconn',['cleanup_th_new_conn',['../dchat_8c.html#a297b3a9a3e921bc25e5559de4c7dcaea',1,'dchat.c']]],
   ['cnf',['cnf',['../dchat_8c.html#a5497dfcbcfecec06aaf63df011c70f83',1,'dchat.c']]],
   ['conn_5fth',['conn_th',['../structdchat__conf.html#a6ea7267480b2d15b855f3261fa5ee902',1,'dchat_conf']]],
   ['connect_5ffd',['connect_fd',['../structdchat__conf.html#a3910dd017eb97022b52028ebe7aa37d0',1,'dchat_conf']]],

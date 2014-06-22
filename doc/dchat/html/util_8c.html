@@ -135,15 +135,29 @@ Functions</h2></td></tr>
 <tr class="memitem:a77de9c9eb5a8ea2a6da108270bd7417e"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="util_8c.html#a77de9c9eb5a8ea2a6da108270bd7417e">connect_to</a> (struct sockaddr *sa)</td></tr>
 <tr class="memdesc:a77de9c9eb5a8ea2a6da108270bd7417e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Connects to a remote socket using the given socket address.  <a href="#a77de9c9eb5a8ea2a6da108270bd7417e">More...</a><br /></td></tr>
 <tr class="separator:a77de9c9eb5a8ea2a6da108270bd7417e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9b2b1cd61b591b14b2abf2cedb0cac30"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="util_8c.html#a9b2b1cd61b591b14b2abf2cedb0cac30">ansi_term_clear_line</a> (int out_fd)</td></tr>
-<tr class="memdesc:a9b2b1cd61b591b14b2abf2cedb0cac30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints the ansi escape code for clearing the current line in a terminal.  <a href="#a9b2b1cd61b591b14b2abf2cedb0cac30">More...</a><br /></td></tr>
-<tr class="separator:a9b2b1cd61b591b14b2abf2cedb0cac30"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a50e43a9ed79e266413404db5c414b92c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="util_8c.html#a50e43a9ed79e266413404db5c414b92c">ansi_term_cr</a> (int out_fd)</td></tr>
-<tr class="memdesc:a50e43a9ed79e266413404db5c414b92c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints the ansi escape code for carriage return in a terminal.  <a href="#a50e43a9ed79e266413404db5c414b92c">More...</a><br /></td></tr>
-<tr class="separator:a50e43a9ed79e266413404db5c414b92c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac6b338a9b634516fb1535404d12ba9c6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="util_8c.html#ac6b338a9b634516fb1535404d12ba9c6">print_dchat_msg</a> (char *msg, int out_fd)</td></tr>
-<tr class="memdesc:ac6b338a9b634516fb1535404d12ba9c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints a chat message to a file descriptor.  <a href="#ac6b338a9b634516fb1535404d12ba9c6">More...</a><br /></td></tr>
-<tr class="separator:ac6b338a9b634516fb1535404d12ba9c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aadc76aa2a75bd302883a2bb571a42033"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aadc76aa2a75bd302883a2bb571a42033"></a>
+char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="util_8c.html#aadc76aa2a75bd302883a2bb571a42033">ansi_clear_line</a> ()</td></tr>
+<tr class="memdesc:aadc76aa2a75bd302883a2bb571a42033"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the ansi escape code string for clearing the current line in a terminal. <br /></td></tr>
+<tr class="separator:aadc76aa2a75bd302883a2bb571a42033"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3ea2f374cda4c473cbd22f83dc6b64f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ae3ea2f374cda4c473cbd22f83dc6b64f"></a>
+char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="util_8c.html#ae3ea2f374cda4c473cbd22f83dc6b64f">ansi_cr</a> ()</td></tr>
+<tr class="memdesc:ae3ea2f374cda4c473cbd22f83dc6b64f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retruns the ansi escape code string for carriage return . <br /></td></tr>
+<tr class="separator:ae3ea2f374cda4c473cbd22f83dc6b64f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acda96afe4e46122c63830a774a5d1e1f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="acda96afe4e46122c63830a774a5d1e1f"></a>
+char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="util_8c.html#acda96afe4e46122c63830a774a5d1e1f">ansi_color_bold_yellow</a> ()</td></tr>
+<tr class="memdesc:acda96afe4e46122c63830a774a5d1e1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the ansi escape code string for bold yellow color. <br /></td></tr>
+<tr class="separator:acda96afe4e46122c63830a774a5d1e1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a422252d31fec52cb84c60fc0c18bd93e"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a422252d31fec52cb84c60fc0c18bd93e"></a>
+char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="util_8c.html#a422252d31fec52cb84c60fc0c18bd93e">ansi_color_bold_cyan</a> ()</td></tr>
+<tr class="memdesc:a422252d31fec52cb84c60fc0c18bd93e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the ansi escape code string for bold cyan color. <br /></td></tr>
+<tr class="separator:a422252d31fec52cb84c60fc0c18bd93e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18901a0772a8dd71781402b41579ec95"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a18901a0772a8dd71781402b41579ec95"></a>
+char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="util_8c.html#a18901a0772a8dd71781402b41579ec95">ansi_reset_attributes</a> ()</td></tr>
+<tr class="memdesc:a18901a0772a8dd71781402b41579ec95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the ansi escape code string for resetting attributes. <br /></td></tr>
+<tr class="separator:a18901a0772a8dd71781402b41579ec95"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab43cc6f8c6c043d052ebcfebd33023e9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="util_8c.html#ab43cc6f8c6c043d052ebcfebd33023e9">print_dchat_msg</a> (char *nickname, char *msg, int out_fd)</td></tr>
+<tr class="memdesc:ab43cc6f8c6c043d052ebcfebd33023e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints a chat message to a file descriptor.  <a href="#ab43cc6f8c6c043d052ebcfebd33023e9">More...</a><br /></td></tr>
+<tr class="separator:ab43cc6f8c6c043d052ebcfebd33023e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af082905f7eac6d03e92015146bbc1925"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="util_8c.html#af082905f7eac6d03e92015146bbc1925">max</a> (int a, int b)</td></tr>
 <tr class="memdesc:af082905f7eac6d03e92015146bbc1925"><td class="mdescLeft">&#160;</td><td class="mdescRight">Define the maximum of two given integers.  <a href="#af082905f7eac6d03e92015146bbc1925">More...</a><br /></td></tr>
 <tr class="separator:af082905f7eac6d03e92015146bbc1925"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -153,58 +167,6 @@ Functions</h2></td></tr>
 
 <p>Definition in file <a class="el" href="util_8c_source.html">util.c</a>.</p>
 </div><h2 class="groupheader">Function Documentation</h2>
-<a class="anchor" id="a9b2b1cd61b591b14b2abf2cedb0cac30"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void ansi_term_clear_line </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>out_fd</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Prints the ansi escape code for clearing the current line in a terminal. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">out_fd</td><td>File descriptor where the escape code will be written to </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p>Definition at line <a class="el" href="util_8c_source.html#l00092">92</a> of file <a class="el" href="util_8c_source.html">util.c</a>.</p>
-
-</div>
-</div>
-<a class="anchor" id="a50e43a9ed79e266413404db5c414b92c"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void ansi_term_cr </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>out_fd</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Prints the ansi escape code for carriage return in a terminal. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">out_fd</td><td>File descriptor where the escape code will be written to </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p>Definition at line <a class="el" href="util_8c_source.html#l00103">103</a> of file <a class="el" href="util_8c_source.html">util.c</a>.</p>
-
-</div>
-</div>
 <a class="anchor" id="a77de9c9eb5a8ea2a6da108270bd7417e"></a>
 <div class="memitem">
 <div class="memproto">
@@ -228,7 +190,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>file descriptor of new socket or -1 in case of error </dd></dl>
 
-<p>Definition at line <a class="el" href="util_8c_source.html#l00065">65</a> of file <a class="el" href="util_8c_source.html">util.c</a>.</p>
+<p>Definition at line <a class="el" href="util_8c_source.html#l00067">67</a> of file <a class="el" href="util_8c_source.html">util.c</a>.</p>
 
 <p><div class="dynheader">
 Here is the call graph for this function:</div>
@@ -264,7 +226,7 @@ Here is the call graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>4 if AF_INET is used, 6 if AF_INET6 is used or -1 in every other case </dd></dl>
 
-<p>Definition at line <a class="el" href="util_8c_source.html#l00043">43</a> of file <a class="el" href="util_8c_source.html">util.c</a>.</p>
+<p>Definition at line <a class="el" href="util_8c_source.html#l00044">44</a> of file <a class="el" href="util_8c_source.html">util.c</a>.</p>
 
 </div>
 </div>
@@ -302,17 +264,23 @@ Here is the call graph for this function:</div>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>either a or b, depending on which one is bigger </dd></dl>
 
-<p>Definition at line <a class="el" href="util_8c_source.html#l00148">148</a> of file <a class="el" href="util_8c_source.html">util.c</a>.</p>
+<p>Definition at line <a class="el" href="util_8c_source.html#l00177">177</a> of file <a class="el" href="util_8c_source.html">util.c</a>.</p>
 
 </div>
 </div>
-<a class="anchor" id="ac6b338a9b634516fb1535404d12ba9c6"></a>
+<a class="anchor" id="ab43cc6f8c6c043d052ebcfebd33023e9"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void print_dchat_msg </td>
           <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>nickname</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">char *&#160;</td>
           <td class="paramname"><em>msg</em>, </td>
         </tr>
@@ -333,20 +301,21 @@ Here is the call graph for this function:</div>
 <p>Prints a chat message to a file descriptor. </p>
 <p>Prints the given message string to the given output file descriptor. Before the message is printed, the current line in the terminal is cleared and the cursor is resetted to the beginning of the line. After the message is printed, the line buffer of GNU readline containing the userinput is reprinted to the terminal. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramname">nickanem</td><td>Nickname of the client from whom we received a message </td></tr>
     <tr><td class="paramname">msg</td><td>Text message to print </td></tr>
     <tr><td class="paramname">out_fd</td><td>File descriptor where the message will be written to </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="util_8c_source.html#l00119">119</a> of file <a class="el" href="util_8c_source.html">util.c</a>.</p>
+<p>Definition at line <a class="el" href="util_8c_source.html#l00151">151</a> of file <a class="el" href="util_8c_source.html">util.c</a>.</p>
 
 <p><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="util_8c_ac6b338a9b634516fb1535404d12ba9c6_cgraph.png" border="0" usemap="#util_8c_ac6b338a9b634516fb1535404d12ba9c6_cgraph" alt=""/></div>
-<map name="util_8c_ac6b338a9b634516fb1535404d12ba9c6_cgraph" id="util_8c_ac6b338a9b634516fb1535404d12ba9c6_cgraph">
-<area shape="rect" id="node2" href="util_8c.html#a9b2b1cd61b591b14b2abf2cedb0cac30" title="Prints the ansi escape code for clearing the current line in a terminal. " alt="" coords="174,5,319,32"/><area shape="rect" id="node3" href="util_8c.html#a50e43a9ed79e266413404db5c414b92c" title="Prints the ansi escape code for carriage return in a terminal. " alt="" coords="197,56,296,83"/></map>
+<div class="center"><img src="util_8c_ab43cc6f8c6c043d052ebcfebd33023e9_cgraph.png" border="0" usemap="#util_8c_ab43cc6f8c6c043d052ebcfebd33023e9_cgraph" alt=""/></div>
+<map name="util_8c_ab43cc6f8c6c043d052ebcfebd33023e9_cgraph" id="util_8c_ab43cc6f8c6c043d052ebcfebd33023e9_cgraph">
+<area shape="rect" id="node2" href="util_8c.html#aadc76aa2a75bd302883a2bb571a42033" title="Returns the ansi escape code string for clearing the current line in a terminal. " alt="" coords="194,5,305,32"/><area shape="rect" id="node3" href="util_8c.html#ae3ea2f374cda4c473cbd22f83dc6b64f" title="Retruns the ansi escape code string for carriage return . " alt="" coords="217,56,282,83"/><area shape="rect" id="node4" href="util_8c.html#a422252d31fec52cb84c60fc0c18bd93e" title="Returns the ansi escape code string for bold cyan color. " alt="" coords="174,107,325,133"/><area shape="rect" id="node5" href="util_8c.html#a18901a0772a8dd71781402b41579ec95" title="Returns the ansi escape code string for resetting attributes. " alt="" coords="177,157,322,184"/></map>
 </div>
 </p>
 
@@ -358,7 +327,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="util_8c.html">util.c</a></li>
-    <li class="footer">Generated on Wed Jun 18 2014 11:15:39 for DChat by
+    <li class="footer">Generated on Sun Jun 22 2014 16:56:01 for DChat by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.7 </li>
   </ul>
