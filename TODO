@@ -1,14 +1,15 @@
                           DChat - P2P Client
 
 ==================UNDONE======================
-* adpat DChat protocol, so that nicknames
-  will be sent as headers.
+* check memory leaks with valgrind
 * IPv6 support
 * add section "COMMANDS" in man page
 * write protocol specification
 
 
 ==================DONE=======================
+* adpat DChat protocol, so that nicknames
+  will be sent as headers.
 * doxygen documentation with autotools
 * add getopt() in dchat.c
 * re-write usage() in dchat.c
