@@ -66,6 +66,7 @@
 
 dchat_conf_t cnf;             //!< global dchat configuration structure
 
+
 int
 main(int argc, char** argv)
 {
