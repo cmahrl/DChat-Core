@@ -1,6 +1,8 @@
 var searchData=
 [
-  ['init',['init',['../dchat_8c.html#a145fa18d43519336aa18779637f8a1ae',1,'dchat.c']]],
-  ['init_5fglobal_5fconfig',['init_global_config',['../dchat_8c.html#a4ce83f2339019d8866846d55fe3d7959',1,'dchat.c']]],
-  ['ip_5fversion',['ip_version',['../util_8c.html#a279f65250f814269adbaadf7f94680c5',1,'util.c']]]
+  ['log_2ec',['log.c',['../log_8c.html',1,'']]],
+  ['log_5ferrno',['log_errno',['../log_8c.html#a447124894e44d19ff906633927930c19',1,'log.c']]],
+  ['log_5fhex',['log_hex',['../log_8c.html#aa05818180f0330abd9c560438913101f',1,'log.c']]],
+  ['log_5fmsg',['log_msg',['../log_8c.html#a021b18b681712d42cb07c99171691a84',1,'log.c']]],
+  ['lport',['lport',['../structdchat__pdu.html#a6f925c9e95620edf72f6801253c466fc',1,'dchat_pdu::lport()'],['../structcontact.html#a6f925c9e95620edf72f6801253c466fc',1,'contact::lport()']]]
 ];

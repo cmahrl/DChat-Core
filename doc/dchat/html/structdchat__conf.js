@@ -8,6 +8,7 @@ var structdchat__conf =
     [ "in_fd", "structdchat__conf.html#a683029b96d4f70080d7f5d69d5144cd5", null ],
     [ "me", "structdchat__conf.html#a935ee7dac76c71a7f94b5efa0e89a6ae", null ],
     [ "out_fd", "structdchat__conf.html#a0cddee7d441a1b689349897be6989a01", null ],
+    [ "sa", "structdchat__conf.html#a36009875905ba03ea3f9bbc472a5f1db", null ],
     [ "select_th", "structdchat__conf.html#a99603fa4ab6a0205bb965efd969255b7", null ],
     [ "user_input", "structdchat__conf.html#a9733f6865bb097342b143df20931ed8c", null ]
 ];

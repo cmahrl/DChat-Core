@@ -1,6 +1,5 @@
 <map id="check_duplicates" name="check_duplicates">
-<area shape="rect" id="node2" href="$dchat__contact_8c.html#a01eb319ee1d229714b6a20e144181a1a" title="Searches a contact in the local contactlist. " alt="" coords="179,31,272,57"/>
-<area shape="rect" id="node4" href="$util_8c.html#a279f65250f814269adbaadf7f94680c5" title="Determines the address family of the given socket address structure. " alt="" coords="493,5,576,32"/>
-<area shape="rect" id="node5" href="$log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="499,56,571,83"/>
-<area shape="rect" id="node3" href="$dchat__contact_8c.html#ac15f4eb395316547db5ceba947a2f3b9" title="Converts a contact into a string. " alt="" coords="321,31,445,57"/>
+<area shape="rect" id="node2" href="$dchat__contact_8c.html#a01eb319ee1d229714b6a20e144181a1a" title="Searches a contact in the local contactlist. " alt="" coords="179,5,272,32"/>
+<area shape="rect" id="node3" href="$dchat__contact_8c.html#ac15f4eb395316547db5ceba947a2f3b9" title="Converts a contact into a string. " alt="" coords="321,5,445,32"/>
+<area shape="rect" id="node4" href="$log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="493,5,565,32"/>
 </map>

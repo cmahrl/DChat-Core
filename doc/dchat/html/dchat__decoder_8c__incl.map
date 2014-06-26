@@ -1,6 +1,7 @@
 <map id="src/dchat_decoder.c" name="src/dchat_decoder.c">
-<area shape="rect" id="node10" href="$dchat__decoder_8h_source.html" title="dchat_h/dchat_decoder.h" alt="" coords="775,80,947,107"/>
-<area shape="rect" id="node13" href="$log_8h_source.html" title="dchat_h/log.h" alt="" coords="971,80,1073,107"/>
-<area shape="rect" id="node15" href="$util_8h_source.html" title="dchat_h/util.h" alt="" coords="1099,80,1200,107"/>
-<area shape="rect" id="node11" href="$dchat__types_8h_source.html" title="dchat_types.h" alt="" coords="829,155,933,181"/>
+<area shape="rect" id="node10" href="$dchat__decoder_8h_source.html" title="dchat_h/dchat_decoder.h" alt="" coords="826,80,997,107"/>
+<area shape="rect" id="node13" href="$dchat__network_8h_source.html" title="dchat_network.h" alt="" coords="789,229,909,256"/>
+<area shape="rect" id="node15" href="$log_8h_source.html" title="dchat_h/log.h" alt="" coords="1022,80,1124,107"/>
+<area shape="rect" id="node17" href="$util_8h_source.html" title="dchat_h/util.h" alt="" coords="1149,80,1251,107"/>
+<area shape="rect" id="node11" href="$dchat__types_8h_source.html" title="dchat_types.h" alt="" coords="859,155,964,181"/>
 </map>

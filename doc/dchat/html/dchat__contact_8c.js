@@ -1,6 +1,6 @@
 var dchat__contact_8c =
 [
-    [ "add_contact", "dchat__contact_8c.html#a1440cfddd2b95761ff972d50e0e0f2c6", null ],
+    [ "add_contact", "dchat__contact_8c.html#a6777b1a477207c7bbc9e560cf9caabed", null ],
     [ "check_duplicates", "dchat__contact_8c.html#aa0681254b16e6d20d63a03aed84c12e2", null ],
     [ "contact_to_string", "dchat__contact_8c.html#ac15f4eb395316547db5ceba947a2f3b9", null ],
     [ "del_contact", "dchat__contact_8c.html#a56a9992b188f855108c72588953fe8a6", null ],

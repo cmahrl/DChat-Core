@@ -118,45 +118,27 @@ Data Fields</h2></td></tr>
 int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcontact.html#a6f8059414f0228f0256115e024eeed4b">fd</a></td></tr>
 <tr class="memdesc:a6f8059414f0228f0256115e024eeed4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">file descriptor of TCP session <br /></td></tr>
 <tr class="separator:a6f8059414f0228f0256115e024eeed4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aafb3d7c6eb7fd34776bc675516607bf4"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aafb3d7c6eb7fd34776bc675516607bf4"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcontact.html#aafb3d7c6eb7fd34776bc675516607bf4">lport</a></td></tr>
-<tr class="memdesc:aafb3d7c6eb7fd34776bc675516607bf4"><td class="mdescLeft">&#160;</td><td class="mdescRight">listening port <br /></td></tr>
-<tr class="separator:aafb3d7c6eb7fd34776bc675516607bf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a76c8d5642b6baa5501177c0760546d7f"><td class="memItemLeft" ><a class="anchor" id="a76c8d5642b6baa5501177c0760546d7f"></a>
-union {</td></tr>
-<tr class="memitem:aec1293435eb747f099d04801d6976a7f"><td class="memItemLeft" ><a class="anchor" id="aec1293435eb747f099d04801d6976a7f"></a>
-&#160;&#160;&#160;struct sockaddr_in&#160;&#160;&#160;<b>v4addr</b></td></tr>
-<tr class="separator:aec1293435eb747f099d04801d6976a7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae170790f16138b4ec8686b756878f11a"><td class="memItemLeft" ><a class="anchor" id="ae170790f16138b4ec8686b756878f11a"></a>
-&#160;&#160;&#160;struct sockaddr_in6&#160;&#160;&#160;<b>v6addr</b></td></tr>
-<tr class="separator:ae170790f16138b4ec8686b756878f11a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa3c2d15481f1ab2f9879151386b26d25"><td class="memItemLeft" ><a class="anchor" id="aa3c2d15481f1ab2f9879151386b26d25"></a>
-&#160;&#160;&#160;struct sockaddr_storage&#160;&#160;&#160;<b>stor</b></td></tr>
-<tr class="separator:aa3c2d15481f1ab2f9879151386b26d25"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a76c8d5642b6baa5501177c0760546d7f"><td class="memItemLeft" valign="top">};&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="memdesc:a76c8d5642b6baa5501177c0760546d7f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Socket address of contact. <br /></td></tr>
-<tr class="separator:a76c8d5642b6baa5501177c0760546d7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a620a3eb5b21220abd5ef93890b03f7ea"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a620a3eb5b21220abd5ef93890b03f7ea"></a>
-char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcontact.html#a620a3eb5b21220abd5ef93890b03f7ea">buf</a> [FRAME_BUF_LEN]</td></tr>
-<tr class="memdesc:a620a3eb5b21220abd5ef93890b03f7ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">framing buffer <br /></td></tr>
-<tr class="separator:a620a3eb5b21220abd5ef93890b03f7ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afed088663f8704004425cdae2120b9b3"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="afed088663f8704004425cdae2120b9b3"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcontact.html#afed088663f8704004425cdae2120b9b3">len</a></td></tr>
-<tr class="memdesc:afed088663f8704004425cdae2120b9b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">number of bytes in buffer <br /></td></tr>
-<tr class="separator:afed088663f8704004425cdae2120b9b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1866183c74b802fd2b0fdc71e0a821ad"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1866183c74b802fd2b0fdc71e0a821ad"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcontact.html#a1866183c74b802fd2b0fdc71e0a821ad">chatrooms</a></td></tr>
-<tr class="memdesc:a1866183c74b802fd2b0fdc71e0a821ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">member of this chat rooms <br /></td></tr>
-<tr class="separator:a1866183c74b802fd2b0fdc71e0a821ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae71a1d3ab37312bbc0b5af57d1a2a1c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aae71a1d3ab37312bbc0b5af57d1a2a1c"></a>
+char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcontact.html#aae71a1d3ab37312bbc0b5af57d1a2a1c">onion_id</a> [ONION_ADDRLEN+1]</td></tr>
+<tr class="memdesc:aae71a1d3ab37312bbc0b5af57d1a2a1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">onion address of hidden service <br /></td></tr>
+<tr class="separator:aae71a1d3ab37312bbc0b5af57d1a2a1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f925c9e95620edf72f6801253c466fc"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a6f925c9e95620edf72f6801253c466fc"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcontact.html#a6f925c9e95620edf72f6801253c466fc">lport</a></td></tr>
+<tr class="memdesc:a6f925c9e95620edf72f6801253c466fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">listening port of hidden service <br /></td></tr>
+<tr class="separator:a6f925c9e95620edf72f6801253c466fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a90636d34f8e859bb7275d528926c322f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a90636d34f8e859bb7275d528926c322f"></a>
 char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcontact.html#a90636d34f8e859bb7275d528926c322f">name</a> [MAX_NICKNAME+1]</td></tr>
 <tr class="memdesc:a90636d34f8e859bb7275d528926c322f"><td class="mdescLeft">&#160;</td><td class="mdescRight">nickname <br /></td></tr>
 <tr class="separator:a90636d34f8e859bb7275d528926c322f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4474c954589eca659941e4732e18a62f"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4474c954589eca659941e4732e18a62f"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcontact.html#a4474c954589eca659941e4732e18a62f">accepted</a></td></tr>
+<tr class="memdesc:a4474c954589eca659941e4732e18a62f"><td class="mdescLeft">&#160;</td><td class="mdescRight">connect to or accepted contact? <br /></td></tr>
+<tr class="separator:a4474c954589eca659941e4732e18a62f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Structure for contact information </p>
 
-<p>Definition at line <a class="el" href="dchat__types_8h_source.html#l00051">51</a> of file <a class="el" href="dchat__types_8h_source.html">dchat_types.h</a>.</p>
+<p>Definition at line <a class="el" href="dchat__types_8h_source.html#l00053">53</a> of file <a class="el" href="dchat__types_8h_source.html">dchat_types.h</a>.</p>
 </div><hr/>The documentation for this struct was generated from the following file:<ul>
 <li>src/dchat_h/<a class="el" href="dchat__types_8h_source.html">dchat_types.h</a></li>
 </ul>
@@ -166,7 +148,7 @@ char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="stru
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="structcontact.html">contact</a></li>
-    <li class="footer">Generated on Sun Jun 22 2014 16:56:01 for DChat by
+    <li class="footer">Generated on Thu Jun 26 2014 15:44:00 for DChat by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.7 </li>
   </ul>

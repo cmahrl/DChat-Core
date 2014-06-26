@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['terminate',['terminate',['../dchat_8c.html#a7fbc5e4f614e5e82b3a1fc5224f1855a',1,'dchat.c']]],
-  ['th_5fmain_5floop',['th_main_loop',['../dchat_8c.html#a39d1655c3815d6db5026c52870b45776',1,'dchat.c']]],
-  ['th_5fnew_5fconn',['th_new_conn',['../dchat_8c.html#a20c922556a3f5ba773faf2b38fc16750',1,'dchat.c']]],
-  ['th_5fnew_5finput',['th_new_input',['../dchat_8c.html#a0a9fd273c9490e8cf99a08da3cfab690',1,'dchat.c']]]
+  ['usage',['usage',['../dchat_8c.html#a2ef30c42cbc289d899a8be5d2d8f77d0',1,'dchat.c']]],
+  ['used_5fcontacts',['used_contacts',['../structcontactlist.html#a522a9b1baff1a38530a0c400d2666836',1,'contactlist']]],
+  ['user_5finput',['user_input',['../structdchat__conf.html#a9733f6865bb097342b143df20931ed8c',1,'dchat_conf']]],
+  ['util_2ec',['util.c',['../util_8c.html',1,'']]]
 ];

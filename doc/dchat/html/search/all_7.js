@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['handle_5flocal_5fconn_5frequest',['handle_local_conn_request',['../dchat_8c.html#aa192202231a392d88dd4c1460b82affe',1,'dchat.c']]],
-  ['handle_5flocal_5finput',['handle_local_input',['../dchat_8c.html#af26d1f15348f568261ddb15d886dbaff',1,'dchat.c']]],
-  ['handle_5fremote_5fconn_5frequest',['handle_remote_conn_request',['../dchat_8c.html#a5c79a63478c0df6d16f70940e53338d1',1,'dchat.c']]],
-  ['handle_5fremote_5finput',['handle_remote_input',['../dchat_8c.html#a2cbf2aad21d016dd4852369423d86270',1,'dchat.c']]]
+  ['init',['init',['../dchat_8c.html#a1b4978ff6c451ebbc8ac7a7340c414b7',1,'dchat.c']]],
+  ['init_5fglobal_5fconfig',['init_global_config',['../dchat_8c.html#a4c8f7778f9d784e724e3f987cb92edd0',1,'dchat.c']]],
+  ['ip_5fversion',['ip_version',['../util_8c.html#a279f65250f814269adbaadf7f94680c5',1,'util.c']]]
 ];

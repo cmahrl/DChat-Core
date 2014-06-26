@@ -1,28 +1,31 @@
 <map id="handle_remote_input" name="handle_remote_input">
-<area shape="rect" id="node2" href="$dchat__decoder_8c.html#ae0ceb4d749dc162f86d73d4f08ed5fa4" title="Read a whole DChat PDU from a file descriptor. " alt="" coords="425,280,503,306"/>
-<area shape="rect" id="node3" href="$log_8c.html#a447124894e44d19ff906633927930c19" title="Log a message together with a string representation of errno as error. " alt="" coords="793,305,871,332"/>
-<area shape="rect" id="node4" href="$log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="965,508,1037,534"/>
-<area shape="rect" id="node7" href="$dchat__decoder_8c.html#ade270b4d1100adbdffbb22fdd5635737" title="Frees all resources dynamically allocated for a PDU structure. " alt="" coords="224,558,299,585"/>
-<area shape="rect" id="node8" href="$util_8c.html#ab43cc6f8c6c043d052ebcfebd33023e9" title="Prints a chat message to a file descriptor. " alt="" coords="201,812,321,838"/>
-<area shape="rect" id="node13" href="$dchat__contact_8c.html#aa0681254b16e6d20d63a03aed84c12e2" title="Checks the local contactlist for duplicates. " alt="" coords="402,710,526,737"/>
-<area shape="rect" id="node17" href="$dchat__contact_8c.html#a56a9992b188f855108c72588953fe8a6" title="Deletes a contact from the local contactlist. " alt="" coords="617,52,708,78"/>
-<area shape="rect" id="node19" href="$dchat__contact_8c.html#a2161fbd1e0fc61c762f08bb102e54ab8" title="Contacts transferred via PDU will be added to the contactlist. " alt="" coords="200,457,323,484"/>
-<area shape="rect" id="node5" href="$dchat__decoder_8c.html#a9a4f2d2d79d140c5d1bcb5be3bc82e0e" title="Read a line terminated with \n from a file descriptor. " alt="" coords="624,254,701,281"/>
-<area shape="rect" id="node6" href="$dchat__decoder_8c.html#acdc394373c1cbcfa66f99a9a4579e5c8" title="Decodes a string into a DChat header. " alt="" coords="605,305,720,332"/>
-<area shape="rect" id="node9" href="$util_8c.html#aadc76aa2a75bd302883a2bb571a42033" title="Returns the ansi escape code string for clearing the current line in a terminal. " alt="" coords="409,862,519,889"/>
-<area shape="rect" id="node10" href="$util_8c.html#ae3ea2f374cda4c473cbd22f83dc6b64f" title="Retruns the ansi escape code string for carriage return . " alt="" coords="431,913,497,940"/>
-<area shape="rect" id="node11" href="$util_8c.html#a422252d31fec52cb84c60fc0c18bd93e" title="Returns the ansi escape code string for bold cyan color. " alt="" coords="389,761,539,788"/>
-<area shape="rect" id="node12" href="$util_8c.html#a18901a0772a8dd71781402b41579ec95" title="Returns the ansi escape code string for resetting attributes. " alt="" coords="391,812,537,838"/>
-<area shape="rect" id="node14" href="$dchat__contact_8c.html#a01eb319ee1d229714b6a20e144181a1a" title="Searches a contact in the local contactlist. " alt="" coords="616,761,709,788"/>
-<area shape="rect" id="node16" href="$util_8c.html#a279f65250f814269adbaadf7f94680c5" title="Determines the address family of the given socket address structure. " alt="" coords="960,812,1043,838"/>
-<area shape="rect" id="node15" href="$dchat__contact_8c.html#ac15f4eb395316547db5ceba947a2f3b9" title="Converts a contact into a string. " alt="" coords="770,761,894,788"/>
-<area shape="rect" id="node18" href="$dchat__contact_8c.html#a0de7073d40f7447f933e334054d432d8" title="Resizes the contactlist. " alt="" coords="768,204,896,230"/>
-<area shape="rect" id="node20" href="$dchat__decoder_8c.html#ab4502d6fa3578ce5f3b4a92e5489c978" title="Extracts a fraction of the content. " alt="" coords="771,558,893,585"/>
-<area shape="rect" id="node21" href="$dchat__contact_8c.html#a5fc6d1fda23da9c12247773139cc9c74" title="Converts a string into a contact. " alt="" coords="770,457,894,484"/>
-<area shape="rect" id="node22" href="$dchat_8c.html#aa192202231a392d88dd4c1460b82affe" title="Handles local connection requests from the user. " alt="" coords="371,406,557,433"/>
-<area shape="rect" id="node23" href="$util_8c.html#a77de9c9eb5a8ea2a6da108270bd7417e" title="Connects to a remote socket using the given socket address. " alt="" coords="619,356,706,382"/>
-<area shape="rect" id="node24" href="$dchat__contact_8c.html#a1440cfddd2b95761ff972d50e0e0f2c6" title="Adds a new contact to the local contactlist. " alt="" coords="615,204,710,230"/>
-<area shape="rect" id="node25" href="$dchat__contact_8c.html#a625b0742c9e1cbd35146d35ecbf25282" title="Sends local contactlist to a contact. " alt="" coords="609,609,717,636"/>
-<area shape="rect" id="node26" href="$dchat__decoder_8c.html#af4aaf258b8866187ed65d6d1c23083cb" title="Converts a PDU to a string that will be written to a file descriptor. " alt="" coords="792,710,872,737"/>
-<area shape="rect" id="node27" href="$dchat__decoder_8c.html#ae5745b50cd3cc0aa6228e35d08690fdc" title="Crafts a DChat header string. " alt="" coords="944,710,1059,737"/>
+<area shape="rect" id="node2" href="$dchat__decoder_8c.html#ae0ceb4d749dc162f86d73d4f08ed5fa4" title="Read a whole DChat PDU from a file descriptor. " alt="" coords="633,119,711,145"/>
+<area shape="rect" id="node3" href="$log_8c.html#a447124894e44d19ff906633927930c19" title="Log a message together with a string representation of errno as error. " alt="" coords="997,220,1075,247"/>
+<area shape="rect" id="node4" href="$log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="1168,701,1240,728"/>
+<area shape="rect" id="node7" href="$dchat__decoder_8c.html#ade270b4d1100adbdffbb22fdd5635737" title="Frees all resources dynamically allocated for a PDU structure. " alt="" coords="225,625,300,652"/>
+<area shape="rect" id="node8" href="$util_8c.html#ab43cc6f8c6c043d052ebcfebd33023e9" title="Prints a chat message to a file descriptor. " alt="" coords="203,1005,323,1032"/>
+<area shape="rect" id="node13" href="$dchat__contact_8c.html#aa0681254b16e6d20d63a03aed84c12e2" title="Checks the local contactlist for duplicates. " alt="" coords="201,575,325,601"/>
+<area shape="rect" id="node16" href="$dchat__contact_8c.html#a56a9992b188f855108c72588953fe8a6" title="Deletes a contact from the local contactlist. " alt="" coords="627,397,717,424"/>
+<area shape="rect" id="node18" href="$dchat__contact_8c.html#a2161fbd1e0fc61c762f08bb102e54ab8" title="Contacts transferred via PDU will be added to the contactlist. " alt="" coords="201,524,324,551"/>
+<area shape="rect" id="node5" href="$dchat__decoder_8c.html#a9a4f2d2d79d140c5d1bcb5be3bc82e0e" title="Read a line terminated with \n from a file descriptor. " alt="" coords="816,144,893,171"/>
+<area shape="rect" id="node6" href="$dchat__decoder_8c.html#acdc394373c1cbcfa66f99a9a4579e5c8" title="Decodes a string into a DChat header. " alt="" coords="797,43,912,69"/>
+<area shape="rect" id="node9" href="$util_8c.html#aadc76aa2a75bd302883a2bb571a42033" title="Returns the ansi escape code string for clearing the current line in a terminal. " alt="" coords="411,1107,522,1133"/>
+<area shape="rect" id="node10" href="$util_8c.html#ae3ea2f374cda4c473cbd22f83dc6b64f" title="Retruns the ansi escape code string for carriage return . " alt="" coords="434,955,499,981"/>
+<area shape="rect" id="node11" href="$util_8c.html#a422252d31fec52cb84c60fc0c18bd93e" title="Returns the ansi escape code string for bold cyan color. " alt="" coords="391,1005,542,1032"/>
+<area shape="rect" id="node12" href="$util_8c.html#a18901a0772a8dd71781402b41579ec95" title="Returns the ansi escape code string for resetting attributes. " alt="" coords="394,1056,539,1083"/>
+<area shape="rect" id="node14" href="$dchat__contact_8c.html#a01eb319ee1d229714b6a20e144181a1a" title="Searches a contact in the local contactlist. " alt="" coords="420,828,513,855"/>
+<area shape="rect" id="node15" href="$dchat__contact_8c.html#ac15f4eb395316547db5ceba947a2f3b9" title="Converts a contact into a string. " alt="" coords="974,803,1098,829"/>
+<area shape="rect" id="node17" href="$dchat__contact_8c.html#a0de7073d40f7447f933e334054d432d8" title="Resizes the contactlist. " alt="" coords="791,397,919,424"/>
+<area shape="rect" id="node19" href="$dchat__decoder_8c.html#ab4502d6fa3578ce5f3b4a92e5489c978" title="Extracts a fraction of the content. " alt="" coords="975,955,1097,981"/>
+<area shape="rect" id="node20" href="$dchat__contact_8c.html#a5fc6d1fda23da9c12247773139cc9c74" title="Converts a string into a contact. " alt="" coords="610,448,734,475"/>
+<area shape="rect" id="node21" href="$dchat_8c.html#ae2c246a2244b6435d0b307f0e893b0c6" title="Handles local connection requests from the user. " alt="" coords="374,524,559,551"/>
+<area shape="rect" id="node22" href="$dchat__network_8c.html#abd951e9fd43b0ec9248ca6ec43398c6b" title="Creates a TOR socket. " alt="" coords="608,549,736,576"/>
+<area shape="rect" id="node27" href="$dchat__contact_8c.html#a6777b1a477207c7bbc9e560cf9caabed" title="Adds a new contact to the local contactlist. " alt="" coords="625,499,719,525"/>
+<area shape="rect" id="node28" href="$dchat__contact_8c.html#a625b0742c9e1cbd35146d35ecbf25282" title="Sends local contactlist to a contact. " alt="" coords="801,752,909,779"/>
+<area shape="rect" id="node23" href="$util_8c.html#a77de9c9eb5a8ea2a6da108270bd7417e" title="Connects to a remote socket using the given socket address. " alt="" coords="811,448,898,475"/>
+<area shape="rect" id="node24" href="$dchat__network_8c.html#abd49b4a8eb0f62dc3be6755729d672b8" title="Writes a SOCKS PDU to the given socket. " alt="" coords="801,549,908,576"/>
+<area shape="rect" id="node25" href="$dchat__network_8c.html#a0ace1062fab444c73177e0552e019425" title="Reads a SOCKS response PDU from the given socket. " alt="" coords="802,600,907,627"/>
+<area shape="rect" id="node26" href="$dchat__network_8c.html#abd3d58b10c19c6d550b6e6aa86c9dc5c" title="Parses given status and returns its corresponding status message. " alt="" coords="785,651,925,677"/>
+<area shape="rect" id="node29" href="$dchat__decoder_8c.html#af4aaf258b8866187ed65d6d1c23083cb" title="Converts a PDU to a string that will be written to a file descriptor. " alt="" coords="996,904,1076,931"/>
+<area shape="rect" id="node30" href="$dchat__decoder_8c.html#ae5745b50cd3cc0aa6228e35d08690fdc" title="Crafts a DChat header string. " alt="" coords="1147,904,1261,931"/>
 </map>

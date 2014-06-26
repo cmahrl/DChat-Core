@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['parse_5fcmd',['parse_cmd',['../dchat__cmd_8c.html#a02a55875d8dace649fd51091f9a4dc0b',1,'dchat_cmd.c']]],
-  ['parse_5fcmd_5fconnect',['parse_cmd_connect',['../dchat__cmd_8c.html#a704170b8cd6bd8927f648bdcb7510452',1,'dchat_cmd.c']]],
-  ['parse_5fcmd_5fhelp',['parse_cmd_help',['../dchat__cmd_8c.html#a69b01cf50ab64d9d015318477cbe11c1',1,'dchat_cmd.c']]],
-  ['parse_5fcmd_5flist',['parse_cmd_list',['../dchat__cmd_8c.html#a2a8ff695818e8d48087afa6b9fe27e14',1,'dchat_cmd.c']]],
-  ['print_5fdchat_5fmsg',['print_dchat_msg',['../util_8c.html#ab43cc6f8c6c043d052ebcfebd33023e9',1,'util.c']]]
+  ['read_5fline',['read_line',['../dchat__decoder_8c.html#a9a4f2d2d79d140c5d1bcb5be3bc82e0e',1,'dchat_decoder.c']]],
+  ['read_5fpdu',['read_pdu',['../dchat__decoder_8c.html#ae0ceb4d749dc162f86d73d4f08ed5fa4',1,'dchat_decoder.c']]],
+  ['read_5fsocks4a',['read_socks4a',['../dchat__network_8c.html#a0ace1062fab444c73177e0552e019425',1,'dchat_network.c']]],
+  ['realloc_5fcontactlist',['realloc_contactlist',['../dchat__contact_8c.html#a0de7073d40f7447f933e334054d432d8',1,'dchat_contact.c']]],
+  ['receive_5fcontacts',['receive_contacts',['../dchat__contact_8c.html#a2161fbd1e0fc61c762f08bb102e54ab8',1,'dchat_contact.c']]]
 ];

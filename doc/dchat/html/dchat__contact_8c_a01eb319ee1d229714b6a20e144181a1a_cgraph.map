@@ -1,5 +1,4 @@
 <map id="find_contact" name="find_contact">
-<area shape="rect" id="node2" href="$dchat__contact_8c.html#ac15f4eb395316547db5ceba947a2f3b9" title="Converts a contact into a string. " alt="" coords="147,31,271,57"/>
-<area shape="rect" id="node3" href="$util_8c.html#a279f65250f814269adbaadf7f94680c5" title="Determines the address family of the given socket address structure. " alt="" coords="320,5,403,32"/>
-<area shape="rect" id="node4" href="$log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="325,56,397,83"/>
+<area shape="rect" id="node2" href="$dchat__contact_8c.html#ac15f4eb395316547db5ceba947a2f3b9" title="Converts a contact into a string. " alt="" coords="147,5,271,32"/>
+<area shape="rect" id="node3" href="$log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="320,5,392,32"/>
 </map>
