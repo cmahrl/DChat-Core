@@ -3,55 +3,73 @@
 
 .TH man 1 "15 June 2014" "1.0" "dchat man page"
 .SH NAME
-dchat \- Peer-To-Peer chat client
+dchat \- Peer-To-Peer Chat over TOR
 .SH SYNOPSIS
 .B dchat
-\fB\-i\fR \fIINTERFACE\fR
+\fB\-s\fR \fIONIONID\fR
 \fB\-n\fR \fINICKNAME\fR
 [\fB\-l\fR \fILOCALPORT\fR]
-[\fB\-d\fR \fIREMOTEIP\fR]
+[\fB\-d\fR \fIREMOTEONIONID\fR]
 [\fB\-r\fR \fIREMOTEPORT\fR]
 
 .SH DESCRIPTION
 .B DChat 
-is a chat client which utilizes peer to peer techniques in order to establish a decentral network of chat clients. For that purpose the DChat protocol is used which is based on HTTP. A detailed description of how the DChat protocol works, can be found in the file called "PROTOCOL"
+is a chat client which utilizes peer to peer techniques in order to establish an anonymous decentral network of chat clients over TOR. For that purpose the DChat protocol is used which has a similar structure to HTTP and which is specified for the use with TOR. For more information on what TOR is, follow this link: <https://www.torproject.org/about/overview.html.en>. A detailed description of how the DChat protocol works can be found in the file called "PROTOCOL".
   
 This DChat client provides an in-chat command interpreter for convenient commands like connecting to other DChat clients, listing of current contacts, and a lot more. Commands supported by this client can be found in the section "Commands".
 
-Since DChat is based on a decentral network, no central server is required. Therefore as long as there are clients within the network, the network will live. This means that, if implemented properly, the DChat protocol takes care for exchanging contact information between clients accross the network automatically. No user interaction is necessary.
+Since DChat is based on an anonymous decentral network, no central server is required. Therefore as long as there are clients within the network, the network will live. This means that, if implemented properly, the DChat protocol takes care for exchanging contact information between clients accross the network automatically. No user interaction is necessary. Furthermore since DChat will only work within the TOR network, the location of a user cannot tracked back and the user can chat anonymously.
+
+Per default DChat listens on port 7777 of localhost. This port can be changed with the respective option to change the listening port (see section `OPTIONS`). The port must be the same of the configured hidden port in the TOR configuration file, otherwise remote clients will not be able to communicate with you.   
 
 .SH OPTIONS
 .TP
-.BR \-i ", " \-\-interface  = \fIINTERFACE\fR
-Set the network interface to determine the ip address that will be used for communication with other clients.
+.BR \-s ", " \-\-lonion  = \fIONIONID\fR
+Set the onion id of the local hidden service.
 
 .TP
 .BR \-n ", " \-\-nickname  = \fINICKNAME\fR
-Set the nickname for this chat session. It will be used in text messages sent to other clients.
+Set the nickname for this chat session. 
 
 .TP
 .BR \-l ", " \-\-lport  = \fILOCALPORT\fR
-Set the local listening port that will be used for communication with other clients. Valid port numbers ranges from 1 - 65535. If listening port is not specified, port 7777 will be used.
+Set the local listening port that will be used for communication with other clients. Valid port numbers ranges from 1 - 65535. If listening port is not specified, port 7777 will be used. The listening port must be equal to the hidden port configured for the local hidden service, otherwise .
 
 .TP
-.BR \-d ", " \-\-dest  = \fIREMOTEIP\fR
-Set the ip address of the remote chat client to whom a connection will be established. It is possible to specifiy any valid IP4 or IPV6 address. If no remote port has been specified, default port 7777 will be used for connecting.
+.BR \-d ", " \-\-ronion  = \fIREMOTEONIONID\fR
+Set the ip address of the remote host to whom a connection will be established. It is possible to specifiy any valid IP4 or IPV6 address. If no remote port has been specified, default port 7777 will be used for connecting.
 
 .TP
 .BR \-r ", " \-\-rport  = \fIREMOTEPORT\fR
-Set the remote port of the remote chat client who will accept connections on this port. Valid port numbers ranges from 1 - 65535. If no destination ip address has been specified, the ip address bound to the local network interface will be used instead.
+Set the remote port of the remote host who will accept connections on this port. Valid port numbers ranges from 1 - 65535. If no destination onion-id has been specified, the onion-id of the local hidden service will be used instead.
 
 .SH EXIT STATUS
 .B DChat
 returns \fB0\fR on successful termination, in case of error a non-zero value will be returned.
 
+
+.SH COMMANDS
+.TP
+.BR /connect\  \fI<REMOTEONIONID>\fR \fI<REMOTEPORT>\fR
+Connects to a remote host.
+
+.TP
+.BR /exit 
+Terminates the program.
+
+.TP
+.BR /help
+Lists all available commands.
+
+.TP
+.BR /list
+Lists all contacts stored in the local contactlist.
+
 .SH SEE ALSO
-dchat(4), ip(4), ip6(4)
+dchat(4), tor(1)
 
 .SH BUGS
-Communication with the local loopback interface of a machine is not supported properly. If the loopback interface is used and the client connects to another machine using a RFC1918 compliant ip address, the dchat contact exchange will not work as expected and the state of the contactlist will be undefined.
-
-Network Address Translation (NAT) is not supported yet. Connecting to a client whose address is translated, will result in an undefined state of the contactlist.
+No known bugs.
 
 .SH AUTHOR
 Christoph Mahrl (is121018@fhstp.ac.at)

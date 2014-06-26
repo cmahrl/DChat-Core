@@ -3,57 +3,61 @@
   What is it?
   -----------
   
-  DChat is a chat client which utilizes peer to peer techniques in order 
-  to establish a decentral network of chat clients. For that purpose the
-  DChat protocol is used which is based on HTTP. A detailed description
-  of how the DChat protocol works, can be found in the file called 
-  "PROTOCOL"
-  
-  This DChat client provides an in-chat command interpreter for convenient
-  commands like connecting to other DChat clients, listing of current 
-  contacts, and a lot more. Commands supported by this client can be found
-  in the manpage in the section "Commands" ( see: dchat(1) )
+    DChat is a chat client which utilizes peer to peer techniques in order to establish
+    an anonymous decentral network of chat clients over TOR. For that purpose the DChat
+    protocol  is  used which has a similar structure to HTTP and which is specified for
+    the use with  TOR.  For  more  information  on  what  TOR  is,  follow  this  link:
+    <https://www.torproject.org/about/overview.html.en>.  A detailed description of how
+    the DChat protocol works can be found in the file called "PROTOCOL".
 
-  Since DChat is based on a decentral network, no central server is 
-  required. Therefore as long as there are clients within the network,
-  the network will live. This means that, if implemented properly, the 
-  DChat protocol takes care for exchanging contact information between
-  clients accross the network automatically. No user interaction is
-  necessary.
+    This DChat client provides an in-chat command interpreter for  convenient  commands
+    like  connecting  to  other  DChat  clients, listing of current contacts, and a lot
+    more. Commands supported by this client can be found in the man page in section 
+    "Commands".
+
+    Since DChat is based on an  anonymous  decentral  network,  no  central  server  is
+    required.  Therefore  as  long as there are clients within the network, the network
+    will live. This means that, if implemented properly, the DChat protocol takes  care
+    for  exchanging  contact  information between clients accross the network automati-
+    cally. No user interaction is necessary. Furthermore since  DChat  will  only  work
+    within the TOR network, the location of a user cannot tracked back and the user can
+    chat anonymously.
+
 
   The Latest Version
   ------------------
 
-  Details of the latest version can be found in the file called NEWS.
-  The file ChangeLog will contain the latest changes.
+    Details of the latest version probably most interesting for common users can be found
+    in the file called NEWS.
+    The file ChangeLog will contain information about the latest source code changes.
 
   Documentation
   -------------
 
-  The documentation available as of the date of this release is
-  included in HTML format in the docs/ directory.
+    The documentation available as of the date of this release is
+    included in HTML format in the doc/ directory.
 
   Installation
   ------------
 
-  Please see the file called INSTALL.
+    Please see the file called INSTALL.
 
   Licensing
   ---------
 
-  Please see the file called LICENSE.
+    Please see the file called LICENSE.
 
   Cryptographic Software Notice
   -----------------------------
 
-  This distribution may include software that has been designed for use
-  with cryptographic software.  The country in which you currently reside
-  may have restrictions on the import, possession, use, and/or re-export
-  to another country, of encryption software.  BEFORE using any encryption
-  software, please check your country's laws, regulations and policies
-  concerning the import, possession, or use, and re-export of encryption
-  software, to see if this is permitted.  See <http://www.wassenaar.org/>
-  for more information.
+    This distribution may include software that has been designed for use
+    with cryptographic software.  The country in which you currently reside
+    may have restrictions on the import, possession, use, and/or re-export
+    to another country, of encryption software.  BEFORE using any encryption
+    software, please check your country's laws, regulations and policies
+    concerning the import, possession, or use, and re-export of encryption
+    software, to see if this is permitted.  See <http://www.wassenaar.org/>
+    for more information.
 
   Contacts
   --------
