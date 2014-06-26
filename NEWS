@@ -1,26 +1,26 @@
-                          DChat - P2P Client
+                          DChat - Peer-To-Peer Chat over TOR 
 
-2014-06-22:
-    Huge changes have been applied to DChat. The protocol has been
-    redesigned completely and will now only work within the TOR
-    network for anonymously chatting. DChat now requires a hidden
-    service to be configured first to accept connection requests 
-    from the TOR network. Therefore the TOR package is required and 
-    needs to be installed beforehand. More infomation on that topic
-    can be found in the INSTALL file and in the man page of dchat.
+    2014-06-22:
+        Huge changes have been applied to DChat. The protocol has been
+        redesigned completely and will now only work within the TOR
+        network for anonymously chatting. DChat now requires a hidden
+        service to be configured first to accept connection requests 
+        from the TOR network. Therefore the TOR package is required and 
+        needs to be installed beforehand. More infomation on that topic
+        can be found in the INSTALL file and in the man page of dchat.
 
-2014-06-22:
-    When option `-r / --rport` but no option `-d / --dest` has 
-    been specified, DChat will use the local listening ip address
-    of the client and the remote port specified with `-r / --rport` 
-    for connection.
+    2014-06-22:
+        When option `-r / --rport` but no option `-d / --dest` has 
+        been specified, DChat will use the local listening ip address
+        of the client and the remote port specified with `-r / --rport` 
+        for connection.
 
-2014-06-21:
-    Fixed bug that caused the client to execute the termination
-    signal handler twice and therefore print "Good Bye" two times.
-    User prompt is now colored yellow, while text messages from
-    other users will be colored cyan.
+    2014-06-21:
+        Fixed bug that caused the client to execute the termination
+        signal handler twice and therefore print "Good Bye" two times.
+        User prompt is now colored yellow, while text messages from
+        other users will be colored cyan.
 
-2014-06-20:
-    DChat is now supporting short and long options using getopt.
-    Available options can be found in the manpage.
+    2014-06-20:
+        DChat is now supporting short and long options using getopt.
+        Available options can be found in the manpage.

@@ -1,17 +1,19 @@
-                          DChat - P2P Client
+                          DChat - Peer-To-Peer Chat over TOR 
 
-==================UNDONE======================
-* check memory leaks with valgrind
-* IPv6 support
-* add section "COMMANDS" in man page
-* write protocol specification
+  UNDONE
+  ------
+    * comprehensive code refactoring
+    * check memory leaks with valgrind
+    * write protocol specification
 
 
-==================DONE=======================
-* adpat DChat protocol, so that nicknames
-  will be sent as headers.
-* doxygen documentation with autotools
-* add getopt() in dchat.c
-* re-write usage() in dchat.c
-* fix multiple execution of termination 
-  signal handler
+  DONE
+  ----
+    * add section "COMMANDS" in man page
+    * adpat DChat protocol, so that nicknames
+      will be sent as headers.
+    * doxygen documentation with autotools
+    * add getopt() in dchat.c
+    * re-write usage() in dchat.c
+    * fix multiple execution of termination 
+      signal handler
