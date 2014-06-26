@@ -35,8 +35,10 @@
 //*********************************
 //      INIT/DESTROY FUNCTIONS
 //*********************************
-int init(dchat_conf_t* cnf, struct sockaddr_storage* sa, char* onion_id, char* nickname);
-int init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa, char* onion_id, char* nickname);
+int init(dchat_conf_t* cnf, struct sockaddr_storage* sa, char* onion_id,
+         char* nickname);
+int init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa,
+                       char* onion_id, char* nickname);
 void destroy(dchat_conf_t* cnf);
 void cleanup_th_new_conn(void* arg);
 void cleanup_th_main_loop(void* arg);

@@ -89,6 +89,7 @@ send_contacts(dchat_conf_t* cnf, int n)
                 ret = -1;
                 continue;
             }
+
             // (re)allocate memory for pdu for contact string
             pdu.content = realloc(pdu.content, pdu_len + strlen(contact_str) + 1);
             pdu.content[pdu_len] = '\0'; // set the first byte to \0.. used for strcat
@@ -225,7 +226,8 @@ check_duplicates(dchat_conf_t* cnf, int n)
     fst_oc = find_contact(cnf, &cnf->cl.contact[n], 0);
 
     // contact is this client
-    if(fst_oc == -1){
+    if (fst_oc == -1)
+    {
         return n;
     }
 
@@ -244,7 +246,7 @@ check_duplicates(dchat_conf_t* cnf, int n)
 
     // extract port of sockaddr_storage structure
     temp = &cnf->cl.contact[fst_oc];
-    
+
     // which kind of contact has to be deleted?
     if (temp->accepted)
     {
@@ -260,7 +262,8 @@ check_duplicates(dchat_conf_t* cnf, int n)
     // if local onion address is greater than the remote one
     // than the index of the  contact, who got added because of a "connect",
     // will be returned
-    ret = strcmp(cnf->me.onion_id, cnf->cl.contact[n].onion_id); 
+    ret = strcmp(cnf->me.onion_id, cnf->cl.contact[n].onion_id);
+
     if (ret > 0)
     {
         return connect_contact;
@@ -300,10 +303,11 @@ contact_to_string(contact_t* contact)
     char port_str[MAX_INT_STR + 1]; // max. characters of an int
     int contact_len; // length of contact structure
 
-    if(contact->onion_id == NULL)
+    if (contact->onion_id == NULL)
     {
         return NULL;
     }
+
     //FIXME: check valid port
     // convert port to a string
     snprintf(port_str, MAX_INT_STR, "%u", contact->lport);
@@ -381,7 +385,7 @@ string_to_contact(contact_t* contact, char* string)
  *  resized contact list if they fit in it
  *  @param cnf Global config structure holding the contactlist
  *  @param newsize New size of the contactlist
- *  @return 0 on success, -1 on error 
+ *  @return 0 on success, -1 on error
  *          actually stored within the contactlist
  */
 int
@@ -394,7 +398,8 @@ realloc_contactlist(dchat_conf_t* cnf, int newsize)
     // size may not be lower than 1 and not be lower than the amount of contacts actually used
     if (newsize < 1 || newsize < cnf->cl.used_contacts)
     {
-        log_msg(LOG_ERR, "realloc_contactlist() failed - Newsize must not be lower than 1 or the amount of contacts stored in the contactlist!");
+        log_msg(LOG_ERR,
+                "realloc_contactlist() failed - Newsize must not be lower than 1 or the amount of contacts stored in the contactlist!");
         return -1;
     }
 
@@ -432,7 +437,7 @@ realloc_contactlist(dchat_conf_t* cnf, int newsize)
 
 /**
  *  Adds a new contact to the local contactlist.
- *  The given socket descriptor of the remote client will be used to add a new contact 
+ *  The given socket descriptor of the remote client will be used to add a new contact
  *  to the contactlist holded by the global config.
  *  @param cnf Pointer to dchat_conf_t structure holding the contact list
  *  @param fd  Socket file descriptor of the new contact

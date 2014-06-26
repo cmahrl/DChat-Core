@@ -89,6 +89,7 @@ decode_header(dchat_pdu_t* pdu, char* line)
             {
                 return -1;
             }
+
             //FIXME: define header values as PPC
             //FIXME: define function to deterime EOL and index
             // check value type
@@ -138,33 +139,39 @@ decode_header(dchat_pdu_t* pdu, char* line)
 
             term = save_ptr;
         }
-        else if(strcmp(key, "Onion-ID") == 0){
-           len = strlen(&value[cmp_offset]) - 1;   // skip \n
-           if(value[cmp_offset + len - 1] == '\r') // skip \r 
-           {
-               len--;
-           }
+        else if (strcmp(key, "Onion-ID") == 0)
+        {
+            len = strlen(&value[cmp_offset]) - 1;   // skip \n
 
-           pdu->onion_id = malloc(len + 1);
-           if(pdu->onion_id == NULL){
-               log_errno(LOG_ERR, "decode_header(): Could not allocate memory");
-               return -1;
-           }
-           pdu->onion_id[0] = '\0';
-           if(len != ONION_ADDRLEN)
-           {
-               return -1;
-           }
-           else
-           {
-               // copy onion address bytes 
-               strncat(pdu->onion_id, &value[cmp_offset], ONION_ADDRLEN);
-           }
+            if (value[cmp_offset + len - 1] == '\r') // skip \r
+            {
+                len--;
+            }
 
-           // check if value string has been terminated properly
-           term = &value[strlen(value) - 1]; // must be \n
+            pdu->onion_id = malloc(len + 1);
+
+            if (pdu->onion_id == NULL)
+            {
+                log_errno(LOG_ERR, "decode_header(): Could not allocate memory");
+                return -1;
+            }
+
+            pdu->onion_id[0] = '\0';
+
+            if (len != ONION_ADDRLEN)
+            {
+                return -1;
+            }
+            else
+            {
+                // copy onion address bytes
+                strncat(pdu->onion_id, &value[cmp_offset], ONION_ADDRLEN);
+            }
+
+            // check if value string has been terminated properly
+            term = &value[strlen(value) - 1]; // must be \n
         }
-        else if(strcmp(key, "Listen-Port") == 0)
+        else if (strcmp(key, "Listen-Port") == 0)
         {
             // convert string to int
             pdu->lport = (int) strtol(value, &save_ptr, 10);
@@ -177,32 +184,38 @@ decode_header(dchat_pdu_t* pdu, char* line)
 
             term = save_ptr;
         }
-        else if(strcmp(key, "Nickname") == 0){
-           len = strlen(&value[cmp_offset]) - 1;   // skip \n
-           if(value[cmp_offset + len - 1] == '\r') // skip \r 
-           {
-               len--;
-           }
+        else if (strcmp(key, "Nickname") == 0)
+        {
+            len = strlen(&value[cmp_offset]) - 1;   // skip \n
 
-           pdu->nickname = malloc(len + 1);
-           if(pdu->nickname == NULL){
-               log_errno(LOG_ERR, "decode_header(): Could not allocate memory");
-               return -1;
-           }
-           pdu->nickname[0] = '\0';
-           if(len <= MAX_NICKNAME)
-           {
-               // copy whole nickname without (\r)\n
-               strncat(pdu->nickname, &value[cmp_offset], len); 
-           }
-           else
-           {
-               // copy MAX_NICKNAME bytes of nickname without (\r)\n
-               strncat(pdu->nickname, &value[cmp_offset], MAX_NICKNAME);
-           }
+            if (value[cmp_offset + len - 1] == '\r') // skip \r
+            {
+                len--;
+            }
 
-           // check if value string has been terminated properly
-           term = &value[strlen(value) - 1]; // must be \n
+            pdu->nickname = malloc(len + 1);
+
+            if (pdu->nickname == NULL)
+            {
+                log_errno(LOG_ERR, "decode_header(): Could not allocate memory");
+                return -1;
+            }
+
+            pdu->nickname[0] = '\0';
+
+            if (len <= MAX_NICKNAME)
+            {
+                // copy whole nickname without (\r)\n
+                strncat(pdu->nickname, &value[cmp_offset], len);
+            }
+            else
+            {
+                // copy MAX_NICKNAME bytes of nickname without (\r)\n
+                strncat(pdu->nickname, &value[cmp_offset], MAX_NICKNAME);
+            }
+
+            // check if value string has been terminated properly
+            term = &value[strlen(value) - 1]; // must be \n
         }
         else
         {
@@ -473,10 +486,13 @@ encode_header(dchat_pdu_t* pdu, int header_id)
         case HDR_ONION_ID:
             header = "Onion-ID";
             len = strlen(header);
-            value = pdu->onion_id; 
-            if(value == NULL){
+            value = pdu->onion_id;
+
+            if (value == NULL)
+            {
                 return NULL;
             }
+
             len += strlen(value);
             break;
 
@@ -493,10 +509,13 @@ encode_header(dchat_pdu_t* pdu, int header_id)
         case HDR_NICKNAME:
             header = "Nickname";
             len = strlen(header);
-            value = pdu->nickname; 
-            if(value == NULL){
+            value = pdu->nickname;
+
+            if (value == NULL)
+            {
                 return NULL;
             }
+
             len += strlen(value);
             break;
 
@@ -634,7 +653,8 @@ write_pdu(int fd, dchat_pdu_t* pdu)
         return -1;
     }
     //nickname is optional
-    else if(pdu->nickname != NULL){
+    else if (pdu->nickname != NULL)
+    {
         //get Nickname string
         if ((nickname = encode_header(pdu, HDR_NICKNAME)) == NULL)
         {
@@ -651,8 +671,12 @@ write_pdu(int fd, dchat_pdu_t* pdu)
     pdulen += strlen(content_length);
     pdulen += strlen(onion_id);
     pdulen += strlen(lport);
-    if(nickname != NULL)
+
+    if (nickname != NULL)
+    {
         pdulen += strlen(nickname);
+    }
+
     pdulen += 1; //for empty line
     pdulen += pdu->content_length;
     //allocate memory for pdu
@@ -671,8 +695,12 @@ write_pdu(int fd, dchat_pdu_t* pdu)
     strncat(pdu_raw, content_length, strlen(content_length));
     strncat(pdu_raw, onion_id, strlen(onion_id));
     strncat(pdu_raw, lport, strlen(lport));
-    if(nickname != NULL)
+
+    if (nickname != NULL)
+    {
         strncat(pdu_raw, nickname, strlen(nickname));
+    }
+
     strncat(pdu_raw, "\n", 1);
     strncat(pdu_raw, pdu->content, pdu->content_length);
     //write pdu to file descriptor
@@ -680,7 +708,7 @@ write_pdu(int fd, dchat_pdu_t* pdu)
     free(content_type);
     free(content_length);
     free(onion_id);
-    free(lport);   
+    free(lport);
     free(pdu_raw);
     return ret;
 }
@@ -689,7 +717,7 @@ write_pdu(int fd, dchat_pdu_t* pdu)
 /**
  *  Frees all resources dynamically allocated for a PDU structure.
  *  This function frees the allocated memory for the content, nickname
- *  and onion address of this PDU and the dynamically allocated memory 
+ *  and onion address of this PDU and the dynamically allocated memory
  *  for this PDU itself.
  *  @param pdu Pointer to a pdu that has been dynamically allocated
  *             and should be freed
@@ -703,10 +731,14 @@ free_pdu(dchat_pdu_t* pdu)
         {
             free(pdu->content);
         }
-        if(pdu->onion_id != NULL){
-            free(pdu->onion_id);    
+
+        if (pdu->onion_id != NULL)
+        {
+            free(pdu->onion_id);
         }
-        if(pdu->nickname != NULL){
+
+        if (pdu->nickname != NULL)
+        {
             free(pdu->nickname);
         }
 

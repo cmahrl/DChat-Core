@@ -125,6 +125,7 @@ main(int argc, char** argv)
                     usage();
                     return EXIT_FAILURE;
                 }
+
                 break;
 
             case 'd':
@@ -140,6 +141,7 @@ main(int argc, char** argv)
                     usage();
                     return EXIT_FAILURE;
                 }
+
                 break;
 
             // invalid option - getopt prints error msg
@@ -160,11 +162,13 @@ main(int argc, char** argv)
 
     // local listening socket address
     memset(&sa, 0, sizeof(sa));
-    if(inet_pton(AF_INET, LISTEN_ADDR, &((struct sockaddr_in*)&sa)->sin_addr) != 1)
+
+    if (inet_pton(AF_INET, LISTEN_ADDR, &((struct sockaddr_in*)&sa)->sin_addr) != 1)
     {
         log_msg(LOG_ERR, "Invalid ip address '%s'!", LISTEN_ADDR);
         return -1;
     }
+
     ((struct sockaddr_in*)&sa)->sin_family = AF_INET;
     ((struct sockaddr_in*)&sa)->sin_port = htons(lport);
 
@@ -177,19 +181,24 @@ main(int argc, char** argv)
     // has a remote onion address or remote port been specified? if y: connect to it
     if (remote_onion != NULL || rport != -1)
     {
-        if(remote_onion == NULL){
-            remote_onion = local_onion; 
+        if (remote_onion == NULL)
+        {
+            remote_onion = local_onion;
         }
-        if(rport == -1){
+
+        if (rport == -1)
+        {
             rport = DEFAULT_PORT;
         }
 
         pthread_mutex_lock(&cnf.cl.cl_mx);
+
         // connect to remote client and send contactlist
         if (handle_local_conn_request(&cnf, remote_onion, rport) == -1)
         {
             log_msg(LOG_DEBUG, "main(): Connection to remote host failed!");
         }
+
         pthread_mutex_unlock(&cnf.cl.cl_mx);
     }
 
@@ -214,7 +223,8 @@ main(int argc, char** argv)
  * @return 0 on successful initialization, -1 in case of error
  */
 int
-init(dchat_conf_t* cnf, struct sockaddr_storage* sa, char* onion_id, char* nickname)
+init(dchat_conf_t* cnf, struct sockaddr_storage* sa, char* onion_id,
+     char* nickname)
 {
     struct sigaction sa_terminate; // signal action for program termination
     sigset_t sigmask;
@@ -302,7 +312,8 @@ init(dchat_conf_t* cnf, struct sockaddr_storage* sa, char* onion_id, char* nickn
  * @return socket descriptor or -1 if an error occurs
  */
 int
-init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa, char* onion_id,
+init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa,
+                   char* onion_id,
                    char* nickname)
 {
     char addr_str[INET6_ADDRSTRLEN + 1];  // ip as string
@@ -351,15 +362,18 @@ init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa, char* onion_i
     strncat(cnf->me.name, nickname, MAX_NICKNAME);      // set nickname
     cnf->me.onion_id[0] = '\0';
     strncat(cnf->me.onion_id, onion_id, ONION_ADDRLEN); // set onion address
+
     // listening port
     if (ip_version(sa) == 4)
     {
-        log_msg(LOG_INFO, "Listening on '%s:%d'", onion_id, ntohs(((struct sockaddr_in*) sa)->sin_port));
+        log_msg(LOG_INFO, "Listening on '%s:%d'", onion_id,
+                ntohs(((struct sockaddr_in*) sa)->sin_port));
         cnf->me.lport = ntohs(((struct sockaddr_in*) sa)->sin_port);
     }
     else if (ip_version(sa) == 6)
     {
-        log_msg(LOG_INFO, "Listening on '%s:%d'", onion_id, ntohs(((struct sockaddr_in6*) sa)->sin6_port));
+        log_msg(LOG_INFO, "Listening on '%s:%d'", onion_id,
+                ntohs(((struct sockaddr_in6*) sa)->sin6_port));
         cnf->me.lport = ntohs(((struct sockaddr_in6*) sa)->sin6_port);
     }
     else
@@ -368,6 +382,7 @@ init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa, char* onion_i
         close(s);
         return -1;
     }
+
     // set socket address, where this client is listening
     memcpy(&cnf->sa, sa, sizeof(struct sockaddr_storage));
     cnf->acpt_fd = s;          // set socket file descriptor
@@ -535,22 +550,29 @@ handle_remote_input(dchat_conf_t* cnf, int n)
     // "control/discover" containing the onion-id and the listening
     // port otherwise raise an error and delete
     // this contact
-    if ((cnf->cl.contact[n].onion_id[0] == '\0' || !cnf->cl.contact[n].lport) && pdu->content_type != CT_CTRL_DISC)
+    if ((cnf->cl.contact[n].onion_id[0] == '\0' || !cnf->cl.contact[n].lport) &&
+        pdu->content_type != CT_CTRL_DISC)
     {
-        log_msg(LOG_ERR, "Contact '%s' has not identfied himself", cnf->cl.contact[n].name);
+        log_msg(LOG_ERR, "Contact '%s' has not identfied himself",
+                cnf->cl.contact[n].name);
         return -1;
     }
     else if (pdu->content_type == CT_CTRL_DISC)
     {
-        if(cnf->cl.contact[n].name[0] == '\0'){
+        if (cnf->cl.contact[n].name[0] == '\0')
+        {
             // set nickname of contact
             strncat(cnf->cl.contact[n].name, pdu->nickname, MAX_NICKNAME);
         }
-        if(cnf->cl.contact[n].onion_id[0] == '\0'){
+
+        if (cnf->cl.contact[n].onion_id[0] == '\0')
+        {
             // set onion id of contact
             strncat(cnf->cl.contact[n].onion_id, pdu->onion_id, ONION_ADDRLEN);
         }
-        if(!cnf->cl.contact[n].lport){
+
+        if (!cnf->cl.contact[n].lport)
+        {
             // set listening port of contact
             cnf->cl.contact[n].lport = pdu->lport;
         }
@@ -618,7 +640,6 @@ handle_remote_input(dchat_conf_t* cnf, int n)
             // ret);
         }
     }
-
     /*
      * == UNKNOWN CONTENT-TYPE ==
      */
@@ -668,10 +689,8 @@ handle_local_conn_request(dchat_conf_t* cnf, char* onion_id, uint16_t port)
             // set onion id of new contact
             cnf->cl.contact[n].onion_id[0] = '\0';
             strncat(cnf->cl.contact[n].onion_id, onion_id, ONION_ADDRLEN);
-
             //set listening port of new contact
             cnf->cl.contact[n].lport = port;
-
             // send all our known contacts to the newly connected client
             send_contacts(cnf, n);
         }
@@ -696,7 +715,7 @@ handle_remote_conn_request(dchat_conf_t* cnf)
 {
     int s;                      // socket file descriptor
     int n;                      // index of new contact
-    struct sockaddr_storage ss; // socketaddress of connecting host 
+    struct sockaddr_storage ss; // socketaddress of connecting host
     socklen_t socklen;          // length of socketaddress
     socklen = sizeof(ss);
 
@@ -714,11 +733,9 @@ handle_remote_conn_request(dchat_conf_t* cnf)
     {
         log_msg(LOG_INFO, "contact %d connected", n);
     }
-    
-    cnf->cl.contact[n].accepted = 1;
-    
-    send_contacts(cnf, n);
 
+    cnf->cl.contact[n].accepted = 1;
+    send_contacts(cnf, n);
     return n;
 }
 
@@ -768,25 +785,27 @@ th_new_conn(dchat_conf_t* cnf)
         {
             log_msg(LOG_WARN, "th_new_conn(): Could not read from pipe");
         }
+
         // EOF
         if (!ret)
         {
             break;
         }
+
         // read from pipe to get new port
         if ((ret = read(cnf->connect_fd[0], &port, sizeof(port))) == -1)
         {
             log_msg(LOG_WARN, "th_new_conn(): Could not read from pipe");
         }
+
         // EOF
         if (!ret)
         {
             break;
         }
-        
+
         // terminate address
         onion_id[ONION_ADDRLEN] = '\0';
-
         // lock contactlist
         pthread_mutex_lock(&cnf->cl.cl_mx);
 

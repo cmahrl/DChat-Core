@@ -46,42 +46,37 @@ write_socks4a(int s, socks4a_pdu_t* pdu)
 {
     // convert ip and port to network byte order
     uint16_t rport  = htons(pdu->port);
-    uint32_t fakeip = htonl(pdu->fakeip); 
+    uint32_t fakeip = htonl(pdu->fakeip);
 
-    if(write(s, &pdu->version, 1) == -1)
+    if (write(s, &pdu->version, 1) == -1)
     {
         return -1;
     }
-    else if(write(s, &pdu->command, 1) == -1)
+    else if (write(s, &pdu->command, 1) == -1)
     {
         return -1;
     }
-    else if(write(s, &rport, 2) == -1)
+    else if (write(s, &rport, 2) == -1)
     {
+        return -1;
+    }
+    else if (write(s, &fakeip, 4) == -1)
+    {
+        return -1;
+    }
+    else if (write(s, &pdu->delim, 1) == -1)
+    {
+        return -1;
+    }
+    else if (write(s, pdu->hostname, strlen(pdu->hostname)) == -1)
+    {
+        return -1;
+    }
+    else if (write(s, &pdu->delim, 1) == -1)
+    {
+        return -1;
+    }
 
-        return -1;
-    }
-    else if(write(s, &fakeip, 4) == -1)
-    {
-
-        return -1;
-    }
-    else if(write(s, &pdu->delim, 1) == -1)
-    {
-
-        return -1;
-    }
-    else if(write(s, pdu->hostname, strlen(pdu->hostname)) == -1)
-    {
-
-        return -1;
-    }
-    else if(write(s, &pdu->delim, 1) == -1)
-    {
-
-        return -1;
-    }
-    
     return 0;
 }
 
@@ -89,7 +84,7 @@ write_socks4a(int s, socks4a_pdu_t* pdu)
 /**
  * Reads a SOCKS response PDU from the given socket.
  * @param s Socket to read from
- * @param 
+ * @param
  */
 int
 read_socks4a(int s, socks4a_pdu_t* pdu)
@@ -97,15 +92,14 @@ read_socks4a(int s, socks4a_pdu_t* pdu)
     int ret;
 
     // read SOCKS4a response (see SOCKS4a protocol)
-    if((ret = read(s, pdu, 8)) <= 0)
+    if ((ret = read(s, pdu, 8)) <= 0)
     {
         //return ret;
     }
-    
+
     // convert port and ip to host byte order
     pdu->port   = ntohs(pdu->port);
     pdu->fakeip = ntohl(pdu->fakeip);
-
     return ret;
 }
 
@@ -118,7 +112,7 @@ read_socks4a(int s, socks4a_pdu_t* pdu)
 char*
 parse_socks_status(unsigned char status)
 {
-    switch(status)
+    switch (status)
     {
         case 90:
             return "Request granted";
@@ -140,7 +134,7 @@ parse_socks_status(unsigned char status)
 
 /**
  * Creates a TOR socket.
- * This function creates a TOR socket by establishing a connection to the listening 
+ * This function creates a TOR socket by establishing a connection to the listening
  * address and port of the TOR client and sending a SOCKS connection request so that
  * a curcuit to the remote host will be created.
  * @param hostname The hostname of the destination
@@ -154,24 +148,25 @@ create_tor_socket(char* hostname, uint16_t rport)
     struct sockaddr_in da; // destination address to connec to
     socks4a_pdu_t pdu;     // SOCKS request
     int ret;
-    
     memset(&da, 0, sizeof(da));
+
     // socket address for connection to the TOR client
-    if(inet_pton(AF_INET, TOR_ADDR, &da.sin_addr) != 1)
+    if (inet_pton(AF_INET, TOR_ADDR, &da.sin_addr) != 1)
     {
         log_msg(LOG_ERR, "Invalid ip address '%s'!", TOR_ADDR);
         return -1;
     }
+
     da.sin_family = AF_INET;
     da.sin_port = htons(TOR_PORT);
- 
+
     // connect to TOR client
-    if((s = connect_to((struct sockaddr*) &da)) == -1)
+    if ((s = connect_to((struct sockaddr*) &da)) == -1)
     {
         log_msg(LOG_ERR, "Could not create TOR socket!");
         return -1;
     }
-    
+
     // craft SOCKS request pdu
     memset(&pdu, 0, sizeof(pdu));
     pdu.version = SOCKS_VERSION;
@@ -182,7 +177,7 @@ create_tor_socket(char* hostname, uint16_t rport)
     pdu.hostname = hostname;
 
     // send connection request to TOR
-    if(write_socks4a(s, &pdu) == -1)
+    if (write_socks4a(s, &pdu) == -1)
     {
         log_errno(LOG_ERR, "Could not write SOCKS connection request!");
         return -1;
@@ -190,20 +185,24 @@ create_tor_socket(char* hostname, uint16_t rport)
 
     // read response code from TOR
     memset(&pdu, 0, sizeof(pdu));
-    if((ret = read_socks4a(s, &pdu)) == -1)
+
+    if ((ret = read_socks4a(s, &pdu)) == -1)
     {
         log_msg(LOG_ERR, "Could not read SOCKS connection response!");
         return -1;
     }
-    if(!ret)
+
+    if (!ret)
     {
         log_msg(LOG_ERR, "Connection to TOR client has been closed!");
         return -1;
     }
 
-    if(pdu.command != 90)
+    if (pdu.command != 90)
     {
-        log_msg(LOG_WARN, "TOR Connection to remote host failed. Status code: %d - '%s'", pdu.command, parse_socks_status(pdu.command));
+        log_msg(LOG_WARN,
+                "TOR Connection to remote host failed. Status code: %d - '%s'", pdu.command,
+                parse_socks_status(pdu.command));
         return -1;
     }
 

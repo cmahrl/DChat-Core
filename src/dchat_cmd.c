@@ -62,17 +62,21 @@ parse_cmd_connect(dchat_conf_t* cnf, char* cmd)
     }
 
     address = strtok_r(cmd, " ", &endptr);
-    if((port_str = strtok_r(NULL, " \t\r\n", &endptr)) == NULL){
+
+    if ((port_str = strtok_r(NULL, " \t\r\n", &endptr)) == NULL)
+    {
         return 1;
     }
-    
+
     //FIXME: check valid port
     port = atoi(port_str);
 
     // check if address ends with ".onion" and is exactly 22 characters long
-    if ((prefix = strchr(address, '.')) != NULL && (strlen(address) == ONION_ADDRLEN))
+    if ((prefix = strchr(address, '.')) != NULL &&
+        (strlen(address) == ONION_ADDRLEN))
     {
-        if(strcmp(prefix, ".onion") != 0){
+        if (strcmp(prefix, ".onion") != 0)
+        {
             return 1;
         }
     }
@@ -86,6 +90,7 @@ parse_cmd_connect(dchat_conf_t* cnf, char* cmd)
     {
         return -1;
     }
+
     if (write(cnf->connect_fd[1], &port, sizeof(port)) == -1)
     {
         return -1;
@@ -130,7 +135,8 @@ parse_cmd_list(dchat_conf_t* cnf)
     {
         log_msg(LOG_INFO, "No contacts found in the contactlist");
     }
-    else{
+    else
+    {
         for (i = 0; i < cnf->cl.cl_size; i++)
         {
             // check if entry is a valid connection
@@ -141,9 +147,9 @@ parse_cmd_list(dchat_conf_t* cnf)
                         "    Contact................%s\n"
                         "    Onion-ID...............%s\n"
                         "    Listening-Port.........%u\n",
-                            cnf->cl.contact[i].name, 
-                            cnf->cl.contact[i].onion_id,
-                            cnf->cl.contact[i].lport);
+                        cnf->cl.contact[i].name,
+                        cnf->cl.contact[i].onion_id,
+                        cnf->cl.contact[i].lport);
             }
         }
     }

@@ -17,7 +17,7 @@
  *  along with DChat.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// see: http://web.mit.edu/foley/www/TinFoil/src/tinfoil/TorLib.java 
+// see: http://web.mit.edu/foley/www/TinFoil/src/tinfoil/TorLib.java
 
 #ifndef DCHAT_NETWORK_H
 #define DCHAT_NETWORK_H
@@ -26,7 +26,7 @@
 
 
 //*********************************
-//     TOR SETTINGS 
+//     TOR SETTINGS
 //*********************************
 #define ONION_ADDRLEN   22
 #define TOR_PORT        9050
