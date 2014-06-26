@@ -42,7 +42,7 @@ int string_to_contact(contact_t* contact, char* string);
 //         MISC FUNCTIONS
 //*********************************
 int realloc_contactlist(dchat_conf_t* cnf, int newsize);
-int add_contact(dchat_conf_t* cnf, int fd, struct sockaddr_storage* ss);
+int add_contact(dchat_conf_t* cnf, int fd);
 int del_contact(dchat_conf_t* cnf, int n);
 int find_contact(dchat_conf_t* cnf, contact_t* contact, int begin);
 

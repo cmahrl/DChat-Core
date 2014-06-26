@@ -141,31 +141,34 @@ parse_socks_status(unsigned char status)
 /**
  * Creates a TOR socket.
  * This function creates a TOR socket by establishing a connection to the listening 
- * address and port of the TOR client and sending a SOCKS connection request.
+ * address and port of the TOR client and sending a SOCKS connection request so that
+ * a curcuit to the remote host will be created.
  * @param hostname The hostname of the destination
  * @param rport    The port to connect to
  * @return open socket whose traffic will be relayed through TOR or -1 in case of error
  */
 int
-create_tor_socket(char* hostname, int rport)
+create_tor_socket(char* hostname, uint16_t rport)
 {
     int s;                 // tor socket
     struct sockaddr_in da; // destination address to connec to
     socks4a_pdu_t pdu;     // SOCKS request
     int ret;
     
+    memset(&da, 0, sizeof(da));
     // socket address for connection to the TOR client
     if(inet_pton(AF_INET, TOR_ADDR, &da.sin_addr) != 1)
     {
         log_msg(LOG_ERR, "Invalid ip address '%s'!", TOR_ADDR);
         return -1;
     }
+    da.sin_family = AF_INET;
     da.sin_port = htons(TOR_PORT);
  
     // connect to TOR client
     if((s = connect_to((struct sockaddr*) &da)) == -1)
     {
-        log_errno(LOG_ERR, "Could not create TOR socket!");
+        log_msg(LOG_ERR, "Could not create TOR socket!");
         return -1;
     }
     
@@ -200,7 +203,8 @@ create_tor_socket(char* hostname, int rport)
 
     if(pdu.command != 90)
     {
-        log_msg(LOG_ERR, "TOR Connection to remote host failed. Status code: %d - '%s'", pdu.command, parse_socks_status(pdu.command));
+        log_msg(LOG_WARN, "TOR Connection to remote host failed. Status code: %d - '%s'", pdu.command, parse_socks_status(pdu.command));
+        return -1;
     }
 
     return s;

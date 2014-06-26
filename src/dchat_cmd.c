@@ -25,6 +25,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <signal.h>
 #include <arpa/inet.h>
@@ -39,78 +40,53 @@
 /**
  * In-chat command to establish a new connection.
  * @param cnf Global config structure
- * @param cmd Buffer which contains the infos for the new connection
- * @return  -1 if error occurs, 0 if no error, -2 for invalid ip-address
- *          -3 for invalid port
+ * @param cmd Command buffer which contains the infos for the new connection
+ * @return  -1 if error occurs, 0 if no error, 1 on syntax error
  */
 int
 parse_cmd_connect(dchat_conf_t* cnf, char* cmd)
 {
-    struct sockaddr_storage ss;
     char* address;
+    char* port_str;
+    uint16_t port;
     char* endptr;
-    int r;
-    char* tmpport;
-    int port = 0;
+    char* prefix;
 
     // if the string contains more spaces the pointer is after the loop at a non-space char
     for (; isspace(*cmd); cmd++);
 
-    // is after the command no value the function returns
+    // empty string?
     if (*cmd == '\0')
     {
-        return -1;
+        return 1;
     }
 
-    // the first of the command have to be the address
     address = strtok_r(cmd, " ", &endptr);
-
-    // is there no port the functions returns -1 for error
-    if ((tmpport = strtok_r(NULL, " \t\r\n", &endptr)) == NULL)
-    {
-        return -1;
+    if((port_str = strtok_r(NULL, " \t\r\n", &endptr)) == NULL){
+        return 1;
     }
+    
+    //FIXME: check valid port
+    port = atoi(port_str);
 
-    port = atoi(tmpport);
-
-    // check if the port is in a valid range
-    if (port <= 0 || port > 65535)
+    // check if address ends with ".onion" and is exactly 22 characters long
+    if ((prefix = strchr(address, '.')) != NULL && (strlen(address) == ONION_ADDRLEN))
     {
-        return -3;
-    }
-
-    memset(&ss, 0, sizeof(ss));
-
-    // check if the address is in the IPv4 format
-    if (strchr(cmd, '.') != NULL)
-    {
-        // write the declared parameter to the address structure
-        r = inet_pton(AF_INET, address, &((struct sockaddr_in*) &ss)->sin_addr);
-        ((struct sockaddr*) &ss)->sa_family = AF_INET;
-        ((struct sockaddr_in*) &ss)->sin_port = htons(port);
-    }
-    // check if address is in IPv6 format
-    else if (strchr(cmd, ':') != NULL)
-    {
-        // write the declared parameter to the address structure
-        r = inet_pton(AF_INET6, address, &((struct sockaddr_in6*) &ss)->sin6_addr);
-        ((struct sockaddr*) &ss)->sa_family = AF_INET6;
-        ((struct sockaddr_in6*) &ss)->sin6_port = htons(port);
+        if(strcmp(prefix, ".onion") != 0){
+            return 1;
+        }
     }
     else
     {
-        // if address is not in IPv4 or IPv6 format an error is returned
+        return 1;
+    }
+
+    // write onion address to connector pipe
+    if (write(cnf->connect_fd[1], address, ONION_ADDRLEN) == -1)
+    {
         return -1;
     }
-
-    if (r != 1)
-    {
-        // is the address invalid -2 is returned
-        return -2;
-    }
-
-    // the new contact is written to the connector pipe
-    if ((write(cnf->connect_fd[1], &ss, sizeof(ss)) == -1))
+    if (write(cnf->connect_fd[1], &port, sizeof(port)) == -1)
     {
         return -1;
     }
@@ -133,7 +109,7 @@ parse_cmd_help(void)
             "    %s"
             "    %s"
             "    %s",
-            "/connect <ip> <port>...connect to other chat client\n",
+            "/connect <onion-id> <port>...connect to other chat client\n",
             "/exit..................close the chat program\n",
             "/help..................to show this helppage\n",
             "/list..................show all connected contacts\n");
@@ -143,63 +119,34 @@ parse_cmd_help(void)
 /**
  *  In-chat command to list contacts of local contactlist.
  *  @param cnf Global config structure
- *  @return 0 if no error and -1 on error
  */
-int
+void
 parse_cmd_list(dchat_conf_t* cnf)
 {
-    int i, count = 0;
-    char address[INET6_ADDRSTRLEN + 1];
-    unsigned short port;
-    struct sockaddr_storage* client_addr;
-
-    for (i = 0; i < cnf->cl.cl_size; i++)
-    {
-        // check if entry is a valid connection
-        if (cnf->cl.contact[i].fd)
-        {
-            client_addr = &cnf->cl.contact[i].stor;
-
-            // check the version of the ip address
-            if (ip_version(client_addr) == 4)
-            {
-                // get the address from the sockaddr_storage structure
-                inet_ntop(AF_INET, &(((struct sockaddr_in*) client_addr)->sin_addr), address,
-                          INET_ADDRSTRLEN);
-                // get the port from the structure
-                port = ntohs(((struct sockaddr_in*) client_addr)->sin_port);
-            }
-            else if (ip_version(client_addr) == 6)
-            {
-                // get the address from the sockaddr_storage structure
-                inet_ntop(AF_INET, &(((struct sockaddr_in6*) client_addr)->sin6_addr), address,
-                          INET_ADDRSTRLEN);
-                // get the port from the structure
-                port = ntohs(((struct sockaddr_in6*) client_addr)->sin6_port);
-            }
-            else
-            {
-                return -1;
-            }
-
-            // print all available information about the connection
-            dprintf(cnf->out_fd, "\n\n"
-                    "    Contact................%d\n"
-                    "    Address-Tupel..........%s:%u\n"
-                    "    Listening-Port.........%u\n"
-                    "    Chatroom...............%d", i, address, port, cnf->cl.contact[i].lport,
-                    cnf->cl.contact[i].chatrooms);
-            count++;
-        }
-    }
+    int i;
 
     // are there no contacts in the list a message will be printed
-    if (!count)
+    if (!cnf->cl.used_contacts)
     {
         log_msg(LOG_INFO, "No contacts found in the contactlist");
     }
-
-    return 0;
+    else{
+        for (i = 0; i < cnf->cl.cl_size; i++)
+        {
+            // check if entry is a valid connection
+            if (cnf->cl.contact[i].fd)
+            {
+                // print all available information about the connection
+                dprintf(cnf->out_fd, "\n\n"
+                        "    Contact................%s\n"
+                        "    Onion-ID...............%s\n"
+                        "    Listening-Port.........%u\n",
+                            cnf->cl.contact[i].name, 
+                            cnf->cl.contact[i].onion_id,
+                            cnf->cl.contact[i].lport);
+            }
+        }
+    }
 }
 
 
@@ -207,7 +154,7 @@ parse_cmd_list(dchat_conf_t* cnf)
  *  Parses the given string and executes it if it is a command.
  *  @param cnf Global config structure
  *  @param buf Userinput
- *  @return 0 if the input was a command, -1 on error, -2 on syntax error
+ *  @return 0 if the input was a command, -1 on error, 1 on syntax error
  */
 int
 parse_cmd(dchat_conf_t* cnf, char* buf)
@@ -222,18 +169,12 @@ parse_cmd(dchat_conf_t* cnf, char* buf)
 
         if ((ret = parse_cmd_connect(cnf, buf)) == -1)
         {
-            log_msg(LOG_WARN, "Wrong Syntax! Syntax of connect is: /connect <IP> <PORT>");
-            return -2;
+            return -1;
         }
-        else if (ret == -2)
+        else if (ret == 1)
         {
-            log_msg(LOG_WARN, "Wrong IP address format");
-            return -2;
-        }
-        else if (ret == -3)
-        {
-            log_msg(LOG_WARN, "Invalid Portnumber");
-            return -2;
+            log_msg(LOG_ERR, "Wrong Syntax! Syntax: /connect <ONION-ID>");
+            return 1;
         }
     }
     // check if the command contains exit and return 1

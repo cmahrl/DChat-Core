@@ -22,6 +22,7 @@
 #define DCHAT_TYPES_H
 
 #include <netinet/in.h>
+#include "dchat_network.h"
 
 
 #define FRAME_BUF_LEN  4096
@@ -38,11 +39,12 @@
  */
 typedef struct dchat_pdu
 {
-    int content_type;                //!< type of message
-    char* content;                   //!< content part of message
-    int content_length;              //!< lengh of content
-    int listen_port;                 //!< listening port of the client
-    char* nickname;                  //!< nickname of the client
+    int content_type;            //!< type of message
+    char* content;               //!< content part of message
+    int content_length;          //!< lengh of content
+    char* onion_id;              //!< onion address of hidden service
+    uint16_t lport;              //!< listening port of hidden service
+    char* nickname;              //!< nickname of the client
 } dchat_pdu_t;
 
 /*!
@@ -50,21 +52,11 @@ typedef struct dchat_pdu
  */
 typedef struct contact
 {
-    int fd;     //!< file descriptor of TCP session
-    int lport;  //!< listening port
-    /**
-     * Socket address of contact
-     */
-    union
-    {
-        struct sockaddr_in v4addr;
-        struct sockaddr_in6 v6addr;
-        struct sockaddr_storage stor;
-    };
-    char buf[FRAME_BUF_LEN];     //!< framing buffer
-    int len;                     //!< number of bytes in buffer
-    int chatrooms;               //!< member of this chat rooms
-    char name[MAX_NICKNAME + 1]; //!< nickname
+    int fd;                           //!< file descriptor of TCP session
+    char onion_id[ONION_ADDRLEN + 1]; //!< onion address of hidden service
+    uint16_t lport;                   //!< listening port of hidden service
+    char name[MAX_NICKNAME + 1];      //!< nickname
+    int accepted;                     //!< connect to or accepted contact?
 } contact_t;
 
 /*!
@@ -85,6 +77,7 @@ typedef struct dchat_conf
 {
     contactlist_t cl;           //!< contact list
     contact_t me;               //!< local contact information
+    struct sockaddr_storage sa; //!< local socket address
     int acpt_fd;                //!< listening socket
     int in_fd, out_fd;          //!< console input and output
     int connect_fd[2];          //!< pipe to connector

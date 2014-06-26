@@ -19,9 +19,22 @@
 
 // see: http://web.mit.edu/foley/www/TinFoil/src/tinfoil/TorLib.java 
 
+#ifndef DCHAT_NETWORK_H
+#define DCHAT_NETWORK_H
+
+#include <stdint.h>
+
+
+//*********************************
+//     TOR SETTINGS 
+//*********************************
+#define ONION_ADDRLEN   22
 #define TOR_PORT        9050
 #define TOR_ADDR        "127.0.0.1"
 
+//*********************************
+//     SOCKS4a FIELDS
+//*********************************
 #define SOCKS_CONNECT   0x01
 #define SOCKS_RESOLVE   0xF0
 #define SOCKS_VERSION   0x04
@@ -46,4 +59,6 @@ typedef struct socks4a_pdu
 int write_socks4a(int s, socks4a_pdu_t* pdu);
 int read_socks4a(int s, socks4a_pdu_t* pdu);
 char* parse_socks_status(unsigned char status);
-int create_tor_socket(char* hostname, int rport);
+int create_tor_socket(char* hostname, uint16_t rport);
+
+#endif

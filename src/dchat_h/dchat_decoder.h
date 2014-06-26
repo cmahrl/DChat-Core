@@ -34,8 +34,9 @@
 //*********************************
 #define HDR_CONTENT_TYPE   1
 #define HDR_CONTENT_LENGTH 2
-#define HDR_LISTEN_PORT    3
-#define HDR_NICKNAME       4
+#define HDR_ONION_ID       3
+#define HDR_LISTEN_PORT    4
+#define HDR_NICKNAME       5
 
 
 //*********************************

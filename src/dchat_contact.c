@@ -59,10 +59,13 @@ send_contacts(dchat_conf_t* cnf, int n)
     int pdu_len = 0;    // total content length of pdu-packet that will be sent
     contact_t* contact; // contact that will be converted to a string
     // zero out new pdu and set initial dchat headers
+    //FIXME: create function for PDU creation
     memset(&pdu, 0, sizeof(pdu));
     pdu.content_type = CT_CTRL_DISC;
     pdu.content_length = 0;
-    pdu.listen_port = cnf->me.lport;
+    pdu.onion_id = cnf->me.onion_id;
+    pdu.nickname = cnf->me.name;
+    pdu.lport = cnf->me.lport;
 
     // iterate through our contactlist
     for (i = 0; i < cnf->cl.cl_size; i++)
@@ -74,7 +77,7 @@ send_contacts(dchat_conf_t* cnf, int n)
         }
 
         // temporarily point to a contact
-        contact = &cnf->cl.contact[i];
+        contact = &(cnf->cl.contact[i]);
 
         // if its not an empty contact slot and contact is not temporary (has not sent "control/discover" yet)
         if (contact->lport != 0)
@@ -86,7 +89,6 @@ send_contacts(dchat_conf_t* cnf, int n)
                 ret = -1;
                 continue;
             }
-
             // (re)allocate memory for pdu for contact string
             pdu.content = realloc(pdu.content, pdu_len + strlen(contact_str) + 1);
             pdu.content[pdu_len] = '\0'; // set the first byte to \0.. used for strcat
@@ -115,7 +117,7 @@ send_contacts(dchat_conf_t* cnf, int n)
     // write pdu inkluding all addresses of our contacts
     if ((ret = write_pdu(cnf->cl.contact[n].fd, &pdu)) == -1)
     {
-        log_msg(LOG_ERR, "send_contacts() failed - Could not allocate memory");
+        log_msg(LOG_ERR, "send_contacts() failed - Could not send pdu");
         ret = -1;
     }
 
@@ -177,7 +179,7 @@ receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
             new_contacts++;
 
             // connect to new contact, add him as contact, and send contactlist to him
-            if (handle_local_conn_request(cnf, &contact.stor) == -1)
+            if (handle_local_conn_request(cnf, contact.onion_id, contact.lport) == -1)
             {
                 log_msg(LOG_WARN,
                         "receive_contacts(): Could not execute connection request successfully");
@@ -218,6 +220,7 @@ check_duplicates(dchat_conf_t* cnf, int n)
     contact_t* temp;         // temporay contact variable
     int connect_contact = 0; // index of contact to whom we connected to
     int accept_contact = 0;  // index of contact from whom we accepted a connection
+    int ret;
     // check if given contact is in the contactlist
     fst_oc = find_contact(cnf, &cnf->cl.contact[n], 0);
 
@@ -241,124 +244,44 @@ check_duplicates(dchat_conf_t* cnf, int n)
 
     // extract port of sockaddr_storage structure
     temp = &cnf->cl.contact[fst_oc];
-
-    if (ip_version(&temp->stor) == 4)
+    
+    // which kind of contact has to be deleted?
+    if (temp->accepted)
     {
-        if (temp->lport == ntohs(((struct sockaddr_in*) &temp->stor)->sin_port))
-        {
-            // if listening port equlals port of sockaddr_storage
-            // then the client has connected to the other client
-            connect_contact = fst_oc;
-            // therefore the other contact in the contactlist has
-            // been accepted
-            accept_contact = sec_oc;
-        }
-        else
-        {
-            // otherwise it is the other way round
-            connect_contact = sec_oc;
-            accept_contact = fst_oc;
-        }
+        accept_contact = fst_oc;
+        connect_contact = sec_oc;
     }
-    // do the same for ipv6
-    else if (ip_version(&temp->stor) == 6)
+    else
     {
-        if (temp->lport == ntohs(((struct sockaddr_in6*) &temp->stor)->sin6_port))
-        {
-            connect_contact = fst_oc;
-            accept_contact = sec_oc;
-        }
-        else
-        {
-            connect_contact = sec_oc;
-            accept_contact = fst_oc;
-        }
+        connect_contact = fst_oc;
+        accept_contact = sec_oc;
     }
 
-    // compare IP and LPORT
-    // the client with the greater tuple will close the "connect" connection
-    // the client with the lower tuple will close the "accept" connection
-    if (ip_version(&cnf->me.stor) == 4 && ip_version(&cnf->cl.contact[n].stor) == 4)
-    {
-        in_addr_t me_addr = ((struct sockaddr_in*) &cnf->me.stor)->sin_addr.s_addr;
-        in_addr_t n_addr = ((struct sockaddr_in*)
-                            &cnf->cl.contact[n].stor)->sin_addr.s_addr;
-
-        // if local ip address is greater than the remote one
-        // than the index of the  contact, who got added because of a "connect",
-        // will be returned
-        if (me_addr > n_addr)
-        {
-            return connect_contact;
-        }
-        // otherwise it is the other way round
-        else if (me_addr < n_addr)
-        {
-            return accept_contact;
-        }
-        // if ip addresses are equal, do the same for the listening port
-        else if (cnf->me.lport > cnf->cl.contact[n].lport)
-        {
-            return connect_contact;
-        }
-        else if (cnf->me.lport < cnf->cl.contact[n].lport)
-        {
-            return accept_contact;
-        }
-        else
-        {
-            log_msg(LOG_ERR, "Contact is stored twice in contactlist");
-            return accept_contact;
-        }
-    }
-    // do the same for ipv6 (see above)
-    else if (ip_version(&cnf->me.stor) == 6 &&
-             ip_version(&cnf->cl.contact[n].stor) == 6)
-    {
-        int mem_ret;
-        struct in6_addr me_addr = ((struct sockaddr_in6*) &cnf->me.stor)->sin6_addr;
-        struct in6_addr n_addr = ((struct sockaddr_in6*)
-                                  &cnf->cl.contact[n].stor)->sin6_addr;
-        mem_ret = memcmp(&me_addr, &n_addr, sizeof(struct in6_addr));
-
-        if (mem_ret > 0)
-        {
-            return connect_contact;
-        }
-        else if (mem_ret < 0)
-        {
-            return accept_contact;
-        }
-        else if (cnf->me.lport > cnf->cl.contact[n].lport)
-        {
-            return connect_contact;
-        }
-        else if (cnf->me.lport < cnf->cl.contact[n].lport)
-        {
-            return accept_contact;
-        }
-        else
-        {
-            log_msg(LOG_ERR, "Contact is stored twice in contactlist");
-            return accept_contact;
-        }
-    }
-    // ipv6 rules ipv4
-    else if (ip_version(&cnf->me.stor) == 6 &&
-             ip_version(&cnf->cl.contact[n].stor) == 4)
+    // if local onion address is greater than the remote one
+    // than the index of the  contact, who got added because of a "connect",
+    // will be returned
+    ret = strcmp(cnf->me.onion_id, cnf->cl.contact[n].onion_id); 
+    if (ret > 0)
     {
         return connect_contact;
     }
-    // see above
-    else if (ip_version(&cnf->me.stor) == 4 &&
-             ip_version(&cnf->cl.contact[n].stor) == 6)
+    // otherwise it is the other way round
+    else if (ret < 0)
+    {
+        return accept_contact;
+    }
+    // if ip addresses are equal, do the same for the listening port
+    else if (cnf->me.lport > cnf->cl.contact[n].lport)
+    {
+        return connect_contact;
+    }
+    else if (cnf->me.lport < cnf->cl.contact[n].lport)
     {
         return accept_contact;
     }
     else
     {
-        log_msg(LOG_ERR, "Incompatible ip address format");
-        return -2;
+        return accept_contact;
     }
 }
 
@@ -374,45 +297,19 @@ char*
 contact_to_string(contact_t* contact)
 {
     char* contact_str; // pointer to string repr. of contact
-    char addr_str[INET6_ADDRSTRLEN + 1]; // ip address of contact
     char port_str[MAX_INT_STR + 1]; // max. characters of an int
-    struct sockaddr_storage* client_addr; // socket address of contact
-    int ipv; // ip version used
     int contact_len; // length of contact structure
-    // convert ip to a string
-    client_addr = &contact->stor;
 
-    if ((ipv = ip_version(client_addr)) == 4)
+    if(contact->onion_id == NULL)
     {
-        // get ip4 string
-        inet_ntop(
-            AF_INET,
-            &(((struct sockaddr_in*) client_addr)->sin_addr),
-            addr_str,
-            INET_ADDRSTRLEN
-        );
-    }
-    else if (ipv == 6)
-    {
-        // get ip6 string
-        inet_ntop(
-            AF_INET6,
-            &(((struct sockaddr_in6*) client_addr)->sin6_addr),
-            addr_str,
-            INET6_ADDRSTRLEN
-        );
-    }
-    else
-    {
-        log_msg(LOG_ERR, "Contact has an invalid ip address");
         return NULL;
     }
-
+    //FIXME: check valid port
     // convert port to a string
     snprintf(port_str, MAX_INT_STR, "%u", contact->lport);
     port_str[5] = '\0';
     // +4 for two " ", \n and \0
-    contact_len = strlen(addr_str) + strlen(port_str) + 4;
+    contact_len = strlen(contact->onion_id) + strlen(port_str) + 4;
 
     // allocate memory for the contact string repr.
     if ((contact_str = malloc(contact_len)) == NULL)
@@ -426,7 +323,7 @@ contact_to_string(contact_t* contact)
     // create contact string like this:
     // <ip address> <port>\n
     // (see: DChat Protocol - Contact Exchange
-    strncat(contact_str, addr_str, strlen(addr_str));
+    strncat(contact_str, contact->onion_id, strlen(contact->onion_id));
     strncat(contact_str, " ", 1);
     strncat(contact_str, port_str, strlen(port_str));
     strncat(contact_str, "\n", 1);
@@ -437,7 +334,7 @@ contact_to_string(contact_t* contact)
 /**
  *  Converts a string into a contact.
  *  Converts a string containing contact information into a contact structure.
- *  The string has to be in the form of: <ip> <port>\n
+ *  The string has to be in the form of: <onion-id> <port>\n
  *  Further details can be found in the DChat protocol specification
  *  @see contact_to_string()
  *  @param contact: Pointer to contact that should be converted to a string
@@ -446,12 +343,12 @@ contact_to_string(contact_t* contact)
 int
 string_to_contact(contact_t* contact, char* string)
 {
-    char* ip;       // ip address string (splitted from line)
+    char* onion_id; // onion address string (splitted from line)
     char* port;     // port string (splitted from line)
     char* save_ptr; // pointer for strtok_r
 
-    // split ip from string
-    if ((ip = strtok_r(string, " ", &save_ptr)) == NULL)
+    // split onion-id from string
+    if ((onion_id = strtok_r(string, " ", &save_ptr)) == NULL)
     {
         log_msg(LOG_ERR, "string_to_contact() - Could not parse ip address");
         return -1;
@@ -465,50 +362,13 @@ string_to_contact(contact_t* contact, char* string)
     }
 
     // could line be splittet into ip and port?
-    if (ip != NULL && port != NULL)
+    if (onion_id != NULL && port != NULL)
     {
         // convert port string to integer
         contact->lport = atoi(port);
-
-        // ipv4 address?
-        if (strchr(ip, '.') != NULL)
-        {
-            // convert ipv4 address and port
-            if (inet_pton(AF_INET, ip,
-                          &(((struct sockaddr_in*) &contact->stor)->sin_addr)) == 1)
-            {
-                // set ip and port in scocketaddress
-                ((struct sockaddr_in*) &contact->stor)->sin_family = AF_INET;
-                ((struct sockaddr_in*) &contact->stor)->sin_port = htons(atoi(port));
-            }
-            else
-            {
-                log_msg(LOG_WARN, "string_to_contact() - Corrupt ip4 address");
-                return -1;
-            }
-        }
-        // ipv6 address?
-        else if (strchr(ip, ':') != NULL)
-        {
-            // convert ipv4 address and port
-            if (inet_pton(AF_INET6, ip,
-                          &(((struct sockaddr_in6*) &contact->stor)->sin6_addr)) == 1)
-            {
-                // set ip and port in scocketaddress
-                ((struct sockaddr_in6*) &contact->stor)->sin6_family = AF_INET6;
-                ((struct sockaddr_in6*) &contact->stor)->sin6_port = htons(atoi(port));
-            }
-            else
-            {
-                log_msg(LOG_WARN, "string_to_contact() - Corrupt ip6 address");
-                return -1;
-            }
-        }
-        else
-        {
-            log_msg(LOG_WARN, "string_to_contact() - Corrupt ip '%s'", ip);
-            return -1;
-        }
+        //FIXME: check valid onion-id
+        contact->onion_id[0] = '\0';
+        strncat(contact->onion_id, onion_id, ONION_ADDRLEN);
     }
 
     return 0;
@@ -521,7 +381,7 @@ string_to_contact(contact_t* contact, char* string)
  *  resized contact list if they fit in it
  *  @param cnf Global config structure holding the contactlist
  *  @param newsize New size of the contactlist
- *  @return 0 on success, -1 on error, -2 if the new size is lower than the amount of contacts
+ *  @return 0 on success, -1 on error 
  *          actually stored within the contactlist
  */
 int
@@ -534,9 +394,12 @@ realloc_contactlist(dchat_conf_t* cnf, int newsize)
     // size may not be lower than 1 and not be lower than the amount of contacts actually used
     if (newsize < 1 || newsize < cnf->cl.used_contacts)
     {
-        //FIXME: why -2??
-        return -2;
+        log_msg(LOG_ERR, "realloc_contactlist() failed - Newsize must not be lower than 1 or the amount of contacts stored in the contactlist!");
+        return -1;
     }
+
+    // pointer to beginning of old contactlist
+    old_contact_list = &(cnf->cl.contact[0]);
 
     // reserve memory for new contactlist
     if ((new_contact_list = malloc(newsize * sizeof(contact_t))) == NULL)
@@ -545,8 +408,6 @@ realloc_contactlist(dchat_conf_t* cnf, int newsize)
         return -1;
     }
 
-    // pointer to beginning of old contactlist
-    old_contact_list = cnf->cl.contact;
     // zero out new contactlist
     memset(new_contact_list, 0, newsize * sizeof(contact_t));
 
@@ -571,16 +432,15 @@ realloc_contactlist(dchat_conf_t* cnf, int newsize)
 
 /**
  *  Adds a new contact to the local contactlist.
- *  The given socket descriptor and socket address of the remote client will
- *  be used to add a new contact to the contactlist holded by the global config.
+ *  The given socket descriptor of the remote client will be used to add a new contact 
+ *  to the contactlist holded by the global config.
  *  @param cnf Pointer to dchat_conf_t structure holding the contact list
  *  @param fd  Socket file descriptor of the new contact
- *  @param ss  Pointer to socket address of the new contact
  *  @return index of contact list, where new contact has been added or -1 if contact
  *          list is full
  */
 int
-add_contact(dchat_conf_t* cnf, int fd, struct sockaddr_storage* ss)
+add_contact(dchat_conf_t* cnf, int fd)
 {
     int i;
 
@@ -600,7 +460,6 @@ add_contact(dchat_conf_t* cnf, int fd, struct sockaddr_storage* ss)
         if (!cnf->cl.contact[i].fd)
         {
             cnf->cl.contact[i].fd = fd;
-            memcpy(&cnf->cl.contact[i].stor, ss, sizeof(*ss));
             cnf->cl.used_contacts++; // increase contact counter
             break;
         }
@@ -651,8 +510,8 @@ del_contact(dchat_conf_t* cnf, int n)
 /**
  *  Searches a contact in the local contactlist.
  *  Searches for a contact in the contactlist holded within the global config
- *  and returns its index in the contactlist. To find a contact, its socket address
- *  and listening port will be used
+ *  and returns its index in the contactlist. To find a contact, its onion address
+ *  and listening port will be used and compared with each other.
  *  @param cnf     Pointer to global configuration holding the contactlist
  *  @param contact Pointer to contact to search for
  *  @param begin   Index where the search will begin in the contactlist

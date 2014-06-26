@@ -35,6 +35,6 @@ int parse_cmd(dchat_conf_t* cnf, char* buf);
 //*********************************
 int parse_cmd_connect(dchat_conf_t* cnf, char* cmd);
 void parse_cmd_help(void);
-int parse_cmd_list(dchat_conf_t* cnf);
+void parse_cmd_list(dchat_conf_t* cnf);
 
 #endif
