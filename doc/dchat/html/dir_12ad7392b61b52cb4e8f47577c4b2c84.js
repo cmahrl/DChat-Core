@@ -1,11 +1,11 @@
 var dir_12ad7392b61b52cb4e8f47577c4b2c84 =
 [
+    [ "cmdinterpreter.h", "cmdinterpreter_8h_source.html", null ],
+    [ "contact.h", "contact_8h_source.html", null ],
     [ "dchat.h", "dchat_8h_source.html", null ],
-    [ "dchat_cmd.h", "dchat__cmd_8h_source.html", null ],
-    [ "dchat_contact.h", "dchat__contact_8h_source.html", null ],
-    [ "dchat_decoder.h", "dchat__decoder_8h_source.html", null ],
-    [ "dchat_network.h", "dchat__network_8h_source.html", null ],
-    [ "dchat_types.h", "dchat__types_8h_source.html", null ],
+    [ "decoder.h", "decoder_8h_source.html", null ],
     [ "log.h", "log_8h_source.html", null ],
+    [ "network.h", "network_8h_source.html", null ],
+    [ "types.h", "types_8h_source.html", null ],
     [ "util.h", "util_8h_source.html", null ]
 ];

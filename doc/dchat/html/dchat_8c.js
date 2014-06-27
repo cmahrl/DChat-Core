@@ -14,6 +14,5 @@ var dchat_8c =
     [ "th_main_loop", "dchat_8c.html#a39d1655c3815d6db5026c52870b45776", null ],
     [ "th_new_conn", "dchat_8c.html#a20c922556a3f5ba773faf2b38fc16750", null ],
     [ "th_new_input", "dchat_8c.html#a0a9fd273c9490e8cf99a08da3cfab690", null ],
-    [ "usage", "dchat_8c.html#a2ef30c42cbc289d899a8be5d2d8f77d0", null ],
     [ "cnf", "dchat_8c.html#a5497dfcbcfecec06aaf63df011c70f83", null ]
 ];

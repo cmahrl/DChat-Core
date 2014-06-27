@@ -22,8 +22,7 @@
 #define DCHAT_TYPES_H
 
 #include <netinet/in.h>
-#include "dchat_network.h"
-
+#include "network.h"
 
 #define FRAME_BUF_LEN  4096
 #define INIT_CONTACTS  30

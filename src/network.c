@@ -28,7 +28,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "dchat_h/dchat_network.h"
+#include "dchat_h/network.h"
 #include "dchat_h/log.h"
 
 
@@ -265,7 +265,7 @@ connect_to(struct sockaddr* sa)
 int
 is_valid_port(int port)
 {
-    if(port > 0 && port < 65536)
+    if (port > 0 && port < 65536)
     {
         return 1;
     }
@@ -285,18 +285,19 @@ is_valid_onion(char* onion_id)
 {
     char* prefix;
 
-    if(strlen(onion_id) != ONION_ADDRLEN)
+    if (strlen(onion_id) != ONION_ADDRLEN)
     {
         return 0;
     }
 
     prefix = strchr(onion_id, '.');
-    if(prefix == NULL)
+
+    if (prefix == NULL)
     {
         return 0;
     }
 
-    if(strcmp(prefix, ".onion") != 0)
+    if (strcmp(prefix, ".onion") != 0)
     {
         return 0;
     }

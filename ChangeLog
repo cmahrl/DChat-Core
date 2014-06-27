@@ -5,6 +5,25 @@
 		   protocol and work with TOR.
 		-) overall code refactoring and cleanup.
 
+	* src/dchat_h/types.h: 
+		-) renamed `dchat_types.h` to `types.h`
+
+	* src/cmdinterpreter.c: 
+		-) renamed `dchat_cmd.c` and `dchat_cmd.h` to
+		   `cmdinterpreter.c` and `cmdinterpreter.h`.
+
+	* src/network.c: 
+		-) renamed `dchat_network.c` and `dchat_network.h` to
+		   `network.c` and `network.h`.
+
+	* src/contact.c: 
+		-) renamed `dchat_contact.c` and `dchat_contact.h` to
+		   `contact.c` and `contact.h`.
+
+	* src/decoder.c: 
+		-) renamed `dchat_decoder.c` and `dchat_decoder.h` to
+		   `decoder.c` and `decoder.h`.
+
 2014-06-22  Christoph Mahrl <is121018@fhstp.ac.at>
 
 	* src/util.c:

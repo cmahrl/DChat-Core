@@ -18,33 +18,23 @@
  */
 
 
-#ifndef DCHAT_CONTACT_H
-#define DCHAT_CONTACT_H
+#ifndef DCHAT_CMD_H
+#define DCHAT_CMD_H
 
-#include "dchat_types.h"
-
-//*********************************
-//       DCHAT PROTO FUNCTIONS
-//*********************************
-int send_contacts(dchat_conf_t* cnf, int n);
-int receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu);
-int check_duplicates(dchat_conf_t* cnf, int n);
+#include "types.h"
 
 
 //*********************************
-//       CONVERSION FUNCTIONS
+//     MAIN PARSING FUNCTION
 //*********************************
-char* contact_to_string(contact_t* contact);
-int string_to_contact(contact_t* contact, char* string);
+int parse_cmd(dchat_conf_t* cnf, char* buf);
 
 
 //*********************************
-//         MISC FUNCTIONS
+//       COMMAND FUNCTIONS
 //*********************************
-int realloc_contactlist(dchat_conf_t* cnf, int newsize);
-int add_contact(dchat_conf_t* cnf, int fd);
-int del_contact(dchat_conf_t* cnf, int n);
-int find_contact(dchat_conf_t* cnf, contact_t* contact, int begin);
-
+int parse_cmd_connect(dchat_conf_t* cnf, char* cmd);
+void parse_cmd_help(void);
+void parse_cmd_list(dchat_conf_t* cnf);
 
 #endif

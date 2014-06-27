@@ -31,8 +31,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "dchat_h/dchat_decoder.h"
-#include "dchat_h/dchat_network.h"
+#include "dchat_h/decoder.h"
+#include "dchat_h/network.h"
 #include "dchat_h/log.h"
 #include "dchat_h/util.h"
 
@@ -197,7 +197,6 @@ decode_header(dchat_pdu_t* pdu, char* line)
                 log_errno(LOG_ERR, "decode_header(): Could not allocate memory");
                 return -1;
             }*/
-
             pdu->nickname[0] = '\0';
 
             if (len <= MAX_NICKNAME)
@@ -324,7 +323,6 @@ read_pdu(int fd, dchat_pdu_t* pdu)
     int ret;        // return value
     int b;          // amount of bytes read as content
     int len = 0;    // amount of bytes read in total
-
     // zero out structure
     memset(pdu, 0, sizeof(*pdu));
 
@@ -706,24 +704,28 @@ write_pdu(int fd, dchat_pdu_t* pdu)
  * @param nickname     Nickname
  */
 int
-init_dchat_pdu(dchat_pdu_t* pdu, int content_type, char* onion_id, int lport, char* nickname)
+init_dchat_pdu(dchat_pdu_t* pdu, int content_type, char* onion_id, int lport,
+               char* nickname)
 {
-    if(!is_valid_content_type(content_type))
+    if (!is_valid_content_type(content_type))
     {
         log_msg(LOG_WARN, "Invalid Content-Type '0x%02x'!", content_type);
         return -1;
     }
-    if(!is_valid_onion(onion_id))
+
+    if (!is_valid_onion(onion_id))
     {
         log_msg(LOG_WARN, "Invalid Onion-ID '%s'!", onion_id);
         return -1;
     }
-    if(!is_valid_port(lport))
+
+    if (!is_valid_port(lport))
     {
         log_msg(LOG_WARN, "Invalid Listening-Port '%d'!", lport);
         return -1;
     }
-    if(!is_valid_nickname(nickname))
+
+    if (!is_valid_nickname(nickname))
     {
         log_msg(LOG_WARN, "Invalid Nickname '%s'!", nickname);
         return -1;
@@ -736,7 +738,6 @@ init_dchat_pdu(dchat_pdu_t* pdu, int content_type, char* onion_id, int lport, ch
     pdu->lport        = lport;
     pdu->nickname[0]  = '\0';
     strncpy(pdu->nickname, nickname, MAX_NICKNAME);
-
     return 0;
 }
 
@@ -750,7 +751,7 @@ init_dchat_pdu(dchat_pdu_t* pdu, int content_type, char* onion_id, int lport, ch
 void
 init_dchat_pdu_content(dchat_pdu_t* pdu, char* content, int len)
 {
-    if((pdu->content = malloc(len)) == NULL)
+    if ((pdu->content = malloc(len)) == NULL)
     {
         fatal("Memory allocation for PDU content failed!");
     }
@@ -767,11 +768,11 @@ init_dchat_pdu_content(dchat_pdu_t* pdu, char* content, int len)
 int
 is_valid_content_type(int content_type)
 {
-    if(content_type & CT_ALL_MASK)
+    if (content_type & CT_ALL_MASK)
     {
         return 1;
     }
-    
+
     return 0;
 }
 
@@ -783,15 +784,16 @@ is_valid_content_type(int content_type)
 int
 is_valid_nickname(char* nickname)
 {
-    if(nickname == NULL)
+    if (nickname == NULL)
     {
-      return 0;
+        return 0;
     }
-    if(strlen(nickname) > MAX_NICKNAME)
+
+    if (strlen(nickname) > MAX_NICKNAME)
     {
-      return 0;
+        return 0;
     }
-    
+
     //FIXME: check non printable characters
     return 1;
 }
@@ -801,7 +803,7 @@ is_valid_nickname(char* nickname)
  *  Frees all resources dynamically allocated for a PDU structure.
  *  This function frees the allocated memory for the content. In the
  *  future other fields may be freed.
- *  @param pdu Pointer to a PDU structure 
+ *  @param pdu Pointer to a PDU structure
  */
 void
 free_pdu(dchat_pdu_t* pdu)

@@ -1,0 +1,6 @@
+<map id="print_dchat_msg" name="print_dchat_msg">
+<area shape="rect" id="node2" href="$log_8c.html#aadc76aa2a75bd302883a2bb571a42033" title="Returns the ansi escape code string for clearing the current line in a terminal. " alt="" coords="194,5,305,32"/>
+<area shape="rect" id="node3" href="$log_8c.html#ae3ea2f374cda4c473cbd22f83dc6b64f" title="Retruns the ansi escape code string for carriage return . " alt="" coords="217,56,282,83"/>
+<area shape="rect" id="node4" href="$log_8c.html#a422252d31fec52cb84c60fc0c18bd93e" title="Returns the ansi escape code string for bold cyan color. " alt="" coords="174,107,325,133"/>
+<area shape="rect" id="node5" href="$log_8c.html#a18901a0772a8dd71781402b41579ec95" title="Returns the ansi escape code string for resetting attributes. " alt="" coords="177,157,322,184"/>
+</map>

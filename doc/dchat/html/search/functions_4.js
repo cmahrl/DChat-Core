@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['find_5fcontact',['find_contact',['../dchat__contact_8c.html#a01eb319ee1d229714b6a20e144181a1a',1,'dchat_contact.c']]],
-  ['free_5fpdu',['free_pdu',['../dchat__decoder_8c.html#ade270b4d1100adbdffbb22fdd5635737',1,'dchat_decoder.c']]]
+  ['handle_5flocal_5fconn_5frequest',['handle_local_conn_request',['../dchat_8c.html#ae2c246a2244b6435d0b307f0e893b0c6',1,'dchat.c']]],
+  ['handle_5flocal_5finput',['handle_local_input',['../dchat_8c.html#af26d1f15348f568261ddb15d886dbaff',1,'dchat.c']]],
+  ['handle_5fremote_5fconn_5frequest',['handle_remote_conn_request',['../dchat_8c.html#a5c79a63478c0df6d16f70940e53338d1',1,'dchat.c']]],
+  ['handle_5fremote_5finput',['handle_remote_input',['../dchat_8c.html#a2cbf2aad21d016dd4852369423d86270',1,'dchat.c']]]
 ];

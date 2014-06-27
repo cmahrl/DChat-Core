@@ -137,32 +137,31 @@ void
 usage(const char* fmt, ...)
 {
     va_list args;
-
     va_start(args, fmt);
-    vlog_msgf(log_, LOG_ERR, fmt, args); 
+    vlog_msgf(log_, LOG_ERR, fmt, args);
     va_end(args);
 
-    if(log_ != NULL)
+    if (log_ != NULL)
     {
-    fprintf(log_, "Usage:\n");
-    fprintf(log_,
-            "  %s -s ONIONID -n NICKNAME [-l LOCALPORT] [-d REMOTEONIONID] [-r REMOTEPORT]\n\n",
-            PACKAGE_NAME);
-    fprintf(log_, "Options:\n");
-    fprintf(log_, "  -s, --lonion=ONIONID\n");
-    fprintf(log_, "  -n, --nickname=NICKNAME\n");
-    fprintf(log_, "  -l, --lport=LOCALPORT\n");
-    fprintf(log_, "  -d, --ronion=REMOTEONIONID\n");
-    fprintf(log_, "  -r, --rport=REMOTEPORT\n\n");
-    fprintf(log_,
-            "More detailed information can be found in the manpage. See dchat(1)\n");
+        fprintf(log_, "Usage:\n");
+        fprintf(log_,
+                "  %s -s ONIONID -n NICKNAME [-l LOCALPORT] [-d REMOTEONIONID] [-r REMOTEPORT]\n\n",
+                PACKAGE_NAME);
+        fprintf(log_, "Options:\n");
+        fprintf(log_, "  -s, --lonion=ONIONID\n");
+        fprintf(log_, "  -n, --nickname=NICKNAME\n");
+        fprintf(log_, "  -l, --lport=LOCALPORT\n");
+        fprintf(log_, "  -d, --ronion=REMOTEONIONID\n");
+        fprintf(log_, "  -r, --rport=REMOTEPORT\n\n");
+        fprintf(log_,
+                "More detailed information can be found in the manpage. See dchat(1)\n");
     }
 
     exit(EXIT_FAILURE);
 }
 
 
-/** 
+/**
  * Prints an error message and terminates this program.
  * @param fmt Format string
  * @param ... Arguments
@@ -171,12 +170,10 @@ void
 fatal(const char* fmt, ...)
 {
     va_list args;
-
     va_start(args, fmt);
-    vlog_msgf(log_, LOG_ERR, fmt, args); 
+    vlog_msgf(log_, LOG_ERR, fmt, args);
     va_end(args);
-
-    exit(EXIT_FAILURE);    
+    exit(EXIT_FAILURE);
 }
 
 /**

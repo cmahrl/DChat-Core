@@ -24,7 +24,7 @@
 #include <sys/socket.h>
 #include <stdint.h>
 
-#include "dchat_types.h"
+#include "types.h"
 
 
 #define DEFAULT_PORT   7777

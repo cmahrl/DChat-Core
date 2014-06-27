@@ -72,7 +72,7 @@ int create_tor_socket(char* hostname, uint16_t rport);
 
 
 //*********************************
-//         MISC FUNCTIONS 
+//         MISC FUNCTIONS
 //*********************************
 int ip_version(struct sockaddr_storage* addr);
 int connect_to(struct sockaddr* sa);

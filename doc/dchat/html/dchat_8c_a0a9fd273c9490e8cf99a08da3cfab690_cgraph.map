@@ -1,4 +1,4 @@
 <map id="th_new_input" name="th_new_input">
-<area shape="rect" id="node2" href="$util_8c.html#acda96afe4e46122c63830a774a5d1e1f" title="Returns the ansi escape code string for bold yellow color. " alt="" coords="155,5,315,32"/>
-<area shape="rect" id="node3" href="$util_8c.html#a18901a0772a8dd71781402b41579ec95" title="Returns the ansi escape code string for resetting attributes. " alt="" coords="162,56,307,83"/>
+<area shape="rect" id="node2" href="$log_8c.html#acda96afe4e46122c63830a774a5d1e1f" title="Returns the ansi escape code string for bold yellow color. " alt="" coords="155,5,315,32"/>
+<area shape="rect" id="node3" href="$log_8c.html#a18901a0772a8dd71781402b41579ec95" title="Returns the ansi escape code string for resetting attributes. " alt="" coords="162,56,307,83"/>
 </map>

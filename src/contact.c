@@ -31,9 +31,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "dchat_h/dchat_contact.h"
-#include "dchat_h/dchat_types.h"
-#include "dchat_h/dchat_decoder.h"
+#include "dchat_h/contact.h"
+#include "dchat_h/types.h"
+#include "dchat_h/decoder.h"
 #include "dchat_h/dchat.h"
 #include "dchat_h/log.h"
 #include "dchat_h/util.h"
@@ -57,7 +57,8 @@ send_contacts(dchat_conf_t* cnf, int n)
     int pdu_len = 0;    // total content length of pdu-packet that will be sent
     contact_t* contact; // contact that will be converted to a string
     // initialize PDU
-    init_dchat_pdu(&pdu, CT_CTRL_DISC, cnf->me.onion_id, cnf->me.lport, cnf->me.name);
+    init_dchat_pdu(&pdu, CT_CTRL_DISC, cnf->me.onion_id, cnf->me.lport,
+                   cnf->me.name);
 
     // iterate through our contactlist
     for (i = 0; i < cnf->cl.cl_size; i++)

@@ -29,7 +29,7 @@
 #include <unistd.h>
 #include <readline/readline.h>
 
-#include "dchat_h/dchat_types.h"
+#include "dchat_h/types.h"
 #include "dchat_h/log.h"
 
 
@@ -65,13 +65,14 @@ parse_cmd_connect(dchat_conf_t* cnf, char* cmd)
     }
 
     port = (int) strtol(port_str, &endptr, 10);
-    if(!is_valid_port(port) || *endptr != '\0')
+
+    if (!is_valid_port(port) || *endptr != '\0')
     {
         log_msg(LOG_WARN, "Invalid port '%s'!", port_str);
         return 1;
     }
 
-    if(!is_valid_onion(address))
+    if (!is_valid_onion(address))
     {
         log_msg(LOG_WARN, "Invalid onion-id '%s'!", address);
         return 1;

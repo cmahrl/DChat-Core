@@ -137,46 +137,19 @@ $(document).ready(function(){initNavTree('util_8h_source.html','');});
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;</div>
 <div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;<span class="comment">//*********************************</span></div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">//         NETWORK FUNCTIONS</span></div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;<span class="comment">//         MISC FUNCTIONS</span></div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="comment">//*********************************</span></div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keywordtype">int</span> <a class="code" href="util_8c.html#a279f65250f814269adbaadf7f94680c5">ip_version</a>(<span class="keyword">struct</span> sockaddr_storage* addr);</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="keywordtype">int</span> <a class="code" href="util_8c.html#a77de9c9eb5a8ea2a6da108270bd7417e">connect_to</a>(<span class="keyword">struct</span> sockaddr* sa);</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;</div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;<span class="comment">//*********************************</span></div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="comment">//       PRINTING FUNCTIONS</span></div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">//*********************************</span></div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="keywordtype">char</span>* <a class="code" href="util_8c.html#aadc76aa2a75bd302883a2bb571a42033">ansi_clear_line</a>();</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="keywordtype">char</span>* <a class="code" href="util_8c.html#ae3ea2f374cda4c473cbd22f83dc6b64f">ansi_cr</a>();</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;<span class="keywordtype">char</span>* <a class="code" href="util_8c.html#acda96afe4e46122c63830a774a5d1e1f">ansi_color_bold_yellow</a>();</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;<span class="keywordtype">char</span>* <a class="code" href="util_8c.html#a422252d31fec52cb84c60fc0c18bd93e">ansi_color_bold_cyan</a>();</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;<span class="keywordtype">char</span>* ansi_color_bold_red();</div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;<span class="keywordtype">char</span>* <a class="code" href="util_8c.html#a18901a0772a8dd71781402b41579ec95">ansi_reset_attributes</a>();</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;<span class="keywordtype">void</span> <a class="code" href="util_8c.html#ab43cc6f8c6c043d052ebcfebd33023e9">print_dchat_msg</a>(<span class="keywordtype">char</span>* nickname, <span class="keywordtype">char</span>* msg, <span class="keywordtype">int</span> out_fd);</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;</div>
-<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;<span class="comment">//*********************************</span></div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;<span class="comment">//         MISC FUNCTIONS</span></div>
-<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;<span class="comment">//*********************************</span></div>
-<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="keywordtype">int</span> <a class="code" href="util_8c.html#af082905f7eac6d03e92015146bbc1925">max</a>(<span class="keywordtype">int</span> a, <span class="keywordtype">int</span> b);</div>
-<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;</div>
-<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160;<span class="preprocessor">#endif</span></div>
-<div class="ttc" id="util_8c_html_a77de9c9eb5a8ea2a6da108270bd7417e"><div class="ttname"><a href="util_8c.html#a77de9c9eb5a8ea2a6da108270bd7417e">connect_to</a></div><div class="ttdeci">int connect_to(struct sockaddr *sa)</div><div class="ttdoc">Connects to a remote socket using the given socket address. </div><div class="ttdef"><b>Definition:</b> <a href="util_8c_source.html#l00067">util.c:67</a></div></div>
-<div class="ttc" id="util_8c_html_a279f65250f814269adbaadf7f94680c5"><div class="ttname"><a href="util_8c.html#a279f65250f814269adbaadf7f94680c5">ip_version</a></div><div class="ttdeci">int ip_version(struct sockaddr_storage *address)</div><div class="ttdoc">Determines the address family of the given socket address structure. </div><div class="ttdef"><b>Definition:</b> <a href="util_8c_source.html#l00044">util.c:44</a></div></div>
-<div class="ttc" id="util_8c_html_aadc76aa2a75bd302883a2bb571a42033"><div class="ttname"><a href="util_8c.html#aadc76aa2a75bd302883a2bb571a42033">ansi_clear_line</a></div><div class="ttdeci">char * ansi_clear_line()</div><div class="ttdoc">Returns the ansi escape code string for clearing the current line in a terminal. </div><div class="ttdef"><b>Definition:</b> <a href="util_8c_source.html#l00093">util.c:93</a></div></div>
-<div class="ttc" id="util_8c_html_a18901a0772a8dd71781402b41579ec95"><div class="ttname"><a href="util_8c.html#a18901a0772a8dd71781402b41579ec95">ansi_reset_attributes</a></div><div class="ttdeci">char * ansi_reset_attributes()</div><div class="ttdoc">Returns the ansi escape code string for resetting attributes. </div><div class="ttdef"><b>Definition:</b> <a href="util_8c_source.html#l00133">util.c:133</a></div></div>
-<div class="ttc" id="util_8c_html_acda96afe4e46122c63830a774a5d1e1f"><div class="ttname"><a href="util_8c.html#acda96afe4e46122c63830a774a5d1e1f">ansi_color_bold_yellow</a></div><div class="ttdeci">char * ansi_color_bold_yellow()</div><div class="ttdoc">Returns the ansi escape code string for bold yellow color. </div><div class="ttdef"><b>Definition:</b> <a href="util_8c_source.html#l00113">util.c:113</a></div></div>
-<div class="ttc" id="util_8c_html_a422252d31fec52cb84c60fc0c18bd93e"><div class="ttname"><a href="util_8c.html#a422252d31fec52cb84c60fc0c18bd93e">ansi_color_bold_cyan</a></div><div class="ttdeci">char * ansi_color_bold_cyan()</div><div class="ttdoc">Returns the ansi escape code string for bold cyan color. </div><div class="ttdef"><b>Definition:</b> <a href="util_8c_source.html#l00123">util.c:123</a></div></div>
-<div class="ttc" id="util_8c_html_af082905f7eac6d03e92015146bbc1925"><div class="ttname"><a href="util_8c.html#af082905f7eac6d03e92015146bbc1925">max</a></div><div class="ttdeci">int max(int a, int b)</div><div class="ttdoc">Define the maximum of two given integers. </div><div class="ttdef"><b>Definition:</b> <a href="util_8c_source.html#l00177">util.c:177</a></div></div>
-<div class="ttc" id="util_8c_html_ab43cc6f8c6c043d052ebcfebd33023e9"><div class="ttname"><a href="util_8c.html#ab43cc6f8c6c043d052ebcfebd33023e9">print_dchat_msg</a></div><div class="ttdeci">void print_dchat_msg(char *nickname, char *msg, int out_fd)</div><div class="ttdoc">Prints a chat message to a file descriptor. </div><div class="ttdef"><b>Definition:</b> <a href="util_8c_source.html#l00151">util.c:151</a></div></div>
-<div class="ttc" id="util_8c_html_ae3ea2f374cda4c473cbd22f83dc6b64f"><div class="ttname"><a href="util_8c.html#ae3ea2f374cda4c473cbd22f83dc6b64f">ansi_cr</a></div><div class="ttdeci">char * ansi_cr()</div><div class="ttdoc">Retruns the ansi escape code string for carriage return . </div><div class="ttdef"><b>Definition:</b> <a href="util_8c_source.html#l00103">util.c:103</a></div></div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="keywordtype">int</span> <a class="code" href="util_8c.html#af082905f7eac6d03e92015146bbc1925">max</a>(<span class="keywordtype">int</span> a, <span class="keywordtype">int</span> b);</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#endif</span></div>
+<div class="ttc" id="util_8c_html_af082905f7eac6d03e92015146bbc1925"><div class="ttname"><a href="util_8c.html#af082905f7eac6d03e92015146bbc1925">max</a></div><div class="ttdeci">int max(int a, int b)</div><div class="ttdoc">Define the maximum of two given integers. </div><div class="ttdef"><b>Definition:</b> <a href="util_8c_source.html#l00038">util.c:38</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_12ad7392b61b52cb4e8f47577c4b2c84.html">dchat_h</a></li><li class="navelem"><b>util.h</b></li>
-    <li class="footer">Generated on Thu Jun 26 2014 15:44:00 for DChat by
+    <li class="footer">Generated on Fri Jun 27 2014 15:22:33 for DChat by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.7 </li>
   </ul>

@@ -21,7 +21,7 @@
 #ifndef DCHAT_DECODER_H
 #define DCHAT_DECODER_H
 
-#include "dchat_types.h"
+#include "types.h"
 
 
 //*********************************
@@ -68,7 +68,8 @@ int write_pdu(int fd, dchat_pdu_t* pdu);
 //*********************************
 //        INIT FUNCTIONS
 //*********************************
-int init_dchat_pdu(dchat_pdu_t* pdu, int content_type, char* onion_id, int lport, char* nickname);
+int init_dchat_pdu(dchat_pdu_t* pdu, int content_type, char* onion_id,
+                   int lport, char* nickname);
 void init_dchat_pdu_content(dchat_pdu_t* pdu, char* content, int len);
 
 
