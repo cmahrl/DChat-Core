@@ -70,10 +70,10 @@ int
 main(int argc, char** argv)
 {
     char* local_onion  = NULL;          // local onion address
-    int lport     = DEFAULT_PORT;  // local listening port
+    int lport          = DEFAULT_PORT;  // local listening port
     char* nickname     = NULL;          // nickname to use within chat
     char* remote_onion = NULL;          // onion address of remote client
-    int rport     = -1;            // remote port of remote host
+    int rport          = -1;            // remote port of remote host
     int option;                         // getopt option
     int required       = 0;             // counter for required options
     int ret;
