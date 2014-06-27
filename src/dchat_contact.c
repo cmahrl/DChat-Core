@@ -30,8 +30,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <arpa/inet.h>
-#include <unistd.h>
 
 #include "dchat_h/dchat_contact.h"
 #include "dchat_h/dchat_types.h"
@@ -58,14 +56,8 @@ send_contacts(dchat_conf_t* cnf, int n)
     int ret;            // return value
     int pdu_len = 0;    // total content length of pdu-packet that will be sent
     contact_t* contact; // contact that will be converted to a string
-    // zero out new pdu and set initial dchat headers
-    //FIXME: create function for PDU creation
-    memset(&pdu, 0, sizeof(pdu));
-    pdu.content_type = CT_CTRL_DISC;
-    pdu.content_length = 0;
-    pdu.onion_id = cnf->me.onion_id;
-    pdu.nickname = cnf->me.name;
-    pdu.lport = cnf->me.lport;
+    // initialize PDU
+    init_dchat_pdu(&pdu, CT_CTRL_DISC, cnf->me.onion_id, cnf->me.lport, cnf->me.name);
 
     // iterate through our contactlist
     for (i = 0; i < cnf->cl.cl_size; i++)
@@ -211,7 +203,8 @@ receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
  *  @see find_contact()
  *  @param cnf Pointer to global configuration holding the contactlist
  *  @param n   Index of contact to check for duplicates
- *  @return index of duplicate, -1 if there are no duplicates, -2 on error
+ *  @return index of duplicate, -1 if there are no duplicates or if contact
+ *  is not in the contactlist
  */
 int
 check_duplicates(dchat_conf_t* cnf, int n)
@@ -233,7 +226,7 @@ check_duplicates(dchat_conf_t* cnf, int n)
 
     if (fst_oc == -2)
     {
-        return -2; // error contact not in list
+        return -1; // contact not in list
     }
 
     // check if given contact is in the contactlist a second time
@@ -386,7 +379,6 @@ string_to_contact(contact_t* contact, char* string)
  *  @param cnf Global config structure holding the contactlist
  *  @param newsize New size of the contactlist
  *  @return 0 on success, -1 on error
- *          actually stored within the contactlist
  */
 int
 realloc_contactlist(dchat_conf_t* cnf, int newsize)
@@ -399,7 +391,7 @@ realloc_contactlist(dchat_conf_t* cnf, int newsize)
     if (newsize < 1 || newsize < cnf->cl.used_contacts)
     {
         log_msg(LOG_ERR,
-                "realloc_contactlist() failed - Newsize must not be lower than 1 or the amount of contacts stored in the contactlist!");
+                "New size of contactlist must not be lower than 1 or the amount of contacts actually stored in the contactlist!");
         return -1;
     }
 
@@ -409,8 +401,7 @@ realloc_contactlist(dchat_conf_t* cnf, int newsize)
     // reserve memory for new contactlist
     if ((new_contact_list = malloc(newsize * sizeof(contact_t))) == NULL)
     {
-        log_msg(LOG_ERR, "realloc_contactlist() failed - Could not allocate memory");
-        return -1;
+        fatal("Reallocation of contactlist failed!");
     }
 
     // zero out new contactlist
@@ -441,8 +432,8 @@ realloc_contactlist(dchat_conf_t* cnf, int newsize)
  *  to the contactlist holded by the global config.
  *  @param cnf Pointer to dchat_conf_t structure holding the contact list
  *  @param fd  Socket file descriptor of the new contact
- *  @return index of contact list, where new contact has been added or -1 if contact
- *          list is full
+ *  @return index of contact list, where new contact has been added or -1 in case
+ *          of error
  */
 int
 add_contact(dchat_conf_t* cnf, int fd)

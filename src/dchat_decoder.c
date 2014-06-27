@@ -26,13 +26,9 @@
 #include "config.h"
 #endif
 
-#include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/uio.h>
 #include <string.h>
-#include <ctype.h>
 #include <unistd.h>
 
 #include "dchat_h/dchat_decoder.h"
@@ -148,20 +144,21 @@ decode_header(dchat_pdu_t* pdu, char* line)
                 len--;
             }
 
-            pdu->onion_id = malloc(len + 1);
+            /*pdu->onion_id = malloc(len + 1);
 
             if (pdu->onion_id == NULL)
             {
                 log_errno(LOG_ERR, "decode_header(): Could not allocate memory");
                 return -1;
             }
-
+            */
             pdu->onion_id[0] = '\0';
 
             if (len != ONION_ADDRLEN)
             {
                 return -1;
             }
+            //FIXME: check valid onion_id
             else
             {
                 // copy onion address bytes
@@ -193,13 +190,13 @@ decode_header(dchat_pdu_t* pdu, char* line)
                 len--;
             }
 
-            pdu->nickname = malloc(len + 1);
+            /*pdu->nickname = malloc(len + 1);
 
             if (pdu->nickname == NULL)
             {
                 log_errno(LOG_ERR, "decode_header(): Could not allocate memory");
                 return -1;
-            }
+            }*/
 
             pdu->nickname[0] = '\0';
 
@@ -312,16 +309,15 @@ read_line(int fd, char** line)
 
 /**
  *  Read a whole DChat PDU from a file descriptor.
- *  Read linewise from a file descriptor to form a dynamically allocated dchat protocol data unit.
+ *  Read linewise from a file descriptor to form a DChat protocol data unit.
  *  Information read from the file descriptor will be stored in this pdu.
  *  @param fd  File descriptor to read from
- *  @param pdu Double pointer to a PDU that will be assigned the address of the dynamically allocated
- *             PDU structure. Therefore it is recommended to free it, if this structure is not used anymore.
+ *  @param pdu Pointer to a PDU structure whose headers will be filled.
  *  @return amount of bytes read in total if a protocol data unit has been read successfully, 0 on EOF ,
  *  -1 on error
  */
 int
-read_pdu(int fd, dchat_pdu_t** pdu)
+read_pdu(int fd, dchat_pdu_t* pdu)
 {
     char* line;     // line read from file descriptor
     char* contentp; // content pointer
@@ -329,20 +325,12 @@ read_pdu(int fd, dchat_pdu_t** pdu)
     int b;          // amount of bytes read as content
     int len = 0;    // amount of bytes read in total
 
-    // allocate memory for PDU
-    if ((*pdu = malloc(sizeof(struct dchat_pdu))) == NULL)
-    {
-        log_errno(LOG_ERR, "malloc failed in read_pdu");
-        return -1;
-    }
-
     // zero out structure
-    memset(*pdu, 0, sizeof(struct dchat_pdu));
+    memset(pdu, 0, sizeof(*pdu));
 
     // read each line of the received pdu
     if ((ret = read_line(fd, &line)) == -1 || !ret)
     {
-        free(*pdu);
         return ret;
     }
 
@@ -350,7 +338,6 @@ read_pdu(int fd, dchat_pdu_t** pdu)
     if (strcmp(line, "DCHAT: 1.0\n") != 0 && strcmp(line, "DCHAT: 1.0\r\n") != 0)
     {
         free(line);
-        free(*pdu);
         return -1;
     }
 
@@ -365,14 +352,13 @@ read_pdu(int fd, dchat_pdu_t** pdu)
         if ((ret = read_line(fd, &line)) == -1 || ret == 0)
         {
             free(line);
-            free(*pdu);
             return ret;
         }
 
         len += strlen(line);
 
         // decode read line as header
-        if ((ret = decode_header(*pdu, line)) == -1)
+        if ((ret = decode_header(pdu, line)) == -1)
         {
             // if line is not a header, it must be an empty line
             if (strcmp(line, "\n") == 0 || strcmp(line, "\r\n") == 0)
@@ -382,7 +368,6 @@ read_pdu(int fd, dchat_pdu_t** pdu)
             else
             {
                 free(line);
-                free(*pdu);
                 return -1;
             }
         }
@@ -391,26 +376,24 @@ read_pdu(int fd, dchat_pdu_t** pdu)
     }
 
     // has content type, onion-id and listen-port been specified?
-    if ((*pdu)->content_type == 0 || (*pdu)->onion_id == NULL || (*pdu)->lport == 0)
+    if (pdu->content_type == 0 || pdu->onion_id == NULL || pdu->lport == 0)
     {
         free(line);
-        free(*pdu);
         return -1;
     }
 
     // allocate memory for content
-    (*pdu)->content = malloc((*pdu)->content_length + 1);
-    contentp = (*pdu)->content; // point to the beginning
+    pdu->content = malloc(pdu->content_length + 1);
+    contentp = pdu->content; // point to the beginning
 
     // read content frm file descriptor
     // read x bytes defined by Content-Length
-    for (b = 0, contentp = (*pdu)->content; b < (*pdu)->content_length;
+    for (b = 0, contentp = pdu->content; b < pdu->content_length;
          b++, contentp++, len++)
     {
         if ((ret = read(fd, contentp, 1)) == -1 || !ret)
         {
-            free((*pdu)->content);
-            free(*pdu);
+            free(pdu->content);
             return ret;
         }
     }
@@ -715,12 +698,110 @@ write_pdu(int fd, dchat_pdu_t* pdu)
 
 
 /**
+ * Initializes a DChat PDU with the given values.
+ * @param pdu          Pointer to PDU structure whose members will be initialized
+ * @param content_type Content-Type
+ * @param onion_id     Onion-ID
+ * @param lport        Listening port
+ * @param nickname     Nickname
+ */
+int
+init_dchat_pdu(dchat_pdu_t* pdu, int content_type, char* onion_id, int lport, char* nickname)
+{
+    if(!is_valid_content_type(content_type))
+    {
+        log_msg(LOG_WARN, "Invalid Content-Type '0x%02x'!", content_type);
+        return -1;
+    }
+    if(!is_valid_onion(onion_id))
+    {
+        log_msg(LOG_WARN, "Invalid Onion-ID '%s'!", onion_id);
+        return -1;
+    }
+    if(!is_valid_port(lport))
+    {
+        log_msg(LOG_WARN, "Invalid Listening-Port '%d'!", lport);
+        return -1;
+    }
+    if(!is_valid_nickname(nickname))
+    {
+        log_msg(LOG_WARN, "Invalid Nickname '%s'!", nickname);
+        return -1;
+    }
+
+    memset(pdu, 0, sizeof(*pdu));
+    pdu->content_type = content_type;
+    pdu->onion_id[0]  = '\0';
+    strncpy(pdu->onion_id, onion_id, ONION_ADDRLEN);
+    pdu->lport        = lport;
+    pdu->nickname[0]  = '\0';
+    strncpy(pdu->nickname, nickname, MAX_NICKNAME);
+
+    return 0;
+}
+
+
+/**
+ * Initializes the content of a DChat PDU with the given value.
+ * @param pdu     Pointer to PDU whose content will be initialized
+ * @param content Pointer to content
+ * @param         len Lenght of content
+ */
+void
+init_dchat_pdu_content(dchat_pdu_t* pdu, char* content, int len)
+{
+    if((pdu->content = malloc(len)) == NULL)
+    {
+        fatal("Memory allocation for PDU content failed!");
+    }
+
+    memcpy(pdu->content, content, len);
+    pdu->content_length = len;
+}
+
+
+/**
+ * Checks if the given Content-Type number is a valid DChat Content-Type.
+ * @return 1 if valid, 0 otherwise.
+ */
+int
+is_valid_content_type(int content_type)
+{
+    if(content_type & CT_ALL_MASK)
+    {
+        return 1;
+    }
+    
+    return 0;
+}
+
+
+/**
+ * Checks if the given nickname is a valid DChat nickname.
+ * @return 1 if valid, 0 otherwise.
+ */
+int
+is_valid_nickname(char* nickname)
+{
+    if(nickname == NULL)
+    {
+      return 0;
+    }
+    if(strlen(nickname) > MAX_NICKNAME)
+    {
+      return 0;
+    }
+    
+    //FIXME: check non printable characters
+    return 1;
+}
+
+
+/**
  *  Frees all resources dynamically allocated for a PDU structure.
- *  This function frees the allocated memory for the content, nickname
- *  and onion address of this PDU and the dynamically allocated memory
- *  for this PDU itself.
- *  @param pdu Pointer to a pdu that has been dynamically allocated
- *             and should be freed
+ *  This function frees the allocated memory for the content. In the
+ *  future other fields may be freed.
+ *  @param pdu Pointer to a PDU structure 
  */
 void
 free_pdu(dchat_pdu_t* pdu)
@@ -731,18 +812,6 @@ free_pdu(dchat_pdu_t* pdu)
         {
             free(pdu->content);
         }
-
-        if (pdu->onion_id != NULL)
-        {
-            free(pdu->onion_id);
-        }
-
-        if (pdu->nickname != NULL)
-        {
-            free(pdu->nickname);
-        }
-
-        free(pdu);
     }
 }
 

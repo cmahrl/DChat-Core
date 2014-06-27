@@ -1,3 +1,10 @@
+2014-06-27  Christoph Mahrl <is121018@fhstp.ac.at>
+
+	* src/dchat.c:
+		-) major changes to support the redesign of the DChat
+		   protocol and work with TOR.
+		-) overall code refactoring and cleanup.
+
 2014-06-22  Christoph Mahrl <is121018@fhstp.ac.at>
 
 	* src/util.c:

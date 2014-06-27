@@ -40,18 +40,16 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <arpa/inet.h>
 #include <errno.h>
-#include <libgen.h>
 #include <netinet/in.h>
 #include <pthread.h>
 #include <readline/readline.h>
-#include <readline/history.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <signal.h>
-#include <ifaddrs.h>
 #include <unistd.h>
 #include <getopt.h>
 
@@ -65,32 +63,31 @@
 #include "dchat_h/util.h"
 
 
-dchat_conf_t cnf;             //!< global dchat configuration structure
+dchat_conf_t cnf; //!< global dchat configuration structure
 
 
 int
 main(int argc, char** argv)
 {
-    char* local_onion  = NULL;      // local onion address
-    int lport = DEFAULT_PORT;       // local listening port
-    char* nickname     = NULL;      // nickname to use within chat
-    char* remote_onion = NULL;      // onion address of remote client
-    int rport = -1;                 // remote port of remote host
-    int option;                     // getopt option
-    int required  = 0;              // counter for required options
-    int found_int = 0;              // check existence of network int
-    int ret;
-    char* term;                     // used for strtol
-    struct sockaddr_storage sa;     // local socket address
+    char* local_onion  = NULL;          // local onion address
+    int lport     = DEFAULT_PORT;  // local listening port
+    char* nickname     = NULL;          // nickname to use within chat
+    char* remote_onion = NULL;          // onion address of remote client
+    int rport     = -1;            // remote port of remote host
+    int option;                         // getopt option
+    int required       = 0;             // counter for required options
+    int ret;                            
+    char* term;                         // used for strtol
+    struct sockaddr_storage sa;         // local socket address
     struct sockaddr_storage tor_client; // socket address of tor client
-    //options for execution in terminal
+    // possible commandline options
     struct option long_options[] =
     {
-        {"lonion", required_argument, 0, 's'},
+        {"lonion",   required_argument, 0, 's'},
         {"nickname", required_argument, 0, 'n'},
-        {"lport", required_argument, 0, 'l'},
-        {"ronion", required_argument, 0, 'd'},
-        {"rport", required_argument, 0, 'r'}
+        {"lport",    required_argument, 0, 'l'},
+        {"ronion",   required_argument, 0, 'd'},
+        {"rport",    required_argument, 0, 'r'}
     };
 
     // parse commandline options
@@ -108,38 +105,45 @@ main(int argc, char** argv)
         {
             case 's':
                 local_onion = optarg;
+                if(!is_valid_onion(local_onion))
+                {
+                    usage("Invalid onion-id '%s'!", optarg);
+                }
                 required++;
                 break;
 
             case 'n':
                 nickname = optarg;
+                if(!is_valid_nickname(nickname))
+                {
+                    usage("Invalid nickname '%s'! Max. %d printable characters allowed!", optarg, MAX_NICKNAME);
+                }
                 required++;
                 break;
 
             case 'l':
                 lport = (int) strtol(optarg, &term, 10);
-
-                if (lport < 0 || lport > 65535 || *term != '\0')
+                
+                if (!is_valid_port(lport) || *term != '\0')
                 {
-                    log_msg(LOG_ERR, "Invalid listening port '%s'", optarg);
-                    usage();
-                    return EXIT_FAILURE;
+                    usage("Invalid port '%s'!", optarg);
                 }
-
                 break;
 
             case 'd':
                 remote_onion = optarg;
+                if(!is_valid_onion(remote_onion))
+                {
+                    usage("Invalid onion-id '%s'!", optarg);
+                }
                 break;
 
             case 'r':
                 rport = (int) strtol(optarg, &term, 10);
 
-                if (rport < 0 || rport > 65535 || *term != '\0')
+                if (!is_valid_port(rport) || *term != '\0')
                 {
-                    log_msg(LOG_ERR, "Invalid remote port '%s'", optarg);
-                    usage();
-                    return EXIT_FAILURE;
+                    usage("Invalid port '%s'!", optarg);
                 }
 
                 break;
@@ -147,62 +151,58 @@ main(int argc, char** argv)
             // invalid option - getopt prints error msg
             case '?':
             default:
-                usage();
-                return EXIT_FAILURE;
+                usage("Invalid command-line option!");
         }
     }
 
-    //FIXME: check if onion address is valid
-    // local onion address and nick are mandatory; only options arguments are allowed
-    if (required < 2 || optind < argc)
+    // local onion address and nick are mandatory
+    if (required < 2)
     {
-        usage();
-        return EXIT_FAILURE;
+        usage("Missing mandatory command-line options!");
+    }
+    // client requires no arguments -> raise error if there are any
+    if(optind < argc)
+    {
+        usage("Invalid command-line arguments!");
     }
 
-    // local listening socket address
+    // setup local listening socket address
     memset(&sa, 0, sizeof(sa));
-
     if (inet_pton(AF_INET, LISTEN_ADDR, &((struct sockaddr_in*)&sa)->sin_addr) != 1)
     {
-        log_msg(LOG_ERR, "Invalid ip address '%s'!", LISTEN_ADDR);
-        return -1;
+        usage("Invalid ip address '%s'", LISTEN_ADDR);
     }
-
     ((struct sockaddr_in*)&sa)->sin_family = AF_INET;
     ((struct sockaddr_in*)&sa)->sin_port = htons(lport);
 
     // init dchat (e.g. global configuration, listening socket, threads, ...)
     if (init(&cnf, &sa, local_onion, nickname) == -1)
     {
-        return EXIT_FAILURE;
+        fatal("Initialization failed!");
     }
 
     // has a remote onion address or remote port been specified? if y: connect to it
     if (remote_onion != NULL || rport != -1)
     {
+        // use default if onion-id has not been specified
         if (remote_onion == NULL)
         {
             remote_onion = local_onion;
         }
 
+        // use default if remote port has not been specified
         if (rport == -1)
         {
             rport = DEFAULT_PORT;
         }
-
-        pthread_mutex_lock(&cnf.cl.cl_mx);
-
-        // connect to remote client and send contactlist
-        if (handle_local_conn_request(&cnf, remote_onion, rport) == -1)
-        {
-            log_msg(LOG_DEBUG, "main(): Connection to remote host failed!");
-        }
-
-        pthread_mutex_unlock(&cnf.cl.cl_mx);
+        
+        // inform connection handler to connect to the specified
+        // remote host
+        write(cnf.connect_fd[1], remote_onion, ONION_ADDRLEN);
+        write(cnf.connect_fd[1], &rport,       sizeof(uint16_t));
     }
 
-    // main chat loop
+    // handle userinput
     ret = th_new_input(&cnf);
     // cleanup all ressources
     destroy(&cnf);
@@ -213,8 +213,10 @@ main(int argc, char** argv)
 /**
  * Initializes neccessary internal ressources like threads and pipes.
  * Initializes pipes and threads used for parallel processing of user input
- * and and handling data from a remote client. Furtermore the global config
- * gets initialized with the listening socket, nickname and other basic things.
+ * and handling data from a remote client and installs a signal handler to
+ * catch basic termination signals for proper program termination. 
+ * Furtermore the global config gets initialized with the listening socket, 
+ * nickname and other basic things.
  * @see init_global_config()
  * @param cnf The global dchat config
  * @param sa  Socket address containing the ip address to bind to
@@ -239,42 +241,43 @@ init(dchat_conf_t* cnf, struct sockaddr_storage* sa, char* onion_id,
     // do not allow interruption of a signal handler
     sa_terminate.sa_mask = sigmask;
     sa_terminate.sa_flags = 0;
-    sigaction(SIGHUP, &sa_terminate, NULL);   // terminal line hangup
-    sigaction(SIGQUIT, &sa_terminate, NULL);  // quit programm
-    sigaction(SIGINT, &sa_terminate, NULL);   // interrupt programm
-    sigaction(SIGTERM, &sa_terminate, NULL);  // software termination
+    sigaction(SIGHUP, &sa_terminate, NULL);  // terminal line hangup
+    sigaction(SIGQUIT, &sa_terminate, NULL); // quit programm
+    sigaction(SIGINT, &sa_terminate, NULL);  // interrupt programm
+    sigaction(SIGTERM, &sa_terminate, NULL); // software termination
 
-    // init the listening socket
+    // initialize global configuration
     if (init_global_config(cnf, sa, onion_id, nickname) == -1)
     {
+        log_msg(LOG_ERR, "Initialization of the global configuration failed!");
         return -1;
     }
 
     // pipe to the th_new_conn
     if (pipe(cnf->connect_fd) == -1)
     {
-        log_errno(LOG_ERR, "could not create pipe");
+        log_errno(LOG_ERR, "Could not connection pipe!");
         return -1;
     }
 
     // pipe to send signal to wait loop from connect
     if (pipe(cnf->cl_change) == -1)
     {
-        log_errno(LOG_ERR, "could not create cl_change pipe");
+        log_errno(LOG_ERR, "Could not change pipe!");
         return -1;
     }
 
     // pipe to signal new user input from stdin
     if (pipe(cnf->user_input) == -1)
     {
-        log_errno(LOG_ERR, "could not create cl_change pipe");
+        log_errno(LOG_ERR, "Could not userinput pipe!");
         return -1;
     }
 
     // init the mutex function used for locking the contactlist
     if (pthread_mutex_init(&cnf->cl.cl_mx, NULL))
     {
-        log_errno(LOG_ERR, "pthread_mutex_init() failed");
+        log_errno(LOG_ERR, "Initialization of mutex failed!");
         return -1;
     }
 
@@ -282,7 +285,7 @@ init(dchat_conf_t* cnf, struct sockaddr_storage* sa, char* onion_id,
     if (pthread_create
         (&cnf->conn_th, NULL, (void* (*)(void*)) th_new_conn, cnf) == -1)
     {
-        log_errno(LOG_ERR, "pthread_create() failed");
+        log_errno(LOG_ERR, "Creation of connection thread failed!");
         return -1;
     }
 
@@ -290,7 +293,7 @@ init(dchat_conf_t* cnf, struct sockaddr_storage* sa, char* onion_id,
     if (pthread_create
         (&cnf->select_th, NULL, (void* (*)(void*)) th_main_loop, cnf) == -1)
     {
-        log_errno(LOG_ERR, "pthread_create() failed");
+        log_errno(LOG_ERR, "Creation of selection thread failed!");
         return -1;
     }
 
@@ -302,12 +305,13 @@ init(dchat_conf_t* cnf, struct sockaddr_storage* sa, char* onion_id,
 
 /**
  * Initializes the global dchat configuration.
- * Binds to a network interface, creates a listening socket for this interface
- * and the given port and sets the nickname. All configuration settings will
- * be stored in the global config.
+ * Binds to a socket address, creates a listening socket for this interface
+ * and the given port and sets the nickname as well as the onion-id of the
+ * local hidden service. All configuration settings will be stored in the 
+ * global config.
  * @param cnf Pointer to global configuration structure
  * @param sa  Socket address containing the ip address to bind to
- * @param onion_id Local onion address of hidden service
+ * @param onion_id Onion address of local hidden service
  * @param nickname Nickname used for this chat session
  * @return socket descriptor or -1 if an error occurs
  */
@@ -316,22 +320,20 @@ init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa,
                    char* onion_id,
                    char* nickname)
 {
-    char addr_str[INET6_ADDRSTRLEN + 1];  // ip as string
-    int s;                    // local socket descriptor
-    int on = 1;               // turn on a socket option
-    int found_int = 0;        // check if interface was found
+    int s;      // local socket descriptor
+    int on = 1; // turn on a socket option
 
     // create socket
     if ((s = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
-        log_errno(LOG_ERR, "socket() failed");
+        log_errno(LOG_ERR, "Creation of socket failed!");
         return -1;
     }
 
     // socketoption to prevent: 'bind() address already in use'
     if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
     {
-        log_errno(LOG_ERR, "setsockopt() failed");
+        log_errno(LOG_ERR, "Setting socket options to reuse an already bound address failed!");
         close(s);
         return -1;
     }
@@ -339,7 +341,7 @@ init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa,
     // bind socket to a socket address
     if (bind(s, (struct sockaddr*) sa, sizeof(struct sockaddr)) == -1)
     {
-        log_errno(LOG_ERR, "bind() failed");
+        log_errno(LOG_ERR, "Binding to socket address failed!");
         close(s);
         return -1;
     }
@@ -347,25 +349,25 @@ init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa,
     // listen on this socket
     if (listen(s, LISTEN_BACKLOG) == -1)
     {
-        log_errno(LOG_ERR, "listen() failed");
+        log_errno(LOG_ERR, "Listening on socket descriptor failed!");
         close(s);
         return -1;
     }
 
     // init the global config structure
     memset(cnf, 0, sizeof(*cnf));
-    cnf->in_fd = 0;            // use stdin as input source
-    cnf->out_fd = 1;           // use stdout as output source
-    cnf->cl.cl_size = 0;       // set initial size of contactlist
-    cnf->cl.used_contacts = 0; // no known contacts, at start
-    cnf->me.name[0] = '\0';
-    strncat(cnf->me.name, nickname, MAX_NICKNAME);      // set nickname
-    cnf->me.onion_id[0] = '\0';
+    cnf->in_fd            = 0;    // use stdin as input source
+    cnf->out_fd           = 1;    // use stdout as output source
+    cnf->cl.cl_size       = 0;    // set initial size of contactlist
+    cnf->cl.used_contacts = 0;    // no known contacts, at start
+    strncat(cnf->me.name,     nickname, MAX_NICKNAME);  // set nickname
     strncat(cnf->me.onion_id, onion_id, ONION_ADDRLEN); // set onion address
 
-    // listening port
+    // set listening port
     if (ip_version(sa) == 4)
     {
+        //FIXME: output listening ip and port / and give a notice
+        //       on the onion-id and hidden-port
         log_msg(LOG_INFO, "Listening on '%s:%d'", onion_id,
                 ntohs(((struct sockaddr_in*) sa)->sin_port));
         cnf->me.lport = ntohs(((struct sockaddr_in*) sa)->sin_port);
@@ -423,7 +425,7 @@ destroy(dchat_conf_t* cnf)
 /**
  * Signal handler function used for termination.
  * Signal handler function that will free all used resources like file
- * descriptors, pipes, etc... and that terminates this process afterwards.
+ * descriptors, pipes, etc. and that terminates this process afterwards.
  * This function will be called whenever this program should terminate (e.g
  * SIGTERM, SIGQUIT, ...) or on EOF of stdin.
  * Exit status of the process will be EXIT_SUCCESS
@@ -447,51 +449,35 @@ terminate(int sig)
  * in the global configuration.
  * @see write_pdu()
  * @param cnf Pointer to global configuration
- * @return -2 on warning, -1 on error, 0 on success
+ * @return 0 on success, -1 on error
  */
 int
 handle_local_input(dchat_conf_t* cnf, char* line)
 {
     dchat_pdu_t msg; // pdu containing the chat text message
-    int i, ret = 0, len, cmd;
+    int i, ret = 0, len;
 
-    // user entered command
-    if ((cmd = parse_cmd(cnf, line)) == 0)
+    // check if user entered command 
+    if ((ret = parse_cmd(cnf, line)) == 0 || ret == 1)
     {
         return 0;
     }
-    // command has wrong syntax
-    else if (cmd == 1)
-    {
-        log_msg(LOG_WARN, "Syntax error");
-        return -2;
-    }
-    // no command has been entered
+    // no command has been entered / or command could not be processed
     else
     {
-        len += strlen(line);             // memory for text message
+        len += strlen(line); // memory for text message
 
         if (len != 0)
         {
-            // init dchat pdu
-            memset(&msg, 0, sizeof(msg));
-            msg.content_type = CT_TXT_PLAIN;
-            msg.onion_id = cnf->me.onion_id;
-            msg.lport = cnf->me.lport;
-            msg.nickname = cnf->me.name;
-
-            // allocate memory the size of nickname + 2 + text message
-            if ((msg.content = malloc(len + 1)) == NULL)
+            // inititialize pdu
+            if(init_dchat_pdu(&msg, CT_TXT_PLAIN, cnf->me.onion_id, cnf->me.lport, cnf->me.name) == -1)
             {
-                log_errno(LOG_ERR,
-                          "handle_local_input() failed, could not allocated memory");
+                log_msg(LOG_ERR, "Initialization of PDU failed!");
                 return -1;
             }
 
-            // append the content
-            msg.content[0] = '\0';
-            strncat(msg.content, line, strlen(line));
-            msg.content_length = len; // length of content excluding \0
+            // set content of pdu
+            init_dchat_pdu_content(&msg, line, strlen(line));
 
             // write pdu to known contacts
             for (i = 0; i < cnf->cl.cl_size; i++)
@@ -501,12 +487,7 @@ handle_local_input(dchat_conf_t* cnf, char* line)
                     ret = write_pdu(cnf->cl.contact[i].fd, &msg);
                 }
             }
-
-            free(msg.content);
-        }
-        else
-        {
-            log_msg(LOG_WARN, "Did not send empty string!");
+            free_pdu(&msg);
         }
     }
 
@@ -526,118 +507,107 @@ handle_local_input(dchat_conf_t* cnf, char* line)
 int
 handle_remote_input(dchat_conf_t* cnf, int n)
 {
-    dchat_pdu_t* pdu; // pdu read from contact file descriptor
-    char* txt_msg;    // message used to store remote input
-    int ret;          // return value
-    int len;          // amount of bytes read
-    int fd;           // file descriptor of a contact
-    fd = cnf->cl.contact[n].fd;
+    dchat_pdu_t pdu;    // pdu read from contact file descriptor
+    char* txt_msg;      // message used to store remote input
+    int ret;            // return value
+    int len;            // amount of bytes read
+    contact_t* contact; // contact to send a message to
+    contact = &cnf->cl.contact[n];
 
     // read pdu from file descriptor (-1 indicates error)
-    if ((len = read_pdu(fd, &pdu)) == -1)
+    if ((len = read_pdu(contact->fd, &pdu)) == -1)
     {
-        log_msg(LOG_ERR, "Illegal PDU from contact %d", n);
+        log_msg(LOG_ERR, "Illegal PDU from '%s'!", contact->name);
         return -1;
     }
     // EOF
     else if (!len)
     {
-        log_msg(LOG_INFO, "contact '%d' disconnected", n);
+        log_msg(LOG_INFO, "'%s' disconnected!", contact->name);
         return 0;
     }
 
-    // the first pdu of a newly connected client has to be a
-    // "control/discover" containing the onion-id and the listening
-    // port otherwise raise an error and delete
+    // the first pdus of a newly connected client have to be a
+    // "control/discover" containing the onion-id, listening
+    // port and nickname, otherwise raise an error and delete
     // this contact
-    if ((cnf->cl.contact[n].onion_id[0] == '\0' || !cnf->cl.contact[n].lport) &&
-        pdu->content_type != CT_CTRL_DISC)
+    if ((contact->onion_id[0] == '\0' || !contact->lport || contact->name[0] == '\0')  &&
+        pdu.content_type != CT_CTRL_DISC)
     {
-        log_msg(LOG_ERR, "Contact '%s' has not identfied himself",
-                cnf->cl.contact[n].name);
+        log_msg(LOG_ERR, "Client '%d' omitted identification!", n);
         return -1;
     }
-    else if (pdu->content_type == CT_CTRL_DISC)
+    else if (pdu.content_type == CT_CTRL_DISC)
     {
-        if (cnf->cl.contact[n].name[0] == '\0')
-        {
-            // set nickname of contact
-            strncat(cnf->cl.contact[n].name, pdu->nickname, MAX_NICKNAME);
-        }
 
-        if (cnf->cl.contact[n].onion_id[0] == '\0')
-        {
-            // set onion id of contact
-            strncat(cnf->cl.contact[n].onion_id, pdu->onion_id, ONION_ADDRLEN);
+        // check mandatory headers received
+        if(contact->name[0] != '\0' && strcmp(contact->name, pdu.nickname) != 0){
+            log_msg(LOG_INFO, "'%s' changed nickname to '%s'!", contact->name, pdu.nickname);
         }
-
-        if (!cnf->cl.contact[n].lport)
-        {
-            // set listening port of contact
-            cnf->cl.contact[n].lport = pdu->lport;
+        if(contact->onion_id[0] != '\0' && strcmp(contact->onion_id, pdu.onion_id) != 0){
+            log_msg(LOG_ERR, "'%s' changed Onion-ID! Contact will be removed!", contact->name);
+            del_contact(cnf, n);
+            return -1;
         }
+        if(contact->lport != 0 && contact->lport != pdu.lport)
+        {
+            log_msg(LOG_ERR, "'%s' changed Listening Port! Contact will be removed!", contact->name);
+            del_contact(cnf, n);
+            return -1;
+        }
+    
+        // set nickname of contact
+        contact->name[0] = '\0';
+        if(pdu.nickname != NULL)
+        {
+            strncat(contact->name, pdu.nickname, MAX_NICKNAME);
+        }
+        // set onion id of contact
+        contact->onion_id[0] = '\0';
+        if(pdu.onion_id != NULL)
+        {
+            strncat(contact->onion_id, pdu.onion_id, ONION_ADDRLEN);
+        }
+        // set listening port of contact
+        contact->lport = pdu.lport;
     }
 
     /*
      * == TEXT/PLAIN ==
      */
-    if (pdu->content_type == CT_TXT_PLAIN)
+    if (pdu.content_type == CT_TXT_PLAIN)
     {
         // allocate memory for text message
-        if ((txt_msg = malloc(pdu->content_length + 1)) == NULL)
+        if ((txt_msg = malloc(pdu.content_length + 1)) == NULL)
         {
-            log_errno(LOG_ERR,
-                      "handle_remote_input() failed - Could not allocate memory");
-            free_pdu(pdu);
-            return -1;
+            fatal("Memory allocation for text message failed!");
         }
 
         // store bytes from pdu in txt_msg and terminate it
-        memcpy(txt_msg, pdu->content, pdu->content_length);
-        txt_msg[pdu->content_length] = '\0';
+        memcpy(txt_msg, pdu.content, pdu.content_length);
+        txt_msg[pdu.content_length] = '\0';
         // print text message
-        print_dchat_msg(pdu->nickname, txt_msg, cnf->out_fd);
+        print_dchat_msg(pdu.nickname, txt_msg, cnf->out_fd);
         free(txt_msg);
     }
     /*
      * == CONTROL/DISCOVER ==
      */
-    else if (pdu->content_type == CT_CTRL_DISC)
+    else if (pdu.content_type == CT_CTRL_DISC)
     {
         // since dchat brings with the problem of duplicate contacts
         // check if there are duplicate contacts in the contactlist
-        if ((ret = check_duplicates(cnf, n)) == -2)
+        if ((ret = check_duplicates(cnf, n)) != -1) //error
         {
-            // ERROR
-            log_msg(LOG_ERR, "check_duplicate_contact() failed");
-        }
-        // no duplicates
-        else if (ret == -1)
-        {
-            // log_msg(LOG_INFO, "no duplicates founds");
-        }
-        // duplicates found
-        else
-        {
-            log_msg(LOG_INFO, "Duplicate detected - removing it (%d)", ret);
+            log_msg(LOG_INFO, "Detected duplicate contact - removing it!");
             del_contact(cnf, ret);  // delete duplicate
         }
 
         // iterate through the content of the pdu containing
         // the new contacts
-        if ((ret = receive_contacts(cnf, pdu)) == -1)
+        if ((ret = receive_contacts(cnf, &pdu)) == -1)
         {
-            log_msg(LOG_WARN, "Not every new contact could be added to contactlist");
-        }
-        else if (ret == 0)
-        {
-            // log_msg(LOG_DEBUG, "client %d does not know any other
-            // contacts we do not know about", n);
-        }
-        else
-        {
-            // log_msg(LOG_DEBUG, "%d new client(s) have been added",
-            // ret);
+            log_msg(LOG_WARN, "Could not add all contacts from the received contactlist!");
         }
     }
     /*
@@ -648,7 +618,7 @@ handle_remote_input(dchat_conf_t* cnf, int n)
         log_msg(LOG_WARN, "Unknown Content-Type!");
     }
 
-    free_pdu(pdu);
+    free_pdu(&pdu);
     return len;
 }
 
@@ -680,8 +650,7 @@ handle_local_conn_request(dchat_conf_t* cnf, char* onion_id, uint16_t port)
         // add contact
         if ((n = add_contact(cnf, s)) == -1)
         {
-            log_errno(LOG_ERR,
-                      "handle_local_conn_request() failed - Could not add contact");
+            log_errno(LOG_ERR, "Could not add new contact!");
             return -1;
         }
         else
@@ -689,7 +658,7 @@ handle_local_conn_request(dchat_conf_t* cnf, char* onion_id, uint16_t port)
             // set onion id of new contact
             cnf->cl.contact[n].onion_id[0] = '\0';
             strncat(cnf->cl.contact[n].onion_id, onion_id, ONION_ADDRLEN);
-            //set listening port of new contact
+            // set listening port of new contact
             cnf->cl.contact[n].lport = port;
             // send all our known contacts to the newly connected client
             send_contacts(cnf, n);
@@ -702,9 +671,9 @@ handle_local_conn_request(dchat_conf_t* cnf, char* onion_id, uint16_t port)
 
 /**
  * Handles connection requests from a remote client.
- * Accepts a connection from a remote client and so that a new TCP connection
- * will be established between this and the remote client. Moreover the remote
- * client will be added as new contact in the contactlist and the local contactlist
+ * Accepts a connection from a remote client and so that a new chat session 
+ * will be established between this and the remote host. Moreover the remote
+ * host will be added as new contact in the contactlist and the local contactlist
  * will be sent to him.
  * @see add_contact()
  * @param cnf Pointer to global configuration
@@ -715,23 +684,23 @@ handle_remote_conn_request(dchat_conf_t* cnf)
 {
     int s;                      // socket file descriptor
     int n;                      // index of new contact
-    struct sockaddr_storage ss; // socketaddress of connecting host
-    socklen_t socklen;          // length of socketaddress
-    socklen = sizeof(ss);
 
     // accept connection request
-    if ((s = accept(cnf->acpt_fd, (struct sockaddr*) &ss, &socklen)) == -1)
+    if ((s = accept(cnf->acpt_fd, NULL, NULL)) == -1)
     {
-        log_errno(LOG_ERR, "accept() failed");
+        log_errno(LOG_ERR, "Could not accept connection from remote host!");
         return -1;
     }
 
     // add new contact to contactlist
-    n = add_contact(cnf, s);
-
-    if (n != -1)
+    if((n = add_contact(cnf, s)) != -1)
     {
-        log_msg(LOG_INFO, "contact %d connected", n);
+        log_msg(LOG_INFO, "Remote host (%d) connected!", n);
+    }
+    else
+    {
+        log_errno(LOG_ERR, "Could not add new contact!");
+        return -1;
     }
 
     cnf->cl.contact[n].accepted = 1;
@@ -756,7 +725,7 @@ cleanup_th_new_conn(void* arg)
 
 
 /**
- * Thread function that reads a onion address from a pipe and connects to this
+ * Thread function that reads an onion address from a pipe and connects to this
  * address.
  * Establishes new connections to the given addresses read from the global config
  * pipe `connect_fd`. It reads an onion address and then connects to
@@ -769,9 +738,9 @@ cleanup_th_new_conn(void* arg)
 void*
 th_new_conn(dchat_conf_t* cnf)
 {
-    char onion_id[ONION_ADDRLEN + 1]; // destination address to connect to
-    uint16_t port;
-    char c = '1';                     // will be written to `cl_change`
+    char onion_id[ONION_ADDRLEN + 1]; // onion address of remote host
+    uint16_t port;                    // port of remote host 
+    char c = '1';                     // signal that a new connection has been established
     int ret;
     // setup cleanup handler and cancelation attributes
     pthread_cleanup_push(cleanup_th_new_conn, NULL);
@@ -781,9 +750,9 @@ th_new_conn(dchat_conf_t* cnf)
     for (;;)
     {
         // read from pipe to get new address
-        if ((ret = read(cnf->connect_fd[0], &onion_id, ONION_ADDRLEN)) == -1)
+        if ((ret = read(cnf->connect_fd[0], onion_id, ONION_ADDRLEN)) == -1)
         {
-            log_msg(LOG_WARN, "th_new_conn(): Could not read from pipe");
+            log_msg(LOG_WARN, "Could not read Onion-ID from connection pipe!");
         }
 
         // EOF
@@ -793,9 +762,9 @@ th_new_conn(dchat_conf_t* cnf)
         }
 
         // read from pipe to get new port
-        if ((ret = read(cnf->connect_fd[0], &port, sizeof(port))) == -1)
+        if ((ret = read(cnf->connect_fd[0], &port, sizeof(uint16_t))) == -1)
         {
-            log_msg(LOG_WARN, "th_new_conn(): Could not read from pipe");
+            log_msg(LOG_WARN, "Could not read Listening-Port from connection pipe!");
         }
 
         // EOF
@@ -811,11 +780,11 @@ th_new_conn(dchat_conf_t* cnf)
 
         if (handle_local_conn_request(cnf, onion_id, port) == -1)
         {
-            log_errno(LOG_WARN, "th_new_conn(): Connection to remote host failed! ");
+            log_msg(LOG_WARN, "Connection to remote host failed!");
         }
         else if ((write(cnf->cl_change[1], &c, sizeof(c))) == -1)
         {
-            log_msg(LOG_WARN, "th_new_conn(): Could not write to pipe");
+            log_msg(LOG_WARN, "Could not write to change pipe");
         }
 
         // unlock contactlist
@@ -1093,25 +1062,4 @@ th_main_loop(dchat_conf_t* cnf)
     //execute cleanup handler
     pthread_cleanup_pop(1);
     pthread_exit(NULL);
-}
-
-
-/**
- * Prints usage of this program.
- */
-void
-usage()
-{
-    fprintf(stdout, "Usage:\n");
-    fprintf(stdout,
-            "  %s -s ONIONID -n NICKNAME [-l LOCALPORT] [-d REMOTEONIONID] [-r REMOTEPORT]\n\n",
-            PACKAGE_NAME);
-    fprintf(stdout, "Options:\n");
-    fprintf(stdout, "  -s, --lonion=ONIONID\n");
-    fprintf(stdout, "  -n, --nickname=NICKNAME\n");
-    fprintf(stdout, "  -l, --lport=LOCALPORT\n");
-    fprintf(stdout, "  -d, --ronion=REMOTEONIONID\n");
-    fprintf(stdout, "  -r, --rport=REMOTEPORT\n\n");
-    fprintf(stdout,
-            "More detailed information can be found in the manpage. See dchat(1)\n");
 }

@@ -39,12 +39,12 @@
  */
 typedef struct dchat_pdu
 {
-    int content_type;            //!< type of message
-    char* content;               //!< content part of message
-    int content_length;          //!< lengh of content
-    char* onion_id;              //!< onion address of hidden service
-    uint16_t lport;              //!< listening port of hidden service
-    char* nickname;              //!< nickname of the client
+    int content_type;                  //!< type of message
+    char* content;                     //!< content part of message
+    int content_length;                //!< lengh of content
+    char onion_id[ONION_ADDRLEN + 1]; //!< onion address of hidden service
+    uint16_t lport;                    //!< listening port of hidden service
+    char nickname[MAX_NICKNAME + 1];   //!< nickname of the client
 } dchat_pdu_t;
 
 /*!

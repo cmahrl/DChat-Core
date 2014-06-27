@@ -22,19 +22,15 @@
  *  This file contains all available in-chat commands within this client.
  */
 
-#include <ctype.h>
-#include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <stdio.h>
-#include <signal.h>
-#include <arpa/inet.h>
 #include <unistd.h>
 #include <readline/readline.h>
 
 #include "dchat_h/dchat_types.h"
 #include "dchat_h/log.h"
-#include "dchat_h/util.h"
 
 
 /**
@@ -48,7 +44,7 @@ parse_cmd_connect(dchat_conf_t* cnf, char* cmd)
 {
     char* address;
     char* port_str;
-    uint16_t port;
+    int port;
     char* endptr;
     char* prefix;
 
@@ -68,20 +64,16 @@ parse_cmd_connect(dchat_conf_t* cnf, char* cmd)
         return 1;
     }
 
-    //FIXME: check valid port
-    port = atoi(port_str);
-
-    // check if address ends with ".onion" and is exactly 22 characters long
-    if ((prefix = strchr(address, '.')) != NULL &&
-        (strlen(address) == ONION_ADDRLEN))
+    port = (int) strtol(port_str, &endptr, 10);
+    if(!is_valid_port(port) || *endptr != '\0')
     {
-        if (strcmp(prefix, ".onion") != 0)
-        {
-            return 1;
-        }
+        log_msg(LOG_WARN, "Invalid port '%s'!", port_str);
+        return 1;
     }
-    else
+
+    if(!is_valid_onion(address))
     {
+        log_msg(LOG_WARN, "Invalid onion-id '%s'!", address);
         return 1;
     }
 
@@ -91,7 +83,7 @@ parse_cmd_connect(dchat_conf_t* cnf, char* cmd)
         return -1;
     }
 
-    if (write(cnf->connect_fd[1], &port, sizeof(port)) == -1)
+    if (write(cnf->connect_fd[1], &port, sizeof(uint16_t)) == -1)
     {
         return -1;
     }
@@ -160,7 +152,8 @@ parse_cmd_list(dchat_conf_t* cnf)
  *  Parses the given string and executes it if it is a command.
  *  @param cnf Global config structure
  *  @param buf Userinput
- *  @return 0 if the input was a command, -1 on error, 1 on syntax error
+ *  @return 0 if command was valid, 1 if command was invalid in all
+ *  other cases -1 will be returned.
  */
 int
 parse_cmd(dchat_conf_t* cnf, char* buf)
@@ -179,14 +172,9 @@ parse_cmd(dchat_conf_t* cnf, char* buf)
         }
         else if (ret == 1)
         {
-            log_msg(LOG_ERR, "Wrong Syntax! Syntax: /connect <ONION-ID>");
+            log_msg(LOG_ERR, "Syntax: /connect <ONION-ID> <PORT>");
             return 1;
         }
-    }
-    // check if the command contains exit and return 1
-    else if (strcmp(buf, "/exit") == 0)
-    {
-        raise(SIGTERM);
     }
     // check for the command help and call the appropriate function
     else if (strcmp(buf, "/help") == 0)

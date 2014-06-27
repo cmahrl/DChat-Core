@@ -22,8 +22,6 @@
  *  This file contains core networking functions.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdint.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -31,7 +29,6 @@
 #include <string.h>
 
 #include "dchat_h/dchat_network.h"
-#include "dchat_h/util.h"
 #include "dchat_h/log.h"
 
 
@@ -207,4 +204,102 @@ create_tor_socket(char* hostname, uint16_t rport)
     }
 
     return s;
+}
+
+
+/**
+ *  Determines the address family of the given socket address structure.
+ *  @param address Pointer to address to check the address family for
+ *  @return 4 if AF_INET is used, 6 if AF_INET6 is used or -1 in every other case
+ */
+int
+ip_version(struct sockaddr_storage* address)
+{
+    if (address->ss_family == AF_INET)
+    {
+        return 4;
+    }
+    else if (address->ss_family == AF_INET6)
+    {
+        return 6;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+
+/**
+ * Connects to a remote socket using the given socket address.
+ * @param sa Pointer to initalized sockaddr structure.
+ * @return file descriptor of new socket or -1 in case of error
+ */
+int
+connect_to(struct sockaddr* sa)
+{
+    int s; // socket file descriptor
+
+    if ((s = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+    {
+        log_errno(LOG_ERR, "socket() failed in connect_to()");
+        return -1;
+    }
+
+    if (connect(s, sa, sizeof(struct sockaddr_in)) == -1)
+    {
+        log_errno(LOG_ERR, "connect() failed");
+        close(s);
+        return -1;
+    }
+
+    return s;
+}
+
+
+/**
+ * Checks wether the given port is a valid TCP port.
+ * Valid ports are between 1 and 65536.
+ * @return 1 if port is valid, 0 otherwise
+ */
+int
+is_valid_port(int port)
+{
+    if(port > 0 && port < 65536)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+/**
+ * Checks wether the given onion-id is a valid onion address.
+ * A valid onion address contains exactly 16 characters (excluding
+ * the prefix) and has a `.onion` prefix.
+ * @return 1 if onion-id is valid, 0 otherwise.
+ */
+int
+is_valid_onion(char* onion_id)
+{
+    char* prefix;
+
+    if(strlen(onion_id) != ONION_ADDRLEN)
+    {
+        return 0;
+    }
+
+    prefix = strchr(onion_id, '.');
+    if(prefix == NULL)
+    {
+        return 0;
+    }
+
+    if(strcmp(prefix, ".onion") != 0)
+    {
+        return 0;
+    }
+
+    return 1;
 }

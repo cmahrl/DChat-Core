@@ -32,20 +32,21 @@
 //*********************************
 //     TYPE OF HEADER TO ENCODE
 //*********************************
-#define HDR_CONTENT_TYPE   1
-#define HDR_CONTENT_LENGTH 2
-#define HDR_ONION_ID       3
-#define HDR_LISTEN_PORT    4
-#define HDR_NICKNAME       5
+#define HDR_CONTENT_TYPE   0x01
+#define HDR_CONTENT_LENGTH 0x02
+#define HDR_ONION_ID       0x03
+#define HDR_LISTEN_PORT    0x04
+#define HDR_NICKNAME       0x05
 
 
 //*********************************
 //         CONTENT-TYPES
 //*********************************
-#define CT_TXT_PLAIN   1
-#define CT_APPL_OCT    2
-#define CT_CTRL_DISC   3
-#define CT_CTRL_RPLY   4
+#define CT_TXT_PLAIN   0x01
+#define CT_APPL_OCT    0x02
+#define CT_CTRL_DISC   0x03
+#define CT_CTRL_RPLY   0x04
+#define CT_ALL_MASK    0x05
 
 
 //*********************************
@@ -53,7 +54,7 @@
 //*********************************
 int decode_header(dchat_pdu_t* pdu, char* line);
 int read_line(int fd, char** line);
-int read_pdu(int fd, dchat_pdu_t** pdu);
+int read_pdu(int fd, dchat_pdu_t* pdu);
 
 
 //*********************************
@@ -65,8 +66,17 @@ int write_pdu(int fd, dchat_pdu_t* pdu);
 
 
 //*********************************
+//        INIT FUNCTIONS
+//*********************************
+int init_dchat_pdu(dchat_pdu_t* pdu, int content_type, char* onion_id, int lport, char* nickname);
+void init_dchat_pdu_content(dchat_pdu_t* pdu, char* content, int len);
+
+
+//*********************************
 //        MISC FUNCTIONS
 //*********************************
+int is_valid_content_type(int content_type);
+int is_valid_nickname(char* nickname);
 void free_pdu(dchat_pdu_t* pdu);
 int get_content_part(dchat_pdu_t* pdu, int offset, char term, char** content);
 

@@ -42,7 +42,7 @@ __attribute__((constructor)) init_log0(void)
  *  @param fmt Format string
  *  @param ap Variable parameter list
  */
-static void
+void
 vlog_msgf(FILE* out, int lf, const char* fmt, va_list ap)
 {
     int level = LOG_PRI(lf);
@@ -125,3 +125,137 @@ log_hex(int lf, const void* buf, int len)
     }
 }
 
+
+
+
+/**
+ * Prints usage of this program.
+ * @param Format string
+ * @param ... arguments
+ */
+void
+usage(const char* fmt, ...)
+{
+    va_list args;
+
+    va_start(args, fmt);
+    vlog_msgf(log_, LOG_ERR, fmt, args); 
+    va_end(args);
+
+    if(log_ != NULL)
+    {
+    fprintf(log_, "Usage:\n");
+    fprintf(log_,
+            "  %s -s ONIONID -n NICKNAME [-l LOCALPORT] [-d REMOTEONIONID] [-r REMOTEPORT]\n\n",
+            PACKAGE_NAME);
+    fprintf(log_, "Options:\n");
+    fprintf(log_, "  -s, --lonion=ONIONID\n");
+    fprintf(log_, "  -n, --nickname=NICKNAME\n");
+    fprintf(log_, "  -l, --lport=LOCALPORT\n");
+    fprintf(log_, "  -d, --ronion=REMOTEONIONID\n");
+    fprintf(log_, "  -r, --rport=REMOTEPORT\n\n");
+    fprintf(log_,
+            "More detailed information can be found in the manpage. See dchat(1)\n");
+    }
+
+    exit(EXIT_FAILURE);
+}
+
+
+/** 
+ * Prints an error message and terminates this program.
+ * @param fmt Format string
+ * @param ... Arguments
+ */
+void
+fatal(const char* fmt, ...)
+{
+    va_list args;
+
+    va_start(args, fmt);
+    vlog_msgf(log_, LOG_ERR, fmt, args); 
+    va_end(args);
+
+    exit(EXIT_FAILURE);    
+}
+
+/**
+ *  Returns the ansi escape code string for clearing the current line
+ *  in a terminal.
+ */
+char*
+ansi_clear_line()
+{
+    return "\x1B[2K"; // erase stdin input
+}
+
+
+/**
+ * Retruns the ansi escape code string for carriage return .
+ */
+char*
+ansi_cr()
+{
+    return "\r";
+}
+
+
+/**
+ * Returns the ansi escape code string for bold yellow color.
+ */
+char*
+ansi_color_bold_yellow()
+{
+    return "\x1B[1;33m";
+}
+
+
+/**
+ * Returns the ansi escape code string for bold cyan color.
+ */
+char*
+ansi_color_bold_cyan()
+{
+    return "\x1B[1;36m";
+}
+
+
+/**
+ * Returns the ansi escape code string for resetting attributes.
+ */
+char*
+ansi_reset_attributes()
+{
+    return "\x1B[0m";
+}
+
+
+/**
+ *  Prints a chat message to a file descriptor.
+ *  Prints the given message string to the given output file descriptor.
+ *  Before the message is printed, the current line in the terminal is
+ *  cleared and the cursor is resetted to the beginning of the line.
+ *  After the message is printed, the line buffer of GNU readline
+ *  containing the userinput is reprinted to the terminal.
+ *  @param nickanem Nickname of the client from whom we received a message
+ *  @param msg      Text message to print
+ *  @param out_fd File descriptor where the message will be written to
+ */
+void
+print_dchat_msg(char* nickname, char* msg, int out_fd)
+{
+    dprintf(out_fd, "%s", ansi_clear_line());
+    dprintf(out_fd, "%s", ansi_cr());
+    dprintf(out_fd, "%s", ansi_color_bold_cyan());  // colorize msg
+    dprintf(out_fd, "%s> ", nickname);              // print nickname
+    dprintf(out_fd, "%s", ansi_reset_attributes()); // reset color
+    dprintf(out_fd, "%s", msg);                     // print message
+
+    // append \n if line was not terminated with \n
+    if (msg[strlen(msg) - 1] != '\n')
+    {
+        dprintf(out_fd, "\n");
+    }
+
+    rl_forced_update_display(); // redraw stdin
+}

@@ -61,10 +61,4 @@ void* th_new_conn(dchat_conf_t* cnf);
 int th_new_input(dchat_conf_t* cnf);
 void*  th_main_loop(dchat_conf_t* cnf);
 
-
-//*********************************
-//      MISC FUNCTIONS
-//*********************************
-void usage();
-
 #endif

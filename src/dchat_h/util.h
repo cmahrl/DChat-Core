@@ -29,25 +29,6 @@
 
 
 //*********************************
-//         NETWORK FUNCTIONS
-//*********************************
-int ip_version(struct sockaddr_storage* addr);
-int connect_to(struct sockaddr* sa);
-
-
-//*********************************
-//       PRINTING FUNCTIONS
-//*********************************
-char* ansi_clear_line();
-char* ansi_cr();
-char* ansi_color_bold_yellow();
-char* ansi_color_bold_cyan();
-char* ansi_color_bold_red();
-char* ansi_reset_attributes();
-void print_dchat_msg(char* nickname, char* msg, int out_fd);
-
-
-//*********************************
 //         MISC FUNCTIONS
 //*********************************
 int max(int a, int b);

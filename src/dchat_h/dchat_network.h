@@ -32,6 +32,7 @@
 #define TOR_PORT        9050
 #define TOR_ADDR        "127.0.0.1"
 
+
 //*********************************
 //     SOCKS4a FIELDS
 //*********************************
@@ -56,9 +57,27 @@ typedef struct socks4a_pdu
 } socks4a_pdu_t;
 
 
+//*********************************
+//       SOCKS FUNCTIONS
+//*********************************
 int write_socks4a(int s, socks4a_pdu_t* pdu);
 int read_socks4a(int s, socks4a_pdu_t* pdu);
 char* parse_socks_status(unsigned char status);
+
+
+//*********************************
+//       TOR FUNCTIONS
+//*********************************
 int create_tor_socket(char* hostname, uint16_t rport);
+
+
+//*********************************
+//         MISC FUNCTIONS 
+//*********************************
+int ip_version(struct sockaddr_storage* addr);
+int connect_to(struct sockaddr* sa);
+int is_valid_port(int port);
+int is_valid_onion(char* onion_id);
+
 
 #endif
