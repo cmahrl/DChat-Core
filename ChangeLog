@@ -1,3 +1,27 @@
+2014-07-02  Christoph Mahrl <is121018@fhstp.ac.at>
+
+	* src/dchat.c: 
+		-) in main`()`: a cli_option_t structure will be crafted
+		containing all available DChat command line options
+		-) moved `usage()` and `fatal()` to log.c
+
+	* src/dchat_h/option.h: 
+		-) new header file; contains structure `cli_option_t` and
+		important pre-processor defines and macros for ccommand line
+		options.
+
+	* src/option.c: 
+		-) new source file; contains functions to extract a GNU
+		short/long option string using the information stored in
+		a `struct cli_option_t` structure. It contains other functions
+		used to handle storing of options and retrieving information
+		about them.
+
+	* src/log.c: 
+		-) changed signature of `usage()`. It requires an exit status
+		a `cli_option_t` pointer, size of `cli_option_t` array, format string
+		and variable arguments. 
+
 2014-06-27  Christoph Mahrl <is121018@fhstp.ac.at>
 
 	* src/dchat.c:
