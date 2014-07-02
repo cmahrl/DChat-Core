@@ -18,7 +18,7 @@
  */
 
 
-/** @file dchat_cmd.c
+/** @file cmdinterpreter.c
  *  This file contains all available in-chat commands within this client.
  */
 

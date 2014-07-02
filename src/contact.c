@@ -18,7 +18,7 @@
  */
 
 
-/** @file dchat_contact.c
+/** @file contact.c
  *  This file contains functions concerning dchat contacts for adding, deleting,
  *  searching, sending and receiving contacts.
  */
@@ -177,6 +177,7 @@ receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
             {
                 log_msg(LOG_WARN,
                         "receive_contacts(): Could not execute connection request successfully");
+                ret = -1;
             }
         }
         else

@@ -18,9 +18,13 @@
  */
 
 
-/** @file dchat_network.c
+/** @file network.c
  *  This file contains core networking functions.
  */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include <stdint.h>
 #include <sys/socket.h>

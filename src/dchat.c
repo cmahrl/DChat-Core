@@ -61,6 +61,7 @@
 #include "dchat_h/network.h"
 #include "dchat_h/log.h"
 #include "dchat_h/util.h"
+#include "dchat_h/option.h"
 
 
 dchat_conf_t cnf; //!< global dchat configuration structure
@@ -80,20 +81,28 @@ main(int argc, char** argv)
     char* term;                         // used for strtol
     struct sockaddr_storage sa;         // local socket address
     struct sockaddr_storage tor_client; // socket address of tor client
+    char* short_opts;                   // getopt short options
+    struct option* long_opts;           // getopt long options
+    int opt_size;                       // size of options array
     // possible commandline options
-    struct option long_options[] =
+    cli_option_t options[] =
     {
-        {"lonion",   required_argument, 0, 's'},
-        {"nickname", required_argument, 0, 'n'},
-        {"lport",    required_argument, 0, 'l'},
-        {"ronion",   required_argument, 0, 'd'},
-        {"rport",    required_argument, 0, 'r'}
+        OPTION("s", "lonion",   "ONIONID",       1, "Set the onion id of the local hidden service."),
+        OPTION("n", "nickname", "NICKNAME",      1, "Set the nickname for this chat session."),
+        OPTION("l", "lport",    "LOCALPORT",     0, "Set the local listening port."),
+        OPTION("d", "ronion",   "REMOTEONIONID", 0, "Set the onion id of the remote host to whom a connection should be established."),
+        OPTION("r", "rport",    "REMOTEPORT",    0, "Set the remote port of the remote host who will accept connections on this port."),
+        OPTION("h", "help",     "",              0, "Display help.")
     };
+    opt_size = sizeof(options) / sizeof(options[0]);
+    short_opts = get_short_options(options, opt_size);
+    long_opts = get_long_options(options, opt_size);
 
     // parse commandline options
     while (1)
     {
-        option = getopt_long(argc, argv, "s:n:l:d:r:", long_options, 0);
+        //FIXME: check termination if no clients are connected
+        option = getopt_long(argc, argv, short_opts, long_opts, 0);
 
         // end of options
         if (option == -1)
@@ -103,76 +112,91 @@ main(int argc, char** argv)
 
         switch (option)
         {
-            case 's':
+            case CLI_OPT_LONION:
                 local_onion = optarg;
 
                 if (!is_valid_onion(local_onion))
                 {
-                    usage("Invalid onion-id '%s'!", optarg);
+                    usage(EXIT_FAILURE, options, opt_size, "Invalid onion-id '%s'!", optarg);
                 }
 
                 required++;
                 break;
 
-            case 'n':
+            case CLI_OPT_NICK:
                 nickname = optarg;
 
                 if (!is_valid_nickname(nickname))
                 {
-                    usage("Invalid nickname '%s'! Max. %d printable characters allowed!", optarg,
+                    usage(EXIT_FAILURE, options, opt_size,
+                          "Invalid nickname '%s'! Max. %d printable characters allowed!", optarg,
                           MAX_NICKNAME);
                 }
 
                 required++;
                 break;
 
-            case 'l':
+            case CLI_OPT_LPORT:
                 lport = (int) strtol(optarg, &term, 10);
 
                 if (!is_valid_port(lport) || *term != '\0')
                 {
-                    usage("Invalid port '%s'!", optarg);
+                    usage(EXIT_FAILURE, options, opt_size, "Invalid listening port '%s'!", optarg);
                 }
 
                 break;
 
-            case 'd':
+            case CLI_OPT_RONION:
                 remote_onion = optarg;
 
                 if (!is_valid_onion(remote_onion))
                 {
-                    usage("Invalid onion-id '%s'!", optarg);
+                    usage(EXIT_FAILURE, options, opt_size, "Invalid onion-id '%s'!", optarg);
                 }
 
                 break;
 
-            case 'r':
+            case CLI_OPT_RPORT:
                 rport = (int) strtol(optarg, &term, 10);
 
                 if (!is_valid_port(rport) || *term != '\0')
                 {
-                    usage("Invalid port '%s'!", optarg);
+                    usage(EXIT_FAILURE, options, opt_size, "Invalid remote port '%s'!", optarg);
                 }
 
                 break;
 
+            case CLI_OPT_HELP:
+                usage(EXIT_SUCCESS, options, opt_size, "");
+
             // invalid option - getopt prints error msg
             case '?':
             default:
-                usage("Invalid command-line option!");
+                usage(EXIT_FAILURE, options, opt_size, "Invalid command-line option!");
         }
+    }
+
+    if (short_opts != NULL)
+    {
+        free(short_opts);
+    }
+
+    if (long_opts != NULL)
+    {
+        free(long_opts);
     }
 
     // local onion address and nick are mandatory
     if (required < 2)
     {
-        usage("Missing mandatory command-line options!");
+        usage(EXIT_FAILURE, options, opt_size,
+              "Missing mandatory command-line options!");
     }
 
     // client requires no arguments -> raise error if there are any
     if (optind < argc)
     {
-        usage("Invalid command-line arguments!");
+        usage(EXIT_FAILURE, options, opt_size, "Invalid command-line arguments!");
     }
 
     // setup local listening socket address
@@ -180,7 +204,7 @@ main(int argc, char** argv)
 
     if (inet_pton(AF_INET, LISTEN_ADDR, &((struct sockaddr_in*)&sa)->sin_addr) != 1)
     {
-        usage("Invalid ip address '%s'", LISTEN_ADDR);
+        usage(EXIT_FAILURE, options, opt_size, "Invalid ip address '%s'", LISTEN_ADDR);
     }
 
     ((struct sockaddr_in*)&sa)->sin_family = AF_INET;
@@ -252,9 +276,9 @@ init(dchat_conf_t* cnf, struct sockaddr_storage* sa, char* onion_id,
     // do not allow interruption of a signal handler
     sa_terminate.sa_mask = sigmask;
     sa_terminate.sa_flags = 0;
-    sigaction(SIGHUP, &sa_terminate, NULL);  // terminal line hangup
+    sigaction(SIGHUP,  &sa_terminate, NULL); // terminal line hangup
     sigaction(SIGQUIT, &sa_terminate, NULL); // quit programm
-    sigaction(SIGINT, &sa_terminate, NULL);  // interrupt programm
+    sigaction(SIGINT,  &sa_terminate, NULL); // interrupt programm
     sigaction(SIGTERM, &sa_terminate, NULL); // software termination
 
     // initialize global configuration
@@ -267,21 +291,21 @@ init(dchat_conf_t* cnf, struct sockaddr_storage* sa, char* onion_id,
     // pipe to the th_new_conn
     if (pipe(cnf->connect_fd) == -1)
     {
-        log_errno(LOG_ERR, "Could not connection pipe!");
+        log_errno(LOG_ERR, "Creation of connection pipe failed!");
         return -1;
     }
 
     // pipe to send signal to wait loop from connect
     if (pipe(cnf->cl_change) == -1)
     {
-        log_errno(LOG_ERR, "Could not change pipe!");
+        log_errno(LOG_ERR, "Creation of change pipe failed!");
         return -1;
     }
 
     // pipe to signal new user input from stdin
     if (pipe(cnf->user_input) == -1)
     {
-        log_errno(LOG_ERR, "Could not userinput pipe!");
+        log_errno(LOG_ERR, "Creation of userinput pipe faild!");
         return -1;
     }
 
@@ -477,6 +501,7 @@ handle_local_input(dchat_conf_t* cnf, char* line)
     // no command has been entered / or command could not be processed
     else
     {
+        ret = 0;
         len += strlen(line); // memory for text message
 
         if (len != 0)

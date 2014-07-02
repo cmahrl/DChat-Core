@@ -27,6 +27,20 @@
 #include "types.h"
 
 
+//*********************************
+//      COMMAND LINE OPTIONS
+//*********************************
+#define CLI_OPT_LONION 's'
+#define CLI_OPT_NICK   'n'
+#define CLI_OPT_LPORT  'l'
+#define CLI_OPT_RONION 'd'
+#define CLI_OPT_RPORT  'r'
+#define CLI_OPT_HELP   'h'
+
+
+//*********************************
+//      GENERAL SETTINGS
+//*********************************
 #define DEFAULT_PORT   7777
 #define LISTEN_ADDR    "127.0.0.1"
 #define LISTEN_BACKLOG 20

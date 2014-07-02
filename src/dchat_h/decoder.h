@@ -18,8 +18,8 @@
  */
 
 
-#ifndef DCHAT_DECODER_H
-#define DCHAT_DECODER_H
+#ifndef DECODER_H
+#define DECODER_H
 
 #include "types.h"
 

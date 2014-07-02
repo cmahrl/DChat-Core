@@ -15,6 +15,7 @@
 #include <readline/readline.h>
 
 #include "dchat_h/log.h"
+#include "dchat_h/option.h"
 
 
 #ifndef LOG_PRI
@@ -126,38 +127,66 @@ log_hex(int lf, const void* buf, int len)
 }
 
 
-
-
 /**
  * Prints usage of this program.
+ * @param exit_status Status of termination
+ * @param options Array of options supported
+ * @param size Size of array
  * @param Format string
  * @param ... arguments
  */
 void
-usage(const char* fmt, ...)
+usage(int exit_status, cli_option_t* options, int size, const char* fmt, ...)
 {
-    va_list args;
-    va_start(args, fmt);
-    vlog_msgf(log_, LOG_ERR, fmt, args);
-    va_end(args);
-
-    if (log_ != NULL)
+    if (strlen(fmt))
     {
-        fprintf(log_, "Usage:\n");
-        fprintf(log_,
-                "  %s -s ONIONID -n NICKNAME [-l LOCALPORT] [-d REMOTEONIONID] [-r REMOTEPORT]\n\n",
-                PACKAGE_NAME);
-        fprintf(log_, "Options:\n");
-        fprintf(log_, "  -s, --lonion=ONIONID\n");
-        fprintf(log_, "  -n, --nickname=NICKNAME\n");
-        fprintf(log_, "  -l, --lport=LOCALPORT\n");
-        fprintf(log_, "  -d, --ronion=REMOTEONIONID\n");
-        fprintf(log_, "  -r, --rport=REMOTEPORT\n\n");
-        fprintf(log_,
-                "More detailed information can be found in the manpage. See dchat(1)\n");
+        va_list args;
+        va_start(args, fmt);
+        vlog_msgf(log_, LOG_ERR, fmt, args);
+        va_end(args);
     }
 
-    exit(EXIT_FAILURE);
+    fprintf(log_, "\n");
+    fprintf(log_, " %s", PACKAGE_NAME);
+
+    for (int i=0; i < size; i++)
+    {
+        if (options[i].mandatory_option)
+        {
+            if (options[i].mandatory_argument)
+            {
+                fprintf(log_, " -%c %s", options[i].opt, options[i].arg);
+            }
+            else
+            {
+                fprintf(log_, " -%c", options[i].opt);
+            }
+        }
+        else
+        {
+            if (options[i].mandatory_argument)
+            {
+                fprintf(log_, " [-%c %s]", options[i].opt, options[i].arg);
+            }
+            else
+            {
+                fprintf(log_, " [-%c]", options[i].opt);
+            }
+        }
+    }
+
+    fprintf(log_, "\n\n");
+    fprintf(log_, " Options:\n");
+
+    for (int i=0; i < size; i++)
+    {
+        fprintf(log_, "%s\n\n", options[i].description);
+    }
+
+    fprintf(log_,
+            " More detailed information can be found in the man page. See %s(1).\n",
+            PACKAGE_NAME);
+    exit(exit_status);
 }
 
 

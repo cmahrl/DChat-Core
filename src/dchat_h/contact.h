@@ -18,8 +18,8 @@
  */
 
 
-#ifndef DCHAT_CONTACT_H
-#define DCHAT_CONTACT_H
+#ifndef CONTACT_H
+#define CONTACT_H
 
 #include "types.h"
 

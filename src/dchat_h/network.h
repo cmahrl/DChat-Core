@@ -19,8 +19,8 @@
 
 // see: http://web.mit.edu/foley/www/TinFoil/src/tinfoil/TorLib.java
 
-#ifndef DCHAT_NETWORK_H
-#define DCHAT_NETWORK_H
+#ifndef NETWORK_H
+#define NETWORK_H
 
 #include <stdint.h>
 

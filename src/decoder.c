@@ -18,7 +18,7 @@
  */
 
 
-/** @file dchat_decoder.c
+/** @file decoder.c
  *  This file contains core functions to decode and encode DChat Packet Data Units
  */
 

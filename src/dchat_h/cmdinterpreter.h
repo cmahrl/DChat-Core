@@ -18,8 +18,8 @@
  */
 
 
-#ifndef DCHAT_CMD_H
-#define DCHAT_CMD_H
+#ifndef CMDINTERPRETER_H
+#define CMDINTERPRETER_H
 
 #include "types.h"
 
