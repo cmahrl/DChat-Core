@@ -9,6 +9,9 @@
 		respectively.
 		-) added function `is_valid_content_length`.
 
+	* src/contact.c: 
+		-) code cleanup
+
 	* src/dchat_h/decoder.h: 
 		-) added new dchat header id and name `HDR_ID_VER` and
 		`HDR_NAME_VER` to support the dchat version header.

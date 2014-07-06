@@ -78,8 +78,8 @@ send_contacts(dchat_conf_t* cnf, int n)
             // convert contact to a string
             if ((contact_str = contact_to_string(contact)) == NULL)
             {
-                log_msg(LOG_WARN, "send_contacts() - Could not send contact");
-                ret = -1;
+                log_msg(LOG_WARN, "Conversion of contact '%s' to string failed! - Skipped",
+                        contact->name);
                 continue;
             }
 
@@ -90,17 +90,13 @@ send_contacts(dchat_conf_t* cnf, int n)
             // could not allocate memory for content
             if (pdu.content == NULL)
             {
-                log_msg(LOG_ERR, "send_contacts() - Could not allocate memory");
-                ret = -1;
-            }
-            else
-            {
-                // add contact information to content
-                strncat(pdu.content, contact_str, strlen(contact_str));
-                // increase size of pdu content-length
-                pdu_len += strlen(contact_str);
+                fatal("Memory reallocation for contactlist failed!");
             }
 
+            // add contact information to content
+            strncat(pdu.content, contact_str, strlen(contact_str));
+            // increase size of pdu content-length
+            pdu_len += strlen(contact_str);
             free(contact_str);
         }
     }
@@ -111,8 +107,7 @@ send_contacts(dchat_conf_t* cnf, int n)
     // write pdu inkluding all addresses of our contacts
     if ((ret = write_pdu(cnf->cl.contact[n].fd, &pdu)) == -1)
     {
-        log_msg(LOG_ERR, "send_contacts() failed - Could not send pdu");
-        ret = -1;
+        log_msg(LOG_ERR, "Sending of contactlist failed!");
     }
 
     if (pdu.content_length != 0)
@@ -153,7 +148,7 @@ receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
         // extract a line from the content of the pdu
         if ((line_end = get_content_part(pdu, line_begin, '\n', &line)) == -1)
         {
-            log_msg(LOG_ERR, "receive_contacts(): Could not extract line from PDU");
+            log_msg(LOG_ERR, "Extraction of contact line from received PDU failed!");
             ret = -1;
             break;
         }
@@ -161,7 +156,7 @@ receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
         // parse line ane make string to contact
         if (string_to_contact(&contact, line) == -1)
         {
-            log_msg(LOG_WARN, "receive_contacts(): Could not convert string to contact");
+            log_msg(LOG_WARN, "Conversion of string to contact failed! - Skipped");
             ret = -1;
             continue;
         }
@@ -175,8 +170,7 @@ receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
             // connect to new contact, add him as contact, and send contactlist to him
             if (handle_local_conn_request(cnf, contact.onion_id, contact.lport) == -1)
             {
-                log_msg(LOG_WARN,
-                        "receive_contacts(): Could not execute connection request successfully");
+                log_msg(LOG_WARN, "Connection to new contact failed!");
                 ret = -1;
             }
         }
@@ -298,12 +292,16 @@ contact_to_string(contact_t* contact)
     char port_str[MAX_INT_STR + 1]; // max. characters of an int
     int contact_len; // length of contact structure
 
-    if (contact->onion_id == NULL)
+    if (!is_valid_onion(contact->onion_id))
     {
         return NULL;
     }
 
-    //FIXME: check valid port
+    if (!is_valid_port(contact->lport))
+    {
+        return NULL;
+    }
+
     // convert port to a string
     snprintf(port_str, MAX_INT_STR, "%u", contact->lport);
     port_str[5] = '\0';
@@ -313,8 +311,7 @@ contact_to_string(contact_t* contact)
     // allocate memory for the contact string repr.
     if ((contact_str = malloc(contact_len)) == NULL)
     {
-        log_msg(LOG_ERR, "contact_to_string() failed - Could not allocate memory");
-        return NULL;
+        fatal("Memory allocaction for contact string failed!");
     }
 
     // first byte has to be '\0', otherwise strcat is undefined
@@ -344,32 +341,43 @@ string_to_contact(contact_t* contact, char* string)
 {
     char* onion_id; // onion address string (splitted from line)
     char* port;     // port string (splitted from line)
+    int lport;      // converted listening port
+    char* ptr;      // used for strtol
     char* save_ptr; // pointer for strtok_r
 
     // split onion-id from string
     if ((onion_id = strtok_r(string, " ", &save_ptr)) == NULL)
     {
-        log_msg(LOG_ERR, "string_to_contact() - Could not parse ip address");
+        log_msg(LOG_ERR, "Missing onion-id in contact string!");
         return -1;
     }
 
     // split port from string
     if ((port = strtok_r(NULL, "\n", &save_ptr)) == NULL)
     {
-        log_msg(LOG_ERR, "string_to_contact() - Could not parse port");
+        log_msg(LOG_ERR, "Missing listening port in contact string!");
+        return -1;
+    }
+
+    if (!is_valid_onion(onion_id))
+    {
+        log_msg(LOG_ERR, "Invalid onion-id of contact string!");
         return -1;
     }
 
     // could line be splittet into ip and port?
-    if (onion_id != NULL && port != NULL)
+    // convert port string to integer
+    lport = (int) strtol(port, &ptr, 10);
+
+    if (ptr[0] != '\0' || !is_valid_port(lport))
     {
-        // convert port string to integer
-        contact->lport = atoi(port);
-        //FIXME: check valid onion-id
-        contact->onion_id[0] = '\0';
-        strncat(contact->onion_id, onion_id, ONION_ADDRLEN);
+        log_msg(LOG_ERR, "Invalid port of contact string!");
+        return -1;
     }
 
+    contact->lport = lport;
+    contact->onion_id[0] = '\0';
+    strncat(contact->onion_id, onion_id, ONION_ADDRLEN);
     return 0;
 }
 

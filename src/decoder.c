@@ -1030,6 +1030,7 @@ get_content_part(dchat_pdu_t* pdu, int offset, char term, char** content)
     // check if offset is within the content
     if (offset >= pdu->content_length)
     {
+        log_msg(LOG_ERR, "Could not extract partial content!");
         return -1;
     }
 
