@@ -2,16 +2,18 @@
 
   UNDONE
   ------
-    * comprehensive code refactoring
-    * improve implementation of chat commands
-    * improve overall stability
-    * add more checks to decoder and encoder functions
+    * support for config files
+    * support for file sharing
     * check memory leaks with valgrind
     * write protocol specification
 
 
   DONE
   ----
+    * add more checks to decoder and encoder functions
+    * comprehensive code refactoring
+    * improve implementation of chat commands
+    * improve overall stability
     * add section "COMMANDS" in man page
     * adpat DChat protocol, so that nicknames
       will be sent as headers.
