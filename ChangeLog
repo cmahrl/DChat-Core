@@ -1,3 +1,38 @@
+2014-07-06  Christoph Mahrl <is121018@fhstp.ac.at>
+
+	* src/decoder.c: 
+		-) code refactoring of `decode_header`, `read_line`, `read_pdu`
+		`encode_header` and `write_pdu`.
+		-) added param `version` to `init_dchat_pdu`.
+		-) added function `is_valid_termination` to check 
+		wether a string is terminated with \n or \r\n
+		respectively.
+		-) added function `is_valid_content_length`.
+
+	* src/dchat_h/decoder.h: 
+		-) added new dchat header id and name `HDR_ID_VER` and
+		`HDR_NAME_VER` to support the dchat version header.
+		-) deleted old header and content-type preprocessor constants
+		that have been replaced with new one.
+		
+
+2014-07-05  Christoph Mahrl <is121018@fhstp.ac.at>
+
+	* src/decoder.c: 
+		-) added and implemented `pdu_to_str` and `str_to_pdu` functions 
+		to parse dchat headers and its corresponding values.
+		-) reimplemented `decode_header` and `encode_header` using the new 
+		header parser functions.
+
+	* src/dchat_h/decoder.h: 
+		-) added structures `dchat_content_type`, `dchat_content_types`
+		`dchat_header` and `dchat_v1` used for encoding and decoding
+		DChat headers.
+		-) furthermore the dchat header and content-typer preprocessor 
+		constants have been replaced with new constants. 
+		-) added new macros `HEADER` and `CONTENT_TYPE` for defining
+		dchat headers or dchat content-types respectively.
+
 2014-07-02  Christoph Mahrl <is121018@fhstp.ac.at>
 
 	* src/dchat.c: 

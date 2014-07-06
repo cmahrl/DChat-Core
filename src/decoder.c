@@ -39,22 +39,24 @@
 
 /**
  *  Decodes a string into a DChat header.
- *  Attempts to decode the given \n terminated line and sets corresponding header attributes
- *  in the given pdu.
- *  @param pdu  Pointer to PDU structure where header attributes will be set
- *  @param line Line to parse for dchat-headers; must be \n terminated
+ *  Attempts to decode the given \\n terminated line and sets
+ *  corresponding header attributes in the given pdu.
+ *  @param pdu  Pointer to PDU structure where header attributes
+ *  will be set
+ *  @param line Line to parse for dchat-headers; must be \\n terminated
  *  @return 0 if line is a dchat header, -1 otherwise
  */
 int
 decode_header(dchat_pdu_t* pdu, char* line)
 {
-    char* save_ptr;     // used for strtok and strtol
     char* key;          // header key (e.g. Content-Type)
     char* value;        // header value (e.g. text/plain)
-    char* term;         // pointer to terminating chars of the line (e.g "\r\n")
     char* delim = ":";  // delimiter char
-    int cmp_offset = 0; // header value offset
-    int len;
+    char* save_ptr;     // used for strtok
+    int len;            // length of value
+    int end;            // index of termination chars (\r)\n of value
+    int ret;            // return of parsed value
+    dchat_v1_t proto;   // DChat V1 headers
 
     // split line: header format -> key:value
     if ((key = strtok_r(line, delim, &save_ptr)) == NULL)
@@ -65,169 +67,40 @@ decode_header(dchat_pdu_t* pdu, char* line)
     {
         return -1;
     }
-    else
+
+    // first character must be a whitespace
+    if (strncmp(value, " ", 1) != 0)
     {
-        // first character must be a whitespace
-        if (strncmp(value, " ", 1) != 0)
+        return -1;
+    }
+
+    // skip " "
+    value++;
+
+    if ((ret = is_valid_termination(value)) == -1)
+    {
+        return -1;
+    }
+
+    // remove termination characters
+    value[ret] = '\0';
+
+    if (init_dchat_v1(&proto) == -1)
+    {
+        return -1;
+    }
+
+    // iterate through headers and check if value is valid
+    // if valid parse value and set attributes in the PDU
+    for (int i = 0; i < HDR_AMOUNT; i++)
+    {
+        if (!strcmp(key, proto.header[i].header_name))
         {
-            return -1;
-        }
-        else
-        {
-            cmp_offset++;    // increase offset
-        }
-
-        // check header type
-        if (strcmp(key, "Content-Type") == 0)
-        {
-            // is offset within range?
-            if (cmp_offset >= strlen(value))
-            {
-                return -1;
-            }
-
-            //FIXME: define header values as PPC
-            //FIXME: define function to deterime EOL and index
-            // check value type
-            if (!strncmp(&value[cmp_offset], "text/plain", 10))
-            {
-                pdu->content_type = CT_TXT_PLAIN;
-                cmp_offset += 10;
-            }
-            else if (!strncmp(&value[cmp_offset], "application/octet", 17))
-            {
-                pdu->content_type = CT_APPL_OCT;
-                cmp_offset += 17;
-            }
-            else if (!strncmp(&value[cmp_offset], "control/discover", 16))
-            {
-                pdu->content_type = CT_CTRL_DISC;
-                cmp_offset += 16;
-            }
-            else if (!strncmp(&value[cmp_offset], "control/replay", 14))
-            {
-                pdu->content_type = CT_CTRL_RPLY;
-                cmp_offset += 14;
-            }
-            else
-            {
-                return -1;
-            }
-
-            // is offset within range?
-            if (cmp_offset >= strlen(value))
-            {
-                return -1;
-            }
-
-            term = &value[cmp_offset];
-        }
-        else if (strcmp(key, "Content-Length") == 0)
-        {
-            // convert string to int
-            pdu->content_length = (int) strtol(value, &save_ptr, 10);
-
-            // check if its a valid content-length
-            if (pdu->content_length < 0 || pdu->content_length > MAX_CONTENT_LEN)
-            {
-                return -1;
-            }
-
-            term = save_ptr;
-        }
-        else if (strcmp(key, "Onion-ID") == 0)
-        {
-            len = strlen(&value[cmp_offset]) - 1;   // skip \n
-
-            if (value[cmp_offset + len - 1] == '\r') // skip \r
-            {
-                len--;
-            }
-
-            /*pdu->onion_id = malloc(len + 1);
-
-            if (pdu->onion_id == NULL)
-            {
-                log_errno(LOG_ERR, "decode_header(): Could not allocate memory");
-                return -1;
-            }
-            */
-            pdu->onion_id[0] = '\0';
-
-            if (len != ONION_ADDRLEN)
-            {
-                return -1;
-            }
-            //FIXME: check valid onion_id
-            else
-            {
-                // copy onion address bytes
-                strncat(pdu->onion_id, &value[cmp_offset], ONION_ADDRLEN);
-            }
-
-            // check if value string has been terminated properly
-            term = &value[strlen(value) - 1]; // must be \n
-        }
-        else if (strcmp(key, "Listen-Port") == 0)
-        {
-            // convert string to int
-            pdu->lport = (int) strtol(value, &save_ptr, 10);
-
-            // check if it is a valid port
-            if (pdu->lport < 1 || pdu->lport > 65535)
-            {
-                return -1;
-            }
-
-            term = save_ptr;
-        }
-        else if (strcmp(key, "Nickname") == 0)
-        {
-            len = strlen(&value[cmp_offset]) - 1;   // skip \n
-
-            if (value[cmp_offset + len - 1] == '\r') // skip \r
-            {
-                len--;
-            }
-
-            /*pdu->nickname = malloc(len + 1);
-
-            if (pdu->nickname == NULL)
-            {
-                log_errno(LOG_ERR, "decode_header(): Could not allocate memory");
-                return -1;
-            }*/
-            pdu->nickname[0] = '\0';
-
-            if (len <= MAX_NICKNAME)
-            {
-                // copy whole nickname without (\r)\n
-                strncat(pdu->nickname, &value[cmp_offset], len);
-            }
-            else
-            {
-                // copy MAX_NICKNAME bytes of nickname without (\r)\n
-                strncat(pdu->nickname, &value[cmp_offset], MAX_NICKNAME);
-            }
-
-            // check if value string has been terminated properly
-            term = &value[strlen(value) - 1]; // must be \n
-        }
-        else
-        {
-            return -1;
-        }
-
-        // check if value is terminated properly
-        if (!strcmp(term, "\r\n") || !strcmp(term, "\n"))
-        {
-            return 0;
-        }
-        else
-        {
-            return -1;
+            return proto.header[i].str_to_pdu(value, pdu);
         }
     }
+
+    return -1;
 }
 
 
@@ -242,67 +115,43 @@ decode_header(dchat_pdu_t* pdu, char* line)
 int
 read_line(int fd, char** line)
 {
-    char* linep;        // line pointer
-    char* tmp = NULL;   // used for realloc
-    int ret;            // return value
-    int len = 0;        // current length of string
-    int max_line = 100; // realloc size
-    // allocate memory for user input
-    *line = malloc(max_line);
+    char* ptr;             // line pointer
+    char* alc_ptr = NULL;  // used for realloc
+    int len = 1;           // current length of string (at least 1 char)
+    int ret;               // return value
+    *line = NULL;
 
-    if (*line == NULL)
+    do
     {
-        return -1;
-    }
+        // allocate memory for new character
+        alc_ptr = realloc(*line, len + 1);
 
-    // point to beginning
-    linep = *line;
-
-    // until \n is found
-    while (1)
-    {
-        // have 99 characters been read (excluding \0)?
-        if ((len + 1) % max_line == 0)
+        if (alc_ptr == NULL)
         {
-            // realloc memory for line
-            tmp = realloc(*line, max_line *= 2);
-
-            if (tmp == NULL)
+            if (*line != NULL)
             {
-                log_errno(LOG_ERR, "realloc failed in read_line");
                 free(*line);
-                return -1;
             }
-            else
-            {
-                *line = tmp;
-                linep = *line + len; // get actual position in string after realloc
-            }
+
+            fatal("Reallocation of input string failed!");
         }
 
-        // read 1 character from file descriptor
-        if ((ret = read(fd, linep, 1)) == -1)
-        {
-            free(*line);
-            return -1;
-        }
-        // EOF
-        else if (ret == 0)
-        {
-            free(*line);
-            return 0;
-        }
-
-        // line end
-        if (*(linep) == '\n')
-        {
-            *(linep + 1) = '\0'; // Terminate
-            return len + 1;
-        }
-
-        len++; // increase size of string
-        linep++; // /increase line pointer
+        *line = alc_ptr;
+        ptr = *line + len - 1;
+        len++;
     }
+    while ((ret = read(fd, ptr, 1)) > 0 && *ptr != '\n');
+
+    // on error or EOF of read
+    if (ret <= 0)
+    {
+        free(*line);
+        return ret;
+    }
+
+    // terminate string
+    *(ptr + 1) = '\0';
+    return len - 1; // length of string excluding \0
 }
 
 
@@ -332,8 +181,7 @@ read_pdu(int fd, dchat_pdu_t* pdu)
         return ret;
     }
 
-    // first line has to be "DCHAT: 1.0"
-    if (strcmp(line, "DCHAT: 1.0\n") != 0 && strcmp(line, "DCHAT: 1.0\r\n") != 0)
+    if (decode_header(pdu, line) == -1 || pdu->version != DCHAT_V1)
     {
         free(line);
         return -1;
@@ -344,33 +192,30 @@ read_pdu(int fd, dchat_pdu_t* pdu)
 
     // read header lines from file descriptors, until
     // an empty line is received
-    while (1)
+    while ((ret = read_line(fd, &line)) != -1 || ret == 0)
     {
-        // read line: -1 = error, 0 = EOF
-        if ((ret = read_line(fd, &line)) == -1 || ret == 0)
-        {
-            free(line);
-            return ret;
-        }
-
         len += strlen(line);
 
         // decode read line as header
-        if ((ret = decode_header(pdu, line)) == -1)
+        if (decode_header(pdu, line) == -1)
         {
             // if line is not a header, it must be an empty line
-            if (strcmp(line, "\n") == 0 || strcmp(line, "\r\n") == 0)
+            if (!strcmp(line, "\n") || !strcmp(line, "\r\n"))
             {
                 break; // All headers have been read
             }
-            else
-            {
-                free(line);
-                return -1;
-            }
+
+            ret = -1;
+            break;
         }
 
         free(line);
+    }
+
+    if (ret <= 0)
+    {
+        free(line);
+        return ret;
     }
 
     // has content type, onion-id and listen-port been specified?
@@ -414,172 +259,60 @@ read_pdu(int fd, dchat_pdu_t* pdu)
 char*
 encode_header(dchat_pdu_t* pdu, int header_id)
 {
-    char* ret = NULL;       // return value
-    char* header = NULL;    // header key string
-    char* value = NULL;     // header value string
-    int len;                // length of string in total
-    int mem_free = 0;       // defines if value must be freed
+    dchat_v1_t proto;    // DChat V1 headers
+    char* header = NULL; // header key string
+    char* value  = NULL; // header value string
+    char* line   = NULL; // concetenated header, value pair
+    int len;             // length of string in total
+    int ret;
 
-    // which header should be crafted?
-    switch (header_id)
+    if (init_dchat_v1(&proto) == -1)
     {
-        // first search header key, then set header key string
-        case HDR_CONTENT_TYPE:
-            header = "Content-Type";
-            len = strlen(header); // reserve 12 bytes for "Content-Type"
+        return NULL;
+    }
 
-            switch (pdu->content_type)
-            {
-                // if header-key = Content-Type, search and set header value
-                case CT_TXT_PLAIN:
-                    value = "text/plain";
-                    break;
-
-                case CT_APPL_OCT:
-                    value = "application/octet";
-                    break;
-
-                case CT_CTRL_DISC:
-                    value = "control/discover";
-                    break;
-
-                case CT_CTRL_RPLY:
-                    value = "control/replay";
-                    break;
-
-                default:
-                    return NULL; // ERROR
-            }
-
-            len += strlen(value); // reserve another x bytes for the Content-Type value
-            break;
-
-        case HDR_CONTENT_LENGTH:
-            //FIXME: check content-length
-            header = "Content-Length";
+    // iterate through supported headers
+    for (int i = 0; i < HDR_AMOUNT; i++)
+    {
+        if (proto.header[i].header_id == header_id)
+        {
+            header = proto.header[i].header_name;
             len = strlen(header);
-            value = malloc(MAX_INT_STR + 1);
-            snprintf(value, MAX_INT_STR, "%d", pdu->content_length);
-            len += strlen(value);
-            mem_free = 1; // value must be freed
-            break;
+            ret = proto.header[i].pdu_to_str(pdu, &value);
 
-        case HDR_ONION_ID:
-            header = "Onion-ID";
-            len = strlen(header);
-            value = pdu->onion_id;
-
-            if (value == NULL)
+            if (ret == -1)
             {
                 return NULL;
             }
 
             len += strlen(value);
             break;
-
-        case HDR_LISTEN_PORT:
-            //FIXME: check listen port
-            header = "Listen-Port";
-            len = strlen(header);
-            value = malloc(MAX_INT_STR + 1);
-            snprintf(value, MAX_INT_STR, "%d", pdu->lport);
-            len += strlen(value);
-            mem_free = 1; // value must be freed
-            break;
-
-        case HDR_NICKNAME:
-            header = "Nickname";
-            len = strlen(header);
-            value = pdu->nickname;
-
-            if (value == NULL)
-            {
-                return NULL;
-            }
-
-            len += strlen(value);
-            break;
-
-        default:
-            return NULL; // ERROR
+        }
     }
 
     len += 4; // add three bytes for ':', a " ", '\n' and '\0';
 
     // allocate memory for header string
-    if ((ret = malloc(len)) == NULL)
+    if ((line = malloc(len)) == NULL)
     {
-        return NULL;
+        fatal("Memory allocation for header-value string failed!");
     }
 
     // assemble header string
-    ret[0] = '\0';
-    strncat(ret, header, strlen(header));
-    strncat(ret, ":", 1); // seperate key from value -> "key:value"
-    strncat(ret, " ", 1); // add a " " after the semicolon -> "key: value"
-    strncat(ret, value, strlen(value)); // add value
-    strncat(ret, "\n", 1);
-    ret[len - 1] = '\0';
+    line[0] = '\0';
+    strncat(line, header, strlen(header));
+    strncat(line, ":", 1); // seperate key from value -> "key:value"
+    strncat(line, " ", 1); // add a " " after the semicolon -> "key: value"
+    strncat(line, value, strlen(value)); // add value
+    strncat(line, "\n", 1);
 
-    if (mem_free == 1) // if value has been allocated dynamically
+    if (ret == 1) // if value has been allocated dynamically
     {
         free(value);
     }
 
     // return header string
-    return ret;
-}
-
-
-/**
- *  Writes a \\r\\n terminated line to a file descriptor.
- *  Writes the given buffer and additionally \\r\\n to the file descriptor.
- *  @param fd  File descriptor where the data will be written to
- *  @param buf Pointer to a buffer holding the data that shall be written.
- *              The buffer must be \0 terminated!
- *  @return Amount of bytes that have been written (inkl. appended \\r\\n)
- */
-int
-write_line(int fd, char* buf)
-{
-    char* line;
-    char* ret;
-    int wr_len;
-
-    // allocate memory for line to write
-    if ((line = malloc(strlen(buf) + 3)) == NULL) // +2 for \r\n and \0
-    {
-        return -1;
-    }
-
-    // copy buf
-    ret = strncpy(line, buf, strlen(buf));
-    line[strlen(buf)] = '\0';
-
-    if (ret != line)
-    {
-        free(line);
-        return -1;
-    }
-
-    // append \r\n
-    ret = strncat(line, "\r\n", 2);
-
-    if (ret != line)
-    {
-        free(line);
-        return -1;
-    }
-
-    // write line
-    if ((wr_len = write(fd, line, strlen(line))) == -1)
-    {
-        free(line);
-        return -1;
-    }
-
-    free(line);
-    return wr_len;
+    return line;
 }
 
 
@@ -597,7 +330,7 @@ write_line(int fd, char* buf)
 int
 write_pdu(int fd, dchat_pdu_t* pdu)
 {
-    char* version = "DCHAT: 1.0\n";  //Version of DCHAT
+    char* version;                   //Version of DCHAT
     char* content_type;              //Content-Type header string
     char* content_length;            //Conent-Length header string
     char* onion_id;                  //Onion address  header string
@@ -607,44 +340,51 @@ write_pdu(int fd, dchat_pdu_t* pdu)
     int ret;                         //Return value
     int pdulen=0;                    //Total length of PDU
 
-    ///get Content-Type string
-    if ((content_type = encode_header(pdu, HDR_CONTENT_TYPE)) == NULL)
+    //get version string
+    if ((version = encode_header(pdu, HDR_ID_VER)) == NULL)
     {
         return -1;
     }
-    //get Content-Length string
-    else if ((content_length = encode_header(pdu, HDR_CONTENT_LENGTH)) == NULL)
+    ///get Content-Type string
+    else if ((content_type = encode_header(pdu, HDR_ID_CTT)) == NULL)
     {
+        free(version);
+        return -1;
+    }
+    //get Content-Length string
+    else if ((content_length = encode_header(pdu, HDR_ID_CTL)) == NULL)
+    {
+        free(version);
         free(content_type);
         return -1;
     }
     //get Listen-Port string
-    else if ((lport = encode_header(pdu, HDR_LISTEN_PORT)) == NULL)
+    else if ((lport = encode_header(pdu, HDR_ID_LNP)) == NULL)
     {
+        free(version);
         free(content_type);
         free(content_length);
         return -1;
     }
     //get Onion-ID string
-    else if ((onion_id = encode_header(pdu, HDR_ONION_ID)) == NULL)
+    else if ((onion_id = encode_header(pdu, HDR_ID_ONI)) == NULL)
     {
+        free(version);
         free(content_type);
         free(content_length);
         free(lport);
         return -1;
     }
-    //nickname is optional
-    else if (pdu->nickname != NULL)
+
+    //get Nickname string
+    if ((nickname = encode_header(pdu, HDR_ID_NIC)) == NULL)
     {
-        //get Nickname string
-        if ((nickname = encode_header(pdu, HDR_NICKNAME)) == NULL)
-        {
-            free(content_type);
-            free(content_length);
-            free(lport);
-            free(onion_id);
-            return -1;
-        }
+        free(version);
+        free(content_type);
+        free(content_length);
+        free(lport);
+        free(onion_id);
+        return -1;
     }
 
     pdulen  = strlen(version);
@@ -652,12 +392,7 @@ write_pdu(int fd, dchat_pdu_t* pdu)
     pdulen += strlen(content_length);
     pdulen += strlen(onion_id);
     pdulen += strlen(lport);
-
-    if (nickname != NULL)
-    {
-        pdulen += strlen(nickname);
-    }
-
+    pdulen += strlen(nickname);
     pdulen += 1; //for empty line
     pdulen += pdu->content_length;
     //allocate memory for pdu
@@ -665,8 +400,7 @@ write_pdu(int fd, dchat_pdu_t* pdu)
 
     if (pdu_raw == NULL)
     {
-        log_msg(LOG_ERR, "write_pdu() failed - could not allocate memory");
-        return -1;
+        fatal("Memory allocation for PDU failed!");
     }
 
     //craft pdu
@@ -676,12 +410,7 @@ write_pdu(int fd, dchat_pdu_t* pdu)
     strncat(pdu_raw, content_length, strlen(content_length));
     strncat(pdu_raw, onion_id, strlen(onion_id));
     strncat(pdu_raw, lport, strlen(lport));
-
-    if (nickname != NULL)
-    {
-        strncat(pdu_raw, nickname, strlen(nickname));
-    }
-
+    strncat(pdu_raw, nickname, strlen(nickname));
     strncat(pdu_raw, "\n", 1);
     strncat(pdu_raw, pdu->content, pdu->content_length);
     //write pdu to file descriptor
@@ -696,17 +425,413 @@ write_pdu(int fd, dchat_pdu_t* pdu)
 
 
 /**
+ * Parses the given value to a supported version of DChat
+ * and sets, if valid, its value in the PDU structure.
+ * @param value String to parse
+ * @param pdu Pointer to PDU structure
+ * @return 0 if value is a valid version, -1 otherwise
+ */
+int
+ver_str_to_pdu(char* value, dchat_pdu_t* pdu)
+{
+    char* version = "1.0";
+
+    if (!strcmp(value, version))
+    {
+        pdu->version = DCHAT_V1;
+        return 0;
+    }
+
+    return -1;
+}
+
+
+/**
+ * Parses the given value to a supported content-type of DChat
+ * and sets, if valid, its value in the PDU structure..
+ * @param value String to parse
+ * @param pdu Pointer to PDU structure
+ * @return 0 if value is a valid content-type, -1 otherwise
+ */
+int
+ctt_str_to_pdu(char* value, dchat_pdu_t* pdu)
+{
+    int found = 0;
+    dchat_content_types_t ctt;
+
+    if (init_dchat_content_types(&ctt) == -1)
+    {
+        return -1;
+    }
+
+    for (int i = 0; i < CTT_AMOUNT; i++)
+    {
+        if (!strcmp(value, ctt.type[i].ctt_name))
+        {
+            pdu->content_type = ctt.type[i].ctt_id;
+            found = 1;
+        }
+    }
+
+    return found ? 0 : -1;
+}
+
+
+/**
+ * Parses the given value to a content-length and sets its
+ * value, if valid, in the given PDU structure.
+ * A valid content-length does not exceed MAX_CONTENT_LEN.
+ * @param value String to parse
+ * @param pdu Pointer to PDU structure
+ * @return 0 if value is a valid content-length, -1 otherwise
+ */
+int
+ctl_str_to_pdu(char* value, dchat_pdu_t* pdu)
+{
+    int length = -1;
+    char* ptr;
+    // convert string to int
+    length = (int) strtol(value, &ptr, 10);
+
+    // check if its a valid content-length
+    if (ptr[0] != '\0' || !is_valid_content_length(length))
+    {
+        return -1;
+    }
+
+    pdu->content_length = length;
+    return 0;
+}
+
+
+/**
+ * Parses the given value to an onion address and sets its value
+ * , if valid, in the given PDU structure.
+ * A valid onion address is max. 16 characters long (22 characters
+ * including the prefix ".onion").
+ * @see is_valid_onion
+ * @param value String to parse
+ * @param pdu Pointer to PDU structure
+ * @return 0 if value is a valid onion address, -1 otherwise
+ */
+int
+oni_str_to_pdu(char* value, dchat_pdu_t* pdu)
+{
+    int len = strlen(value);
+
+    if (len != ONION_ADDRLEN || !is_valid_onion(value))
+    {
+        return -1;
+    }
+
+    // copy onion address bytes
+    pdu->onion_id[0] = '\0';
+    strncat(pdu->onion_id, value, ONION_ADDRLEN);
+    return 0;
+}
+
+
+/**
+ * Parses the given value to a listening port and sets its value,
+ * if valid, in the given PDU structure.
+ * @see is_valid_port
+ * @param value String to parse
+ * @param pdu Pointer to PDU structure
+ * @return 0 if value is a valid listening port, -1 otherwise
+ */
+int
+lnp_str_to_pdu(char* value, dchat_pdu_t* pdu)
+{
+    int lport;
+    char* ptr;
+    // convert string to int
+    lport = (int) strtol(value, &ptr, 10);
+
+    // check if it is a valid port
+    if (ptr[0] != '\0' || !is_valid_port(lport))
+    {
+        return -1;
+    }
+
+    pdu->lport = lport;
+    return 0;
+}
+
+
+/**
+ * Parses the given value to a nickname and sets its value,
+ * if valid, in the given PDU structure.
+ * MAX_NICKNAME characters will be copied to the PDU structure,
+ * thus if the given value is longer the rest will be cut off.
+ * @param value String to parse
+ * @param pdu Pointer to PDU structure
+ * @return 0 if value is a valid nickname, -1 otherwise
+ */
+int
+nic_str_to_pdu(char* value, dchat_pdu_t* pdu)
+{
+    int len = strlen(value);
+    pdu->nickname[0] = '\0';
+
+    if (len > MAX_NICKNAME)
+    {
+        len = MAX_NICKNAME;
+    }
+
+    // copy whole nickname
+    strncat(pdu->nickname, value, len);
+    return 0;
+}
+
+
+/**
+ * Converts the version field in the PDU to a string and sets the address of the given
+ * value parameter to this string.
+ * @param pdu Pointer to PDU structure
+ * @param value Double pointer to string
+ * @return 0 if value is a valid version, -1 otherwise
+ */
+int
+ver_pdu_to_str(dchat_pdu_t* pdu, char** value)
+{
+    char* version = "1.0";
+
+    if (pdu->version == DCHAT_V1)
+    {
+        *value = version;
+        return 0;
+    }
+
+    return -1;
+}
+
+
+/**
+ * Converts the content-type field in the PDU to a string and sets the
+ * address of the given value parameter to this string.
+ * @param pdu Pointer to PDU structure
+ * @param value Double pointer to string
+ * @return 1 if value is a valid content-type (needs to be freed), -1 otherwise
+ */
+int
+ctt_pdu_to_str(dchat_pdu_t* pdu, char** value)
+{
+    dchat_content_types_t content_types;
+    char* type;
+
+    if (init_dchat_content_types(&content_types) == -1)
+    {
+        return -1;
+    }
+
+    for (int i = 0; i < CTT_AMOUNT; i++)
+    {
+        if (content_types.type[i].ctt_id == pdu->content_type)
+        {
+            type = content_types.type[i].ctt_name;
+            *value = malloc(strlen(type) + 1);
+
+            if (*value == NULL)
+            {
+                fatal("Memory allocation for content-type failed!");
+            }
+
+            *value[0] = '\0';
+            strncat(*value, type, strlen(type));
+            return 1;
+        }
+    }
+
+    return -1;
+}
+
+
+/**
+ * Converts the content-length field in the PDU to a string and sets the
+ * address of the given value parameter to this string.
+ * @param pdu Pointer to PDU structure
+ * @param value Double pointer to string
+ * @return 1 if value is a valid content-length (needs to be freed), -1 otherwise
+ */
+int
+ctl_pdu_to_str(dchat_pdu_t* pdu, char** value)
+{
+    if (!is_valid_content_length(pdu->content_length))
+    {
+        return -1;
+    }
+
+    *value = malloc(MAX_INT_STR + 1);
+
+    if (*value == NULL)
+    {
+        fatal("Memory allocation for content-length failed!");
+    }
+
+    snprintf(*value, MAX_INT_STR, "%d", pdu->content_length);
+    return 1;
+}
+
+
+/**
+ * Converts the onion-id field in the PDU to a string and sets the
+ * address of the given value parameter to this string.
+ * @param pdu Pointer to PDU structure
+ * @param value Double pointer to string
+ * @return 0 if value is a valid onion-id, -1 otherwise
+ */
+int
+oni_pdu_to_str(dchat_pdu_t* pdu, char** value)
+{
+    if (!is_valid_onion(pdu->onion_id))
+    {
+        return -1;
+    }
+
+    *value = pdu->onion_id;
+    return 0;
+}
+
+
+/**
+ * Converts the listening-port field in the PDU to a string and sets the
+ * address of the given value parameter to this string.
+ * @param pdu Pointer to PDU structure
+ * @param value Double pointer to string
+ * @return 1 if value is a valid listening-port (needs to be freed), -1 otherwise
+ */
+int
+lnp_pdu_to_str(dchat_pdu_t* pdu, char** value)
+{
+    if (!is_valid_port(pdu->lport))
+    {
+        return -1;
+    }
+
+    *value = malloc(MAX_INT_STR + 1);
+
+    if (*value == NULL)
+    {
+        fatal("Memory allocation for listening-port failed!");
+    }
+
+    snprintf(*value, MAX_INT_STR, "%d", pdu->lport);
+    return 1;
+}
+
+
+/**
+ * Converts the nickname field in the PDU to a string and sets the
+ * address of the given value parameter to this string.
+ * @param pdu Pointer to PDU structure
+ * @param value Double pointer to string
+ * @return 0 if value is a valid nickname, -1 otherwise
+ */
+int
+nic_pdu_to_str(dchat_pdu_t* pdu, char** value)
+{
+    if (!is_valid_nickname(pdu->nickname))
+    {
+        return -1;
+    }
+
+    *value = pdu->nickname;
+    return 0;
+}
+
+
+/**
+ * Initializes a content-types structure with all available
+ * content-types in DChat.
+ * The structure the given Pointer is pointing to, will be
+ * initialized with all content-types supported by DChat (e.g
+ * "text/plain", "control/discover", ...). The name of the
+ * content-type will be set, as well as its ID.
+ * @param ctt Pointer to content-types structure to initialize
+ * @return Initialized content-types structure.
+ */
+int
+init_dchat_content_types(dchat_content_types_t* ctt)
+{
+    int temp_size;
+    int ctt_size;
+    dchat_content_type_t temp[] =
+    {
+        CONTENT_TYPE(CTT_ID_TXT, CTT_NAME_TXT),
+        CONTENT_TYPE(CTT_ID_BIN, CTT_NAME_BIN),
+        CONTENT_TYPE(CTT_ID_DSC, CTT_NAME_DSC),
+        CONTENT_TYPE(CTT_ID_RPY, CTT_NAME_RPY),
+    };
+    temp_size = sizeof(temp) / sizeof(temp[0]);
+
+    if (temp_size > CTT_AMOUNT)
+    {
+        return -1;
+    }
+
+    memset(ctt, 0, sizeof(*ctt));
+    memcpy(ctt->type, &temp, sizeof(temp));
+    return 0;
+}
+
+
+/**
+ * Initializes a DChat V1 structure containing all available and
+ * supported headers of the DChat V1 protocol.
+ * The given structure will be initialized with all headers
+ * available. The header IDs and names will be set and function addresses
+ * pointing to corresponding value parsers will be set too.
+ * @param proto
+ * @return 0 if structure has been initialized successfully, -1 otherwise
+ */
+int
+init_dchat_v1(dchat_v1_t* proto)
+{
+    int temp_size;
+    int proto_size;
+    // available headers
+    dchat_header_t temp[] =
+    {
+        HEADER(HDR_ID_VER, HDR_NAME_VER, ver_str_to_pdu, ver_pdu_to_str),
+        HEADER(HDR_ID_CTT, HDR_NAME_CTT, ctt_str_to_pdu, ctt_pdu_to_str),
+        HEADER(HDR_ID_CTL, HDR_NAME_CTL, ctl_str_to_pdu, ctl_pdu_to_str),
+        HEADER(HDR_ID_ONI, HDR_NAME_ONI, oni_str_to_pdu, oni_pdu_to_str),
+        HEADER(HDR_ID_LNP, HDR_NAME_LNP, lnp_str_to_pdu, lnp_pdu_to_str),
+        HEADER(HDR_ID_NIC, HDR_NAME_NIC, nic_str_to_pdu, nic_pdu_to_str)
+    };
+    temp_size = sizeof(temp) / sizeof(temp[0]);
+
+    if (temp_size > HDR_AMOUNT)
+    {
+        return -1;
+    }
+
+    memset(proto, 0, sizeof(*proto));
+    memcpy(proto->header, &temp, sizeof(temp));
+    return 0;
+}
+
+
+/**
  * Initializes a DChat PDU with the given values.
  * @param pdu          Pointer to PDU structure whose members will be initialized
+ * @param version      Version of DChat Protocol
  * @param content_type Content-Type
  * @param onion_id     Onion-ID
  * @param lport        Listening port
  * @param nickname     Nickname
  */
 int
-init_dchat_pdu(dchat_pdu_t* pdu, int content_type, char* onion_id, int lport,
+init_dchat_pdu(dchat_pdu_t* pdu, float version, int content_type,
+               char* onion_id, int lport,
                char* nickname)
 {
+    if (!is_valid_version(version))
+    {
+        log_msg(LOG_WARN, "Invalid version '%2.1f'!", version);
+        return -1;
+    }
+
     if (!is_valid_content_type(content_type))
     {
         log_msg(LOG_WARN, "Invalid Content-Type '0x%02x'!", content_type);
@@ -732,6 +857,7 @@ init_dchat_pdu(dchat_pdu_t* pdu, int content_type, char* onion_id, int lport,
     }
 
     memset(pdu, 0, sizeof(*pdu));
+    pdu->version      = version;
     pdu->content_type = content_type;
     pdu->onion_id[0]  = '\0';
     strncpy(pdu->onion_id, onion_id, ONION_ADDRLEN);
@@ -762,13 +888,75 @@ init_dchat_pdu_content(dchat_pdu_t* pdu, char* content, int len)
 
 
 /**
+ * Checks if the given version is a valid and supported DChat version.
+ * @return 1 if valid, 0 otherwise
+ */
+int
+is_valid_version(float version)
+{
+    if (version == DCHAT_V1)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+/**
+ * Checks if the given string is terminated with \n or \r\n respectively.
+ * @param value String to check
+ * @return Index of termination character, -1 otherwise
+ */
+int
+is_valid_termination(char* value)
+{
+    int len;
+    int end;
+    len = strlen(value);
+
+    // value must end with \n
+    if (len < 1 || value[len - 1] != '\n')
+    {
+        return -1;
+    }
+
+    end = len - 1;
+
+    if (end > 1 && value[end - 1] == '\r')
+    {
+        end--;
+    }
+
+    return end;
+}
+
+
+/**
  * Checks if the given Content-Type number is a valid DChat Content-Type.
  * @return 1 if valid, 0 otherwise.
  */
 int
 is_valid_content_type(int content_type)
 {
-    if (content_type & CT_ALL_MASK)
+    if (content_type & CTT_MASK_ALL)
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+
+/**
+ * Checks if the given Content-Length is a valid DChat Content-Length.
+ * Content-Length must be between 0 and MAX_CONTENT_LEN.
+ * @return 1 if valid, 0 otherwise.
+ */
+int
+is_valid_content_length(int ctl)
+{
+    if (ctl >= 0 && ctl <= MAX_CONTENT_LEN)
     {
         return 1;
     }
@@ -784,17 +972,20 @@ is_valid_content_type(int content_type)
 int
 is_valid_nickname(char* nickname)
 {
+    int len;
+
     if (nickname == NULL)
     {
         return 0;
     }
 
-    if (strlen(nickname) > MAX_NICKNAME)
+    len = strlen(nickname);
+
+    if (len == 0 || len > MAX_NICKNAME)
     {
         return 0;
     }
 
-    //FIXME: check non printable characters
     return 1;
 }
 
@@ -849,7 +1040,7 @@ get_content_part(dchat_pdu_t* pdu, int offset, char term, char** content)
     // if end of content is reached before \n
     if (line_end == pdu->content_length && *(ptr - 1) != term)
     {
-        log_msg(LOG_ERR, "get_content_part() - Could not parse line");
+        log_msg(LOG_ERR, "Could not extract partial content!");
         return -1;
     }
 
@@ -858,8 +1049,7 @@ get_content_part(dchat_pdu_t* pdu, int offset, char term, char** content)
 
     if (*content == NULL)
     {
-        log_msg(LOG_ERR, "get_content_part() - Could not allocate memory");
-        return -1;
+        fatal("Memory allocation for partial content failed!");
     }
 
     // copy data into line buffer

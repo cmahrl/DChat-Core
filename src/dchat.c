@@ -402,8 +402,6 @@ init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa,
     // set listening port
     if (ip_version(sa) == 4)
     {
-        //FIXME: output listening ip and port / and give a notice
-        //       on the onion-id and hidden-port
         log_msg(LOG_INFO, "Listening on '%s:%d'", onion_id,
                 ntohs(((struct sockaddr_in*) sa)->sin_port));
         cnf->me.lport = ntohs(((struct sockaddr_in*) sa)->sin_port);
@@ -437,14 +435,17 @@ init_global_config(dchat_conf_t* cnf, struct sockaddr_storage* sa,
 void
 destroy(dchat_conf_t* cnf)
 {
-    // cancel connection thread
-    pthread_cancel(cnf->conn_th);
-    // wait for termination of connection thread
-    pthread_join(cnf->conn_th, NULL);
+    char c = '2';
     // cancel select thread
     pthread_cancel(cnf->select_th);
     // wait for termination of select thread
     pthread_join(cnf->select_th, NULL);
+    // cancel connection thread
+    pthread_cancel(cnf->conn_th);
+    // cancel connection thread
+    // wait for termination of connection thread
+    pthread_join(cnf->conn_th, NULL);
+    // wait for termination of select thread
     // destroy contact mutex
     pthread_mutex_destroy(&cnf->cl.cl_mx);
     // close write pipe for thread function th_new_conn
@@ -507,7 +508,7 @@ handle_local_input(dchat_conf_t* cnf, char* line)
         if (len != 0)
         {
             // inititialize pdu
-            if (init_dchat_pdu(&msg, CT_TXT_PLAIN, cnf->me.onion_id, cnf->me.lport,
+            if (init_dchat_pdu(&msg, CTT_ID_TXT, 1.0, cnf->me.onion_id, cnf->me.lport,
                                cnf->me.name) == -1)
             {
                 log_msg(LOG_ERR, "Initialization of PDU failed!");
@@ -572,61 +573,57 @@ handle_remote_input(dchat_conf_t* cnf, int n)
     // this contact
     if ((contact->onion_id[0] == '\0' || !contact->lport ||
          contact->name[0] == '\0')  &&
-        pdu.content_type != CT_CTRL_DISC)
+        pdu.content_type != CTT_ID_DSC)
     {
         log_msg(LOG_ERR, "Client '%d' omitted identification!", n);
         return -1;
     }
-    else if (pdu.content_type == CT_CTRL_DISC)
+
+    // check mandatory headers received
+    if (contact->name[0] != '\0' && strcmp(contact->name, pdu.nickname) != 0)
     {
-        // check mandatory headers received
-        if (contact->name[0] != '\0' && strcmp(contact->name, pdu.nickname) != 0)
-        {
-            log_msg(LOG_INFO, "'%s' changed nickname to '%s'!", contact->name,
-                    pdu.nickname);
-        }
-
-        if (contact->onion_id[0] != '\0' &&
-            strcmp(contact->onion_id, pdu.onion_id) != 0)
-        {
-            log_msg(LOG_ERR, "'%s' changed Onion-ID! Contact will be removed!",
-                    contact->name);
-            del_contact(cnf, n);
-            return -1;
-        }
-
-        if (contact->lport != 0 && contact->lport != pdu.lport)
-        {
-            log_msg(LOG_ERR, "'%s' changed Listening Port! Contact will be removed!",
-                    contact->name);
-            del_contact(cnf, n);
-            return -1;
-        }
-
-        // set nickname of contact
-        contact->name[0] = '\0';
-
-        if (pdu.nickname != NULL)
-        {
-            strncat(contact->name, pdu.nickname, MAX_NICKNAME);
-        }
-
-        // set onion id of contact
-        contact->onion_id[0] = '\0';
-
-        if (pdu.onion_id != NULL)
-        {
-            strncat(contact->onion_id, pdu.onion_id, ONION_ADDRLEN);
-        }
-
-        // set listening port of contact
-        contact->lport = pdu.lport;
+        log_msg(LOG_INFO, "'%s' changed nickname to '%s'!", contact->name,
+                pdu.nickname);
     }
+
+    if (contact->onion_id[0] != '\0' &&
+        strcmp(contact->onion_id, pdu.onion_id) != 0)
+    {
+        log_msg(LOG_ERR, "'%s' changed Onion-ID! Contact will be removed!",
+                contact->name);
+        return -1;
+    }
+
+    if (contact->lport != 0 && contact->lport != pdu.lport)
+    {
+        log_msg(LOG_ERR, "'%s' changed Listening Port! Contact will be removed!",
+                contact->name);
+        return -1;
+    }
+
+    // set nickname of contact
+    contact->name[0] = '\0';
+
+    if (pdu.nickname != NULL)
+    {
+        strncat(contact->name, pdu.nickname, MAX_NICKNAME);
+    }
+
+    // set onion id of contact
+    contact->onion_id[0] = '\0';
+
+    if (pdu.onion_id != NULL)
+    {
+        strncat(contact->onion_id, pdu.onion_id, ONION_ADDRLEN);
+    }
+
+    // set listening port of contact
+    contact->lport = pdu.lport;
 
     /*
      * == TEXT/PLAIN ==
      */
-    if (pdu.content_type == CT_TXT_PLAIN)
+    if (pdu.content_type == CTT_ID_TXT)
     {
         // allocate memory for text message
         if ((txt_msg = malloc(pdu.content_length + 1)) == NULL)
@@ -644,7 +641,7 @@ handle_remote_input(dchat_conf_t* cnf, int n)
     /*
      * == CONTROL/DISCOVER ==
      */
-    else if (pdu.content_type == CT_CTRL_DISC)
+    else if (pdu.content_type == CTT_ID_DSC)
     {
         // since dchat brings with the problem of duplicate contacts
         // check if there are duplicate contacts in the contactlist
@@ -835,7 +832,7 @@ th_new_conn(dchat_conf_t* cnf)
         }
         else if ((write(cnf->cl_change[1], &c, sizeof(c))) == -1)
         {
-            log_msg(LOG_WARN, "Could not write to change pipe");
+            log_msg(LOG_WARN, "Could not write to change pipe!");
         }
 
         // unlock contactlist
@@ -964,11 +961,12 @@ cleanup_th_main_loop(void* arg)
 void*
 th_main_loop(dchat_conf_t* cnf)
 {
-    fd_set rset; // list of readable file descriptors
-    int nfds;    // number of fd in rset
-    int ret;     // return value
-    char c;      // for pipe: th_new_conn
-    char* line;  // line returned from GNU readline
+    fd_set rset;    // list of readable file descriptors
+    int nfds;       // number of fd in rset
+    int ret;        // return value
+    char c;         // for pipe: th_new_conn
+    char* line;     // line returned from GNU readline
+    int cancel = 0; // cancel main loop
     int i;
     // setup cleanup handler and cancelation attributes
     pthread_cleanup_push(cleanup_th_main_loop, NULL);
@@ -1008,20 +1006,29 @@ th_main_loop(dchat_conf_t* cnf)
         // interrupt
         // occurs
         int old_nfds = nfds;
+        pthread_testcancel();
 
-        while ((nfds = select(old_nfds + 1, &rset, NULL, NULL, NULL)) == -1)
+        while ((nfds = select(old_nfds + 1, &rset, NULL, NULL, NULL))  <= 0)
         {
-            // something interrupted select(2) - try select again
-            if (errno == EINTR)
+            pthread_testcancel();
+
+            if (nfds == -1)
             {
-                continue;
-            }
-            else
-            {
-                log_errno(LOG_ERR, "select() failed");
-                //return -1;
+                // something interrupted select(2) - try select again
+                if (errno == EINTR)
+                {
+                    continue;
+                }
+
+                log_errno(LOG_ERR, "select() failed!");
+                cancel = 1;
                 break;
             }
+        }
+
+        if (cancel)
+        {
+            break;
         }
 
         // CHECK STDIN: check if thread has written to the user_input
@@ -1101,7 +1108,6 @@ th_main_loop(dchat_conf_t* cnf)
                 // -1 = error, 0 = EOF
                 if ((ret = handle_remote_input(cnf, i)) == -1 || ret == 0)
                 {
-                    close(cnf->cl.contact[i].fd);
                     del_contact(cnf, i);
                 }
             }

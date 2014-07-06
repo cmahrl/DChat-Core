@@ -32,5 +32,6 @@
 //         MISC FUNCTIONS
 //*********************************
 int max(int a, int b);
+void free_ptrs(void** ptrs, int len);
 
 #endif

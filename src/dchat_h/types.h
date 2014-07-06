@@ -38,6 +38,7 @@
  */
 typedef struct dchat_pdu
 {
+    float version;                     //!< version of DChat
     int content_type;                  //!< type of message
     char* content;                     //!< content part of message
     int content_length;                //!< lengh of content

@@ -289,6 +289,11 @@ is_valid_onion(char* onion_id)
 {
     char* prefix;
 
+    if (onion_id == NULL)
+    {
+        return 0;
+    }
+
     if (strlen(onion_id) != ONION_ADDRLEN)
     {
         return 0;

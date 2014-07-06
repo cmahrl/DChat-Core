@@ -57,7 +57,7 @@ send_contacts(dchat_conf_t* cnf, int n)
     int pdu_len = 0;    // total content length of pdu-packet that will be sent
     contact_t* contact; // contact that will be converted to a string
     // initialize PDU
-    init_dchat_pdu(&pdu, CT_CTRL_DISC, cnf->me.onion_id, cnf->me.lport,
+    init_dchat_pdu(&pdu, 1.0, CTT_ID_DSC, cnf->me.onion_id, cnf->me.lport,
                    cnf->me.name);
 
     // iterate through our contactlist
@@ -485,6 +485,12 @@ del_contact(dchat_conf_t* cnf, int n)
         return -1;
     }
 
+    if (cnf->cl.contact[n].fd == 0)
+    {
+        return 0;
+    }
+
+    close(cnf->cl.contact[n].fd);
     // zero out the contact on index 'n'
     memset(&cnf->cl.contact[n], 0, sizeof(contact_t));
     // decrease contacts counter variable
