@@ -22,7 +22,65 @@
 #define CMDINTERPRETER_H
 
 #include "types.h"
+#include "option.h"
 
+
+//*********************************
+//          MISC
+//*********************************
+#define CMD_AMOUNT 3
+#define CMD_PREFIX "/"
+
+
+//*********************************
+//        ID OF COMMAND
+//*********************************
+#define CMD_ID_HLP 0x01
+#define CMD_ID_CON 0x02
+#define CMD_ID_LST 0x03
+
+
+//*********************************
+//        NAME OF COMMAND
+//*********************************
+#define CMD_NAME_HLP CMD_PREFIX "help" 
+#define CMD_NAME_CON CMD_PREFIX "connect"
+#define CMD_NAME_LST CMD_PREFIX "list"
+
+
+//*********************************
+//        ARG OF COMMAND
+//*********************************
+#define CMD_ARG_HLP ""
+#define CMD_ARG_CON CLI_OPT_ARG_RONI " " CLI_OPT_ARG_RPRT
+#define CMD_ARG_LST ""
+
+
+//*********************************
+//            MACRO
+//*********************************
+#define COMMAND(ID, NAME, ARG, FUNC) { ID, NAME, NAME " " ARG, FUNC }
+
+
+/*!
+ * Structure for a DChat in-chat command.
+ */
+typedef struct cmd
+{
+    int   cmd_id;
+    char* cmd_name;
+    char* syntax;
+    int (*execute)(dchat_conf_t* cnf, char* arg);
+} cmd_t;
+
+
+/*!
+ * Structure for DChat in-chat commands.
+ */
+typedef struct cmds
+{
+    cmd_t cmd[CMD_AMOUNT];
+} cmds_t;
 
 //*********************************
 //     MAIN PARSING FUNCTION
@@ -33,8 +91,15 @@ int parse_cmd(dchat_conf_t* cnf, char* buf);
 //*********************************
 //       COMMAND FUNCTIONS
 //*********************************
-int parse_cmd_connect(dchat_conf_t* cnf, char* cmd);
-void parse_cmd_help(void);
-void parse_cmd_list(dchat_conf_t* cnf);
+int hlp_exec(dchat_conf_t* cnf, char* arg);
+int con_exec(dchat_conf_t* cnf, char* arg);
+int lst_exec(dchat_conf_t* cnf, char* arg);
+
+
+//*********************************
+//       INIT FUNCTIONS
+//*********************************
+int init_cmds(cmds_t* cmds);
+
 
 #endif

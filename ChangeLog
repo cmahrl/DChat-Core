@@ -9,6 +9,18 @@
 		respectively.
 		-) added function `is_valid_content_length`.
 
+	* src/dchat_h/option.h: 
+		-) added preprocessor constants for each gnu short option, long
+		option and its corresponding option argument.
+
+	* src/cmdinterpreter.h: 
+		-) added new structures `cmd_t` and `cmds_t` for supporting
+		in-chat commands.
+		-) new cmd macro to define a new in-chat command.
+
+	* src/cmdinterpreter.c: 
+		-) code refactoring of whole file using new cmds structures.
+
 	* src/contact.c: 
 		-) code cleanup
 

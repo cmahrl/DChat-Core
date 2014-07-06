@@ -23,6 +23,43 @@
 
 #include <getopt.h>
 
+
+//*********************************
+//  COMMAND LINE OPTIONS (SHORT)
+//*********************************
+#define CLI_OPT_LONI "s"
+#define CLI_OPT_NICK "n"
+#define CLI_OPT_LPRT "l"
+#define CLI_OPT_RONI "d"
+#define CLI_OPT_RPRT "r"
+#define CLI_OPT_HELP "h"
+
+
+//*********************************
+//  COMMAND LINE OPTIONS (LONG)
+//*********************************
+#define CLI_LOPT_LONI "lonion"
+#define CLI_LOPT_NICK "nickname"
+#define CLI_LOPT_LPRT "lport"
+#define CLI_LOPT_RONI "ronion"
+#define CLI_LOPT_RPRT "rport"
+#define CLI_LOPT_HELP "help"
+
+
+//*********************************
+//     NAME OF OPTION ARGUMENT
+//*********************************
+#define CLI_OPT_ARG_LONI "ONIONID"
+#define CLI_OPT_ARG_NICK "NICKNAME"
+#define CLI_OPT_ARG_LPRT "LOCALPORT"
+#define CLI_OPT_ARG_RONI "REMOTEONIONID"
+#define CLI_OPT_ARG_RPRT "REMOTEPORT"
+#define CLI_OPT_ARG_HELP ""
+
+
+//*********************************
+//            MACROS
+//*********************************
 #define OPTION(OPT, LONG_OPT, ARG, MAND, DESC)                \
     {OPT[0], LONG_OPT, ARG, !strlen(ARG) ? 0 : 1, MAND,            \
         !strlen(ARG) ? "    -"OPT ", --"LONG_OPT "\n           "DESC : \

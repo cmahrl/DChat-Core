@@ -29,19 +29,111 @@
 #include <unistd.h>
 #include <readline/readline.h>
 
+#include "dchat_h/cmdinterpreter.h"
 #include "dchat_h/types.h"
 #include "dchat_h/log.h"
 
 
 /**
- * In-chat command to establish a new connection.
- * @param cnf Global config structure
- * @param cmd Command buffer which contains the infos for the new connection
- * @return  -1 if error occurs, 0 if no error, 1 on syntax error
+ *  Parses the given string and executes it if it is a command.
+ *  @param cnf Global config structure
+ *  @param line Userinput
+ *  @return 0 if command was valid, 1 if command was invalid in all
+ *  other cases -1 will be returned.
  */
 int
-parse_cmd_connect(dchat_conf_t* cnf, char* cmd)
+parse_cmd(dchat_conf_t* cnf, char* line)
 {
+    cmds_t cmds;
+    char* cmd;
+    char* arg;
+    char* delim = " ";
+    int ret;
+
+    if(init_cmds(&cmds) == -1)
+    {
+        return -1;
+    }
+
+    if((cmd = strtok_r(line, delim, &arg)) == NULL)
+    {
+        return -1;
+    }
+
+    for(int i = 0; i < CMD_AMOUNT; i++)
+    {
+        if(!strcmp(cmd, cmds.cmd[i].cmd_name))
+        {
+            if((ret = cmds.cmd[i].execute(cnf, arg)) == 1)
+            {
+                log_msg(LOG_NOTICE, "Command syntax: %s", cmds.cmd[i].syntax);
+            }
+            return ret;
+        }
+    }
+
+    return -1;
+}
+
+
+/**
+ * Initializes a commands structure with all available in-chat commands and its
+ * executable functions.
+ * @param cmds Pointer to commands structure.
+ * @return 0 on success, -1 otherwise.
+ */
+int
+init_cmds(cmds_t* cmds)
+{
+    int temp_size;
+    int cmds_size;
+    // available commands
+    cmd_t temp[] =
+    {
+        COMMAND(CMD_ID_HLP, CMD_NAME_HLP, CMD_ARG_HLP, hlp_exec),
+        COMMAND(CMD_ID_CON, CMD_NAME_CON, CMD_ARG_CON, con_exec),
+        COMMAND(CMD_ID_LST, CMD_NAME_LST, CMD_ARG_LST, lst_exec)
+    };
+    
+    temp_size = sizeof(temp) / sizeof(temp[0]);
+
+    if (temp_size > CMD_AMOUNT)
+    {
+        return -1;
+    }
+
+    memset(cmds, 0, sizeof(*cmds));
+    memcpy(cmds->cmd, &temp, sizeof(temp));
+    return 0;
+}
+
+
+/**
+ * Prints help.
+ * @return 0 on success, 1 on syntax error, -1 otherwise
+ */
+int 
+hlp_exec(dchat_conf_t* cnf, char* arg){
+    // print the available commands
+    log_msg(LOG_INFO, "\nThe following commands are available: \n"
+            "    %s"
+            "    %s"
+            "    %s"
+            "    %s",
+            "/connect <onion-id> <port>...connect to other chat client\n",
+            "/exit..................close the chat program\n",
+            "/help..................to show this helppage\n",
+            "/list..................show all connected contacts\n");
+    return 0;
+}
+
+
+/**
+ * Connects to a remote host.
+ * @return 0 on success, 1 on syntax error, -1 otherwise
+ */
+int 
+con_exec(dchat_conf_t* cnf, char* arg){
     char* address;
     char* port_str;
     int port;
@@ -49,15 +141,15 @@ parse_cmd_connect(dchat_conf_t* cnf, char* cmd)
     char* prefix;
 
     // if the string contains more spaces the pointer is after the loop at a non-space char
-    for (; isspace(*cmd); cmd++);
+    for (; isspace(*arg); arg++);
 
     // empty string?
-    if (*cmd == '\0')
+    if (*arg == '\0')
     {
         return 1;
     }
 
-    address = strtok_r(cmd, " ", &endptr);
+    address = strtok_r(arg, " ", &endptr);
 
     if ((port_str = strtok_r(NULL, " \t\r\n", &endptr)) == NULL)
     {
@@ -94,33 +186,11 @@ parse_cmd_connect(dchat_conf_t* cnf, char* cmd)
 
 
 /**
- * In-chat command to show all available commands.
- * Function to establish new connections to other clients
- * @param cnf Global config structure
+ * Lists alls contacts within the local contactlist. 
+ * @return 0 on success, 1 on syntax error, -1 otherwise
  */
-void
-parse_cmd_help(void)
-{
-    // print the available commands
-    log_msg(LOG_INFO, "\nThe following commands are available: \n"
-            "    %s"
-            "    %s"
-            "    %s"
-            "    %s",
-            "/connect <onion-id> <port>...connect to other chat client\n",
-            "/exit..................close the chat program\n",
-            "/help..................to show this helppage\n",
-            "/list..................show all connected contacts\n");
-}
-
-
-/**
- *  In-chat command to list contacts of local contactlist.
- *  @param cnf Global config structure
- */
-void
-parse_cmd_list(dchat_conf_t* cnf)
-{
+int 
+lst_exec(dchat_conf_t* cnf, char* arg){
     int i;
 
     // are there no contacts in the list a message will be printed
@@ -146,51 +216,5 @@ parse_cmd_list(dchat_conf_t* cnf)
             }
         }
     }
-}
-
-
-/**
- *  Parses the given string and executes it if it is a command.
- *  @param cnf Global config structure
- *  @param buf Userinput
- *  @return 0 if command was valid, 1 if command was invalid in all
- *  other cases -1 will be returned.
- */
-int
-parse_cmd(dchat_conf_t* cnf, char* buf)
-{
-    int ret;
-
-    //check if the string contains the command /connect
-    if (strncmp(buf, "/connect ", 9) == 0)
-    {
-        // to get the string without the command
-        buf += 9;
-
-        if ((ret = parse_cmd_connect(cnf, buf)) == -1)
-        {
-            return -1;
-        }
-        else if (ret == 1)
-        {
-            log_msg(LOG_ERR, "Syntax: /connect <ONION-ID> <PORT>");
-            return 1;
-        }
-    }
-    // check for the command help and call the appropriate function
-    else if (strcmp(buf, "/help") == 0)
-    {
-        parse_cmd_help();
-    }
-    // check for the command list and call the appropriate function
-    else if (strcmp(buf, "/list") == 0)
-    {
-        parse_cmd_list(cnf);
-    }
-    else
-    {
-        return -1;
-    }
-
     return 0;
 }

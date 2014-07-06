@@ -75,7 +75,8 @@ main(int argc, char** argv)
     char* nickname     = NULL;          // nickname to use within chat
     char* remote_onion = NULL;          // onion address of remote client
     int rport          = -1;            // remote port of remote host
-    int option;                         // getopt option
+    char option;                        // getopt option
+    char option_arr[2];                 
     int required       = 0;             // counter for required options
     int ret;
     char* term;                         // used for strtol
@@ -87,12 +88,12 @@ main(int argc, char** argv)
     // possible commandline options
     cli_option_t options[] =
     {
-        OPTION("s", "lonion",   "ONIONID",       1, "Set the onion id of the local hidden service."),
-        OPTION("n", "nickname", "NICKNAME",      1, "Set the nickname for this chat session."),
-        OPTION("l", "lport",    "LOCALPORT",     0, "Set the local listening port."),
-        OPTION("d", "ronion",   "REMOTEONIONID", 0, "Set the onion id of the remote host to whom a connection should be established."),
-        OPTION("r", "rport",    "REMOTEPORT",    0, "Set the remote port of the remote host who will accept connections on this port."),
-        OPTION("h", "help",     "",              0, "Display help.")
+        OPTION(CLI_OPT_LONI, CLI_LOPT_LONI, CLI_OPT_ARG_LONI, 1, "Set the onion id of the local hidden service."),
+        OPTION(CLI_OPT_NICK, CLI_LOPT_NICK, CLI_OPT_ARG_NICK, 1, "Set the nickname for this chat session."),
+        OPTION(CLI_OPT_LPRT, CLI_LOPT_LPRT, CLI_OPT_ARG_LPRT, 0, "Set the local listening port."),
+        OPTION(CLI_OPT_RONI, CLI_LOPT_RONI, CLI_OPT_ARG_RONI, 0, "Set the onion id of the remote host to whom a connection should be established."),
+        OPTION(CLI_OPT_RPRT, CLI_LOPT_RPRT, CLI_OPT_ARG_RPRT, 0, "Set the remote port of the remote host who will accept connections on this port."),
+        OPTION(CLI_OPT_HELP, CLI_LOPT_HELP, CLI_OPT_ARG_HELP, 0, "Display help.")
     };
     opt_size = sizeof(options) / sizeof(options[0]);
     short_opts = get_short_options(options, opt_size);
@@ -101,8 +102,9 @@ main(int argc, char** argv)
     // parse commandline options
     while (1)
     {
-        //FIXME: check termination if no clients are connected
         option = getopt_long(argc, argv, short_opts, long_opts, 0);
+        option_arr[0] = option;
+        option_arr[1] = '\0';
 
         // end of options
         if (option == -1)
@@ -110,69 +112,57 @@ main(int argc, char** argv)
             break;
         }
 
-        switch (option)
-        {
-            case CLI_OPT_LONION:
-                local_onion = optarg;
+        if(!strcmp(option_arr, CLI_OPT_LONI)){
+            local_onion = optarg;
 
-                if (!is_valid_onion(local_onion))
-                {
-                    usage(EXIT_FAILURE, options, opt_size, "Invalid onion-id '%s'!", optarg);
-                }
+            if (!is_valid_onion(local_onion))
+            {
+                usage(EXIT_FAILURE, options, opt_size, "Invalid onion-id '%s'!", optarg);
+            }
 
-                required++;
-                break;
+            required++;
+        }
+        else if(!strcmp(option_arr, CLI_OPT_NICK)){
+            nickname = optarg;
 
-            case CLI_OPT_NICK:
-                nickname = optarg;
+            if (!is_valid_nickname(nickname))
+            {
+                usage(EXIT_FAILURE, options, opt_size,
+                      "Invalid nickname '%s'! Max. %d printable characters allowed!", optarg,
+                      MAX_NICKNAME);
+            }
+            required++;
+        }
+        else if(!strcmp(option_arr, CLI_OPT_LPRT)){
+            lport = (int) strtol(optarg, &term, 10);
 
-                if (!is_valid_nickname(nickname))
-                {
-                    usage(EXIT_FAILURE, options, opt_size,
-                          "Invalid nickname '%s'! Max. %d printable characters allowed!", optarg,
-                          MAX_NICKNAME);
-                }
+            if (!is_valid_port(lport) || *term != '\0')
+            {
+                usage(EXIT_FAILURE, options, opt_size, "Invalid listening port '%s'!", optarg);
+            }
+        }
+        else if(!strcmp(option_arr, CLI_OPT_RONI)){
+            remote_onion = optarg;
 
-                required++;
-                break;
+            if (!is_valid_onion(remote_onion))
+            {
+                usage(EXIT_FAILURE, options, opt_size, "Invalid onion-id '%s'!", optarg);
+            }
+        }
+        else if(!strcmp(option_arr, CLI_OPT_RPRT)){
+            rport = (int) strtol(optarg, &term, 10);
 
-            case CLI_OPT_LPORT:
-                lport = (int) strtol(optarg, &term, 10);
+            if (!is_valid_port(rport) || *term != '\0')
+            {
+                usage(EXIT_FAILURE, options, opt_size, "Invalid remote port '%s'!", optarg);
+            }
+        }
+        else if(!strcmp(option_arr, CLI_OPT_HELP)){
+            usage(EXIT_SUCCESS, options, opt_size, "");
+        }
+        else{
+            usage(EXIT_FAILURE, options, opt_size, "Invalid command-line option!");
 
-                if (!is_valid_port(lport) || *term != '\0')
-                {
-                    usage(EXIT_FAILURE, options, opt_size, "Invalid listening port '%s'!", optarg);
-                }
-
-                break;
-
-            case CLI_OPT_RONION:
-                remote_onion = optarg;
-
-                if (!is_valid_onion(remote_onion))
-                {
-                    usage(EXIT_FAILURE, options, opt_size, "Invalid onion-id '%s'!", optarg);
-                }
-
-                break;
-
-            case CLI_OPT_RPORT:
-                rport = (int) strtol(optarg, &term, 10);
-
-                if (!is_valid_port(rport) || *term != '\0')
-                {
-                    usage(EXIT_FAILURE, options, opt_size, "Invalid remote port '%s'!", optarg);
-                }
-
-                break;
-
-            case CLI_OPT_HELP:
-                usage(EXIT_SUCCESS, options, opt_size, "");
-
-            // invalid option - getopt prints error msg
-            case '?':
-            default:
-                usage(EXIT_FAILURE, options, opt_size, "Invalid command-line option!");
         }
     }
 
