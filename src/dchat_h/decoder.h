@@ -55,7 +55,7 @@
 #define HDR_NAME_VER "DCHAT"
 #define HDR_NAME_CTT "Content-Type"
 #define HDR_NAME_CTL "Content-Length"
-#define HDR_NAME_ONI "Onion-ID"
+#define HDR_NAME_ONI "Host"
 #define HDR_NAME_LNP "Listen-Port"
 #define HDR_NAME_NIC "Nickname"
 

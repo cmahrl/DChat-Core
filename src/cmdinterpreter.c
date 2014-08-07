@@ -48,15 +48,26 @@ parse_cmd(dchat_conf_t* cnf, char* line)
     char* cmd;
     char* arg;
     char* delim = " ";
-    int ret;
+    int ret = -1;
+    char* line_temp;
 
     if(init_cmds(&cmds) == -1)
     {
         return -1;
     }
 
-    if((cmd = strtok_r(line, delim, &arg)) == NULL)
+    line_temp = malloc(strlen(line) + 1);
+    if(line_temp == NULL)
     {
+        fatal("Memory allocation for command line failed!");
+    }
+
+    line_temp[0] = '\0';
+    strcat(line_temp, line);
+
+    if((cmd = strtok_r(line_temp, delim, &arg)) == NULL)
+    {
+        free(line_temp);
         return -1;
     }
 
@@ -68,11 +79,12 @@ parse_cmd(dchat_conf_t* cnf, char* line)
             {
                 log_msg(LOG_NOTICE, "Command syntax: %s", cmds.cmd[i].syntax);
             }
-            return ret;
+            break;
         }
     }
 
-    return -1;
+    free(line_temp);
+    return ret;
 }
 
 
@@ -114,16 +126,19 @@ init_cmds(cmds_t* cmds)
  */
 int 
 hlp_exec(dchat_conf_t* cnf, char* arg){
-    // print the available commands
-    log_msg(LOG_INFO, "\nThe following commands are available: \n"
-            "    %s"
-            "    %s"
-            "    %s"
-            "    %s",
-            "/connect <onion-id> <port>...connect to other chat client\n",
-            "/exit..................close the chat program\n",
-            "/help..................to show this helppage\n",
-            "/list..................show all connected contacts\n");
+    cmds_t cmds;
+
+    if(init_cmds(&cmds) == -1)
+    {
+        return -1;
+    }
+
+    log_msg(LOG_NOTICE, "Available Commands: ");
+    for(int i = 0; i < CMD_AMOUNT; i++)
+    {
+        log_msg(LOG_NOTICE, "%s",cmds.cmd[i].syntax);
+    }
+
     return 0;
 }
 
@@ -196,7 +211,7 @@ lst_exec(dchat_conf_t* cnf, char* arg){
     // are there no contacts in the list a message will be printed
     if (!cnf->cl.used_contacts)
     {
-        log_msg(LOG_INFO, "No contacts found in the contactlist");
+        log_msg(LOG_NOTICE, "No contacts found in the contactlist");
     }
     else
     {
@@ -205,14 +220,12 @@ lst_exec(dchat_conf_t* cnf, char* arg){
             // check if entry is a valid connection
             if (cnf->cl.contact[i].fd)
             {
+                log_msg(LOG_NOTICE, "");
                 // print all available information about the connection
-                dprintf(cnf->out_fd, "\n\n"
-                        "    Contact................%s\n"
-                        "    Onion-ID...............%s\n"
-                        "    Listening-Port.........%u\n",
-                        cnf->cl.contact[i].name,
-                        cnf->cl.contact[i].onion_id,
-                        cnf->cl.contact[i].lport);
+                log_msg(LOG_NOTICE, "Contact................%s", cnf->cl.contact[i].name);
+                log_msg(LOG_NOTICE, "Onion-ID...............%s", cnf->cl.contact[i].onion_id);
+                log_msg(LOG_NOTICE, "Hidden-Port............%hu", cnf->cl.contact[i].lport);
+
             }
         }
     }

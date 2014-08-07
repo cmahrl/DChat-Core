@@ -7,6 +7,8 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_SRCDIR([src/dchat.c])
 AC_CONFIG_HEADERS([config.h])
 
+AC_DEFINE([CONFIG_PATH], "/usr/local/etc/dchat.conf", [Path to configuration diretory])
+
 # Checks for programs.
 AC_PROG_CC
 

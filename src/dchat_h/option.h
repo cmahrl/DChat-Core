@@ -23,6 +23,13 @@
 
 #include <getopt.h>
 
+#include "types.h"
+
+
+//*********************************
+//            MISC 
+//*********************************
+#define CLI_OPT_AMOUNT 6
 
 //*********************************
 //  COMMAND LINE OPTIONS (SHORT)
@@ -60,10 +67,10 @@
 //*********************************
 //            MACROS
 //*********************************
-#define OPTION(OPT, LONG_OPT, ARG, MAND, DESC)                \
-    {OPT[0], LONG_OPT, ARG, !strlen(ARG) ? 0 : 1, MAND,            \
+#define OPTION(OPT, LONG_OPT, ARG, MAND, DESC, FUNC)                \
+    { OPT[0], LONG_OPT, ARG, !strlen(ARG) ? 0 : 1, MAND,            \
         !strlen(ARG) ? "    -"OPT ", --"LONG_OPT "\n           "DESC : \
-        "    -"OPT ", --"LONG_OPT "="ARG "\n           "DESC}
+        "    -"OPT ", --"LONG_OPT "="ARG "\n           "DESC, FUNC }
 
 
 /*!
@@ -77,10 +84,30 @@ typedef struct cli_option
     int   mandatory_argument; //!< argument is mandatory for option
     int   mandatory_option;   //!< option is mandatory
     char* description;        //!< description of option
+    int   (*parse_option)(dchat_conf_t*, char*, int); //!< option parser
 } cli_option_t;
 
 
-char* get_short_options(cli_option_t* options, int size);
-struct option* get_long_options(cli_option_t* options, int size);
+/*!
+ * Structure for available command line options
+ */
+typedef struct cli_options
+{
+    cli_option_t option[CLI_OPT_AMOUNT];
+} cli_options_t;
+
+
+char* get_short_options(cli_options_t* options);
+struct option* get_long_options(cli_options_t* options);
+int init_cli_options(cli_options_t* options);
+int read_conf(dchat_conf_t* cnf);
+
+
+int loni_parse(dchat_conf_t* cnf, char* value, int force);
+int nick_parse(dchat_conf_t* cnf, char* value, int force);
+int lprt_parse(dchat_conf_t* cnf, char* value, int force);
+int roni_parse(dchat_conf_t* cnf, char* value, int force);
+int rprt_parse(dchat_conf_t* cnf, char* value, int force);
+int help_parse(dchat_conf_t* cnf, char* value, int force);
 
 #endif

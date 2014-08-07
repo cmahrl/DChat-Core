@@ -915,6 +915,11 @@ is_valid_termination(char* value)
     int end;
     len = strlen(value);
 
+    if(value == NULL)
+    {
+        return -1;
+    }
+
     // value must end with \n
     if (len < 1 || value[len - 1] != '\n')
     {

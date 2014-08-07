@@ -2837,6 +2837,10 @@ fi
 ac_config_headers="$ac_config_headers config.h"
 
 
+
+$as_echo "#define CONFIG_PATH \"/usr/local/etc/dchat.conf\"" >>confdefs.h
+
+
 # Checks for programs.
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'

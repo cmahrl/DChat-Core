@@ -21,7 +21,7 @@ void log_hex(int, const void*, int);
 //*********************************
 //       PRINTING FUNCTIONS
 //*********************************
-void usage(int exit_status, cli_option_t* options, int size, const char* fmt,
+void usage(int exit_status, cli_options_t* options, const char* fmt,
            ...);
 void fatal(const char* fmt, ...);
 char* ansi_clear_line();

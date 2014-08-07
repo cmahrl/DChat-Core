@@ -136,7 +136,7 @@ log_hex(int lf, const void* buf, int len)
  * @param ... arguments
  */
 void
-usage(int exit_status, cli_option_t* options, int size, const char* fmt, ...)
+usage(int exit_status, cli_options_t* options, const char* fmt, ...)
 {
     if (strlen(fmt))
     {
@@ -149,28 +149,28 @@ usage(int exit_status, cli_option_t* options, int size, const char* fmt, ...)
     fprintf(log_, "\n");
     fprintf(log_, " %s", PACKAGE_NAME);
 
-    for (int i=0; i < size; i++)
+    for (int i=0; i < CLI_OPT_AMOUNT; i++)
     {
-        if (options[i].mandatory_option)
+        if (options->option[i].mandatory_option)
         {
-            if (options[i].mandatory_argument)
+            if (options->option[i].mandatory_argument)
             {
-                fprintf(log_, " -%c %s", options[i].opt, options[i].arg);
+                fprintf(log_, " -%c %s", options->option[i].opt, options->option[i].arg);
             }
             else
             {
-                fprintf(log_, " -%c", options[i].opt);
+                fprintf(log_, " -%c", options->option[i].opt);
             }
         }
         else
         {
-            if (options[i].mandatory_argument)
+            if (options->option[i].mandatory_argument)
             {
-                fprintf(log_, " [-%c %s]", options[i].opt, options[i].arg);
+                fprintf(log_, " [-%c %s]", options->option[i].opt, options->option[i].arg);
             }
             else
             {
-                fprintf(log_, " [-%c]", options[i].opt);
+                fprintf(log_, " [-%c]", options->option[i].opt);
             }
         }
     }
@@ -178,9 +178,9 @@ usage(int exit_status, cli_option_t* options, int size, const char* fmt, ...)
     fprintf(log_, "\n\n");
     fprintf(log_, " Options:\n");
 
-    for (int i=0; i < size; i++)
+    for (int i=0; i < CLI_OPT_AMOUNT; i++)
     {
-        fprintf(log_, "%s\n\n", options[i].description);
+        fprintf(log_, "%s\n\n", options->option[i].description);
     }
 
     fprintf(log_,
