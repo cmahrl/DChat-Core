@@ -2,7 +2,9 @@
 
   UNDONE
   ------
+    * fix /connect inline-command bug when no args are specified 
     * support for config files
+    * support for contact heart beat
     * support for file sharing
     * check memory leaks with valgrind
     * write protocol specification
