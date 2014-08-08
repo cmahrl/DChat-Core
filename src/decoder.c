@@ -181,37 +181,43 @@ read_pdu(int fd, dchat_pdu_t* pdu)
         return ret;
     }
 
+    // first header must be version header
     if (decode_header(pdu, line) == -1 || pdu->version != DCHAT_V1)
     {
-        free(line);
-        return -1;
+        ret = -1;
     }
 
-    len += strlen(line);
-    free(line);
-
-    // read header lines from file descriptors, until
-    // an empty line is received
-    while ((ret = read_line(fd, &line)) != -1 || ret == 0)
+    if(ret != -1)
     {
         len += strlen(line);
+        free(line);
 
-        // decode read line as header
-        if (decode_header(pdu, line) == -1)
+        // read header lines from file descriptors, until
+        // an empty line is received
+        while ((ret = read_line(fd, &line)) != -1 || ret == 0)
         {
-            // if line is not a header, it must be an empty line
-            if (!strcmp(line, "\n") || !strcmp(line, "\r\n"))
+            len += strlen(line);
+
+            // decode read line as header
+            if (decode_header(pdu, line) == -1)
             {
-                break; // All headers have been read
+                // if line is not a header, it must be an empty line
+                if (!strcmp(line, "\n") || !strcmp(line, "\r\n"))
+                {
+                    break; // All headers have been read
+                }
+                ret = -1;
+                break;
             }
 
-            ret = -1;
-            break;
+            free(line);
         }
-
-        free(line);
     }
-
+    
+    if(ret == -1)
+    {
+        log_msg(LOG_ERR, "Illegal PDU header received: '%s'", line);
+    }
     if (ret <= 0)
     {
         free(line);
