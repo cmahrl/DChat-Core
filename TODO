@@ -2,6 +2,7 @@
 
   UNDONE
   ------
+    * support `Date` and `Server` headers
     * refactor write_pdu in decoder.c using dchat headers structure
     * print PDU structure if an illegal one is received
     * support for contact heart beat

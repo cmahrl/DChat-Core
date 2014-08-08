@@ -197,7 +197,15 @@ read_pdu(int fd, dchat_pdu_t* pdu)
         while ((ret = read_line(fd, &line)) != -1 || ret == 0)
         {
             len += strlen(line);
-
+            
+            //FIXME:
+            if(!strncmp(line, "Date", 4)){
+                continue;
+            }
+            //FIXME:
+            if(!strncmp(line, "Server", 6)){
+                continue;
+            }
             // decode read line as header
             if (decode_header(pdu, line) == -1)
             {
