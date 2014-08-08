@@ -2,9 +2,8 @@
 
   UNDONE
   ------
+    * refactor write_pdu in decoder.c using dchat headers structure
     * print PDU structure if an illegal one is received
-    * fix /connect inline-command bug when no args are specified 
-    * support for config files
     * support for contact heart beat
     * support for file sharing
     * check memory leaks with valgrind
@@ -13,6 +12,10 @@
 
   DONE
   ----
+    * support for config files
+    * fix /connect inline-command bug when no args are specified 
+    * fix bug where no error is thrown if the same required 
+      command-line option is given
     * add more checks to decoder and encoder functions
     * comprehensive code refactoring
     * improve implementation of chat commands

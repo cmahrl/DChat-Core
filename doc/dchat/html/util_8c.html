@@ -31,7 +31,7 @@
   <td id="projectlogo"><img alt="Logo" src="logo.png"/></td>
   <td style="padding-left: 0.5em;">
    <div id="projectname">DChat
-   &#160;<span id="projectnumber">0.1</span>
+   &#160;<span id="projectnumber">0.2</span>
    </div>
   </td>
  </tr>
@@ -111,7 +111,17 @@ $(document).ready(function(){initNavTree('util_8c.html','');});
 
 <p>This file contains several miscellanious utility functions.  
 <a href="#details">More...</a></p>
-
+<div class="textblock"><code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;ctype.h&gt;</code><br />
+<code>#include &lt;errno.h&gt;</code><br />
+</div><div class="textblock"><div class="dynheader">
+Include dependency graph for util.c:</div>
+<div class="dyncontent">
+<div class="center"><img src="util_8c__incl.png" border="0" usemap="#src_2util_8c" alt=""/></div>
+<map name="src_2util_8c" id="src_2util_8c">
+</map>
+</div>
+</div>
 <p><a href="util_8c_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
@@ -119,12 +129,45 @@ Functions</h2></td></tr>
 <tr class="memitem:af082905f7eac6d03e92015146bbc1925"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="util_8c.html#af082905f7eac6d03e92015146bbc1925">max</a> (int a, int b)</td></tr>
 <tr class="memdesc:af082905f7eac6d03e92015146bbc1925"><td class="mdescLeft">&#160;</td><td class="mdescRight">Define the maximum of two given integers.  <a href="#af082905f7eac6d03e92015146bbc1925">More...</a><br /></td></tr>
 <tr class="separator:af082905f7eac6d03e92015146bbc1925"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35d494e8cf30930557ac449187f7c301"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="util_8c.html#a35d494e8cf30930557ac449187f7c301">file_exists</a> (char *filename)</td></tr>
+<tr class="memdesc:a35d494e8cf30930557ac449187f7c301"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the given file exists.  <a href="#a35d494e8cf30930557ac449187f7c301">More...</a><br /></td></tr>
+<tr class="separator:a35d494e8cf30930557ac449187f7c301"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec599e83690b143e509ae4dd566fa5aa"><td class="memItemLeft" align="right" valign="top">char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="util_8c.html#aec599e83690b143e509ae4dd566fa5aa">remove_leading_spaces</a> (char *value)</td></tr>
+<tr class="memdesc:aec599e83690b143e509ae4dd566fa5aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes leading whitespaces.  <a href="#aec599e83690b143e509ae4dd566fa5aa">More...</a><br /></td></tr>
+<tr class="separator:aec599e83690b143e509ae4dd566fa5aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This file contains several miscellanious utility functions. </p>
 
 <p>Definition in file <a class="el" href="util_8c_source.html">util.c</a>.</p>
 </div><h2 class="groupheader">Function Documentation</h2>
+<a class="anchor" id="a35d494e8cf30930557ac449187f7c301"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int file_exists </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>filename</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Checks if the given file exists. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">filename</td><td>Filename of file to check </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>1 if file exists, 0 if not, -1 otherwise (check errno of fopen) </dd></dl>
+
+<p>Definition at line <a class="el" href="util_8c_source.html#l00053">53</a> of file <a class="el" href="util_8c_source.html">util.c</a>.</p>
+
+</div>
+</div>
 <a class="anchor" id="af082905f7eac6d03e92015146bbc1925"></a>
 <div class="memitem">
 <div class="memproto">
@@ -159,7 +202,34 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>either a or b, depending on which one is bigger </dd></dl>
 
-<p>Definition at line <a class="el" href="util_8c_source.html#l00038">38</a> of file <a class="el" href="util_8c_source.html">util.c</a>.</p>
+<p>Definition at line <a class="el" href="util_8c_source.html#l00041">41</a> of file <a class="el" href="util_8c_source.html">util.c</a>.</p>
+
+</div>
+</div>
+<a class="anchor" id="aec599e83690b143e509ae4dd566fa5aa"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char* remove_leading_spaces </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>value</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Removes leading whitespaces. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">value</td><td>Null-terminated string </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Pointer to string whose leading spaces were removed or NULL (check errno of fopen) </dd></dl>
+
+<p>Definition at line <a class="el" href="util_8c_source.html#l00079">79</a> of file <a class="el" href="util_8c_source.html">util.c</a>.</p>
 
 </div>
 </div>
@@ -169,7 +239,7 @@ Functions</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="util_8c.html">util.c</a></li>
-    <li class="footer">Generated on Fri Jun 27 2014 15:22:33 for DChat by
+    <li class="footer">Generated on Fri Aug 8 2014 11:32:18 for DChat by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.7 </li>
   </ul>

@@ -372,7 +372,7 @@ SUBDIRS = src man
 @DX_COND_doc_TRUE@ $(DX_CLEAN_PDF) \
 @DX_COND_doc_TRUE@ $(DX_CLEAN_LATEX)
 
-EXTRA_DIST = $(DX_CONFIG) doc
+EXTRA_DIST = $(DX_CONFIG) logo.png doc
 doc_DATA = README INSTALL NEWS 
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive

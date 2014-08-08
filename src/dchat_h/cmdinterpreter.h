@@ -43,7 +43,7 @@
 //*********************************
 //        NAME OF COMMAND
 //*********************************
-#define CMD_NAME_HLP CMD_PREFIX "help" 
+#define CMD_NAME_HLP CMD_PREFIX "help"
 #define CMD_NAME_CON CMD_PREFIX "connect"
 #define CMD_NAME_LST CMD_PREFIX "list"
 

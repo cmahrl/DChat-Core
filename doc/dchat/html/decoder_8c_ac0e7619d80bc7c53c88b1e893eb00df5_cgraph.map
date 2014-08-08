@@ -1,0 +1,4 @@
+<map id="init_dchat_pdu_content" name="init_dchat_pdu_content">
+<area shape="rect" id="node2" href="$log_8c.html#a677da14e8c4326bde43622f233f1ead3" title="Prints an error message and terminates this program. " alt="" coords="214,5,261,32"/>
+<area shape="rect" id="node3" href="$log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="309,5,392,32"/>
+</map>

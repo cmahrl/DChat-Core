@@ -915,7 +915,7 @@ is_valid_termination(char* value)
     int end;
     len = strlen(value);
 
-    if(value == NULL)
+    if (value == NULL)
     {
         return -1;
     }

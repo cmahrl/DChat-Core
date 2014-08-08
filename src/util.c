@@ -26,6 +26,9 @@
 #include "config.h"
 #endif
 
+#include <stdio.h>
+#include <ctype.h>
+#include <errno.h>
 
 
 /**
@@ -38,4 +41,49 @@ int
 max(int a, int b)
 {
     return a > b ? a : b;
+}
+
+
+/**
+ *  Checks if the given file exists.
+ *  @param filename Filename of file to check
+ *  @return 1 if file exists, 0 if not, -1 otherwise
+ *  (check errno of fopen)
+ */
+int file_exists(char* filename)
+{
+    FILE* f = fopen(filename, "r");
+
+    if (f == NULL)
+    {
+        if (errno == ENOENT)
+        {
+            return 0;
+        }
+
+        return -1;
+    }
+
+    fclose(f);
+    return 1;
+}
+
+
+/**
+ *  Removes leading whitespaces.
+ *  @param value Null-terminated string
+ *  @return Pointer to string whose leading spaces were removed or
+ *  NULL
+ *  (check errno of fopen)
+ */
+char* remove_leading_spaces(char* value)
+{
+    if (value == NULL)
+    {
+        return NULL;
+    }
+
+    for (; isspace(*value); value++);
+
+    return value;
 }

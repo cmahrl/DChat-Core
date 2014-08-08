@@ -42,9 +42,10 @@ __attribute__((constructor)) init_log0(void)
  *  @param lf Logging priority (equal to syslog)
  *  @param fmt Format string
  *  @param ap Variable parameter list
+ *  @param with_errno Flag if errno should be printed too
  */
 void
-vlog_msgf(FILE* out, int lf, const char* fmt, va_list ap)
+vlog_msgf(FILE* out, int lf, const char* fmt, va_list ap, int with_errno)
 {
     int level = LOG_PRI(lf);
     char buf[1024];
@@ -58,6 +59,12 @@ vlog_msgf(FILE* out, int lf, const char* fmt, va_list ap)
     {
         fprintf(out, "[%7s] ", flty_[level]);
         vfprintf(out, fmt, ap);
+
+        if (with_errno)
+        {
+            fprintf(out, " (%s)", strerror(errno));
+        }
+
         fprintf(out, "\n");
     }
     else
@@ -75,24 +82,28 @@ vlog_msgf(FILE* out, int lf, const char* fmt, va_list ap)
  *  @param ... arguments
  */
 void
-log_msg(int lf, const char* fmt, ...)
+log_msg(int lf,const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    vlog_msgf(log_, lf, fmt, ap);
+    vlog_msgf(log_, lf, fmt, ap, 0);
     va_end(ap);
 }
 
 
 /**
  *  Log a message together with a string representation of errno as error.
- *  @param lf  Log priority
- *  @param str String to log
+ *  @param lf Log priority
+ *  @param fmt Format string
+ *  @param ... arguments
  */
 void
-log_errno(int lf, const char* str)
+log_errno(int lf, const char* fmt, ...)
 {
-    log_msg(lf, "%s: '%s'", str, strerror(errno));
+    va_list ap;
+    va_start(ap, fmt);
+    vlog_msgf(log_, lf, fmt, ap, 1);
+    va_end(ap);
 }
 
 
@@ -142,7 +153,7 @@ usage(int exit_status, cli_options_t* options, const char* fmt, ...)
     {
         va_list args;
         va_start(args, fmt);
-        vlog_msgf(log_, LOG_ERR, fmt, args);
+        vlog_msgf(log_, LOG_ERR, fmt, args, 0);
         va_end(args);
     }
 
@@ -200,7 +211,7 @@ fatal(const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    vlog_msgf(log_, LOG_ERR, fmt, args);
+    vlog_msgf(log_, LOG_ERR, fmt, args, 0);
     va_end(args);
     exit(EXIT_FAILURE);
 }

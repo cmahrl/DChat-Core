@@ -31,7 +31,7 @@
   <td id="projectlogo"><img alt="Logo" src="logo.png"/></td>
   <td style="padding-left: 0.5em;">
    <div id="projectname">DChat
-   &#160;<span id="projectnumber">0.1</span>
+   &#160;<span id="projectnumber">0.2</span>
    </div>
   </td>
  </tr>
@@ -127,8 +127,8 @@ $(document).ready(function(){initNavTree('network_8h_source.html','');});
 <div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;</div>
 <div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;<span class="comment">// see: http://web.mit.edu/foley/www/TinFoil/src/tinfoil/TorLib.java</span></div>
 <div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#ifndef DCHAT_NETWORK_H</span></div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#define DCHAT_NETWORK_H</span></div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;<span class="preprocessor">#ifndef NETWORK_H</span></div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;<span class="preprocessor">#define NETWORK_H</span></div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;<span class="preprocessor">#include &lt;stdint.h&gt;</span></div>
 <div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;</div>
@@ -165,33 +165,41 @@ $(document).ready(function(){initNavTree('network_8h_source.html','');});
 <div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;<span class="comment">//*********************************</span></div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;<span class="comment">//       SOCKS FUNCTIONS</span></div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;<span class="comment">//*********************************</span></div>
-<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="keywordtype">int</span> write_socks4a(<span class="keywordtype">int</span> s, <a class="code" href="structsocks4a__pdu.html">socks4a_pdu_t</a>* pdu);</div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="keywordtype">int</span> read_socks4a(<span class="keywordtype">int</span> s, <a class="code" href="structsocks4a__pdu.html">socks4a_pdu_t</a>* pdu);</div>
-<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="keywordtype">char</span>* parse_socks_status(<span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> status);</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;<span class="keywordtype">int</span> <a class="code" href="network_8c.html#abd49b4a8eb0f62dc3be6755729d672b8">write_socks4a</a>(<span class="keywordtype">int</span> s, <a class="code" href="structsocks4a__pdu.html">socks4a_pdu_t</a>* pdu);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;<span class="keywordtype">int</span> <a class="code" href="network_8c.html#a0ace1062fab444c73177e0552e019425">read_socks4a</a>(<span class="keywordtype">int</span> s, <a class="code" href="structsocks4a__pdu.html">socks4a_pdu_t</a>* pdu);</div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;<span class="keywordtype">char</span>* <a class="code" href="network_8c.html#abd3d58b10c19c6d550b6e6aa86c9dc5c">parse_socks_status</a>(<span class="keywordtype">unsigned</span> <span class="keywordtype">char</span> status);</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;<span class="comment">//*********************************</span></div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;<span class="comment">//       TOR FUNCTIONS</span></div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;<span class="comment">//*********************************</span></div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="keywordtype">int</span> create_tor_socket(<span class="keywordtype">char</span>* hostname, uint16_t rport);</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;<span class="keywordtype">int</span> <a class="code" href="network_8c.html#abd951e9fd43b0ec9248ca6ec43398c6b">create_tor_socket</a>(<span class="keywordtype">char</span>* hostname, uint16_t rport);</div>
 <div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;</div>
 <div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
 <div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;<span class="comment">//*********************************</span></div>
 <div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;<span class="comment">//         MISC FUNCTIONS</span></div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;<span class="comment">//*********************************</span></div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="keywordtype">int</span> ip_version(<span class="keyword">struct</span> sockaddr_storage* addr);</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="keywordtype">int</span> connect_to(<span class="keyword">struct</span> sockaddr* sa);</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="keywordtype">int</span> is_valid_port(<span class="keywordtype">int</span> port);</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="keywordtype">int</span> is_valid_onion(<span class="keywordtype">char</span>* onion_id);</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;<span class="keywordtype">int</span> <a class="code" href="network_8c.html#a279f65250f814269adbaadf7f94680c5">ip_version</a>(<span class="keyword">struct</span> sockaddr_storage* addr);</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="keywordtype">int</span> <a class="code" href="network_8c.html#a77de9c9eb5a8ea2a6da108270bd7417e">connect_to</a>(<span class="keyword">struct</span> sockaddr* sa);</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;<span class="keywordtype">int</span> <a class="code" href="network_8c.html#a53aa686284d28600afef0e06d7ab3d54">is_valid_port</a>(<span class="keywordtype">int</span> port);</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;<span class="keywordtype">int</span> <a class="code" href="network_8c.html#a139629f69df293ba1da88fea96af5e5e">is_valid_onion</a>(<span class="keywordtype">char</span>* onion_id);</div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div>
 <div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;<span class="preprocessor">#endif</span></div>
 <div class="ttc" id="structsocks4a__pdu_html_a1a5aaa930940857f68f245eeb89506b5"><div class="ttname"><a href="structsocks4a__pdu.html#a1a5aaa930940857f68f245eeb89506b5">socks4a_pdu::command</a></div><div class="ttdeci">uint8_t command</div><div class="ttdoc">SOCKS command type (e.g. CONNECT, BIND, ...) </div><div class="ttdef"><b>Definition:</b> <a href="network_8h_source.html#l00052">network.h:52</a></div></div>
+<div class="ttc" id="network_8c_html_a0ace1062fab444c73177e0552e019425"><div class="ttname"><a href="network_8c.html#a0ace1062fab444c73177e0552e019425">read_socks4a</a></div><div class="ttdeci">int read_socks4a(int s, socks4a_pdu_t *pdu)</div><div class="ttdoc">Reads a SOCKS response PDU from the given socket. </div><div class="ttdef"><b>Definition:</b> <a href="network_8c_source.html#l00091">network.c:91</a></div></div>
 <div class="ttc" id="structsocks4a__pdu_html_a8e0798404bf2cf5dabb84c5ba9a4f236"><div class="ttname"><a href="structsocks4a__pdu.html#a8e0798404bf2cf5dabb84c5ba9a4f236">socks4a_pdu::port</a></div><div class="ttdeci">uint16_t port</div><div class="ttdoc">port of remote client </div><div class="ttdef"><b>Definition:</b> <a href="network_8h_source.html#l00053">network.h:53</a></div></div>
+<div class="ttc" id="network_8c_html_abd3d58b10c19c6d550b6e6aa86c9dc5c"><div class="ttname"><a href="network_8c.html#abd3d58b10c19c6d550b6e6aa86c9dc5c">parse_socks_status</a></div><div class="ttdeci">char * parse_socks_status(unsigned char status)</div><div class="ttdoc">Parses given status and returns its corresponding status message. </div><div class="ttdef"><b>Definition:</b> <a href="network_8c_source.html#l00114">network.c:114</a></div></div>
 <div class="ttc" id="structsocks4a__pdu_html_af203df082d5c6dcaa0c88b07cf86466d"><div class="ttname"><a href="structsocks4a__pdu.html#af203df082d5c6dcaa0c88b07cf86466d">socks4a_pdu::hostname</a></div><div class="ttdeci">char * hostname</div><div class="ttdoc">domain name of client to connect to </div><div class="ttdef"><b>Definition:</b> <a href="network_8h_source.html#l00056">network.h:56</a></div></div>
+<div class="ttc" id="network_8c_html_a53aa686284d28600afef0e06d7ab3d54"><div class="ttname"><a href="network_8c.html#a53aa686284d28600afef0e06d7ab3d54">is_valid_port</a></div><div class="ttdeci">int is_valid_port(int port)</div><div class="ttdoc">Checks wether the given port is a valid TCP port. </div><div class="ttdef"><b>Definition:</b> <a href="network_8c_source.html#l00270">network.c:270</a></div></div>
 <div class="ttc" id="structsocks4a__pdu_html"><div class="ttname"><a href="structsocks4a__pdu.html">socks4a_pdu</a></div><div class="ttdef"><b>Definition:</b> <a href="network_8h_source.html#l00049">network.h:49</a></div></div>
 <div class="ttc" id="structsocks4a__pdu_html_ab22abc2906422da61885ac6c8e6a1a59"><div class="ttname"><a href="structsocks4a__pdu.html#ab22abc2906422da61885ac6c8e6a1a59">socks4a_pdu::version</a></div><div class="ttdeci">uint8_t version</div><div class="ttdoc">SOCKS version (e.g 4/5) </div><div class="ttdef"><b>Definition:</b> <a href="network_8h_source.html#l00051">network.h:51</a></div></div>
 <div class="ttc" id="structsocks4a__pdu_html_a6545bb74d2857135a6f39ad6e3cb6968"><div class="ttname"><a href="structsocks4a__pdu.html#a6545bb74d2857135a6f39ad6e3cb6968">socks4a_pdu::fakeip</a></div><div class="ttdeci">uint32_t fakeip</div><div class="ttdoc">invalid ip address (see: SOCKS4a protocol) </div><div class="ttdef"><b>Definition:</b> <a href="network_8h_source.html#l00054">network.h:54</a></div></div>
+<div class="ttc" id="network_8c_html_abd951e9fd43b0ec9248ca6ec43398c6b"><div class="ttname"><a href="network_8c.html#abd951e9fd43b0ec9248ca6ec43398c6b">create_tor_socket</a></div><div class="ttdeci">int create_tor_socket(char *hostname, uint16_t rport)</div><div class="ttdoc">Creates a TOR socket. </div><div class="ttdef"><b>Definition:</b> <a href="network_8c_source.html#l00146">network.c:146</a></div></div>
+<div class="ttc" id="network_8c_html_abd49b4a8eb0f62dc3be6755729d672b8"><div class="ttname"><a href="network_8c.html#abd49b4a8eb0f62dc3be6755729d672b8">write_socks4a</a></div><div class="ttdeci">int write_socks4a(int s, socks4a_pdu_t *pdu)</div><div class="ttdoc">Writes a SOCKS PDU to the given socket. </div><div class="ttdef"><b>Definition:</b> <a href="network_8c_source.html#l00046">network.c:46</a></div></div>
+<div class="ttc" id="network_8c_html_a77de9c9eb5a8ea2a6da108270bd7417e"><div class="ttname"><a href="network_8c.html#a77de9c9eb5a8ea2a6da108270bd7417e">connect_to</a></div><div class="ttdeci">int connect_to(struct sockaddr *sa)</div><div class="ttdoc">Connects to a remote socket using the given socket address. </div><div class="ttdef"><b>Definition:</b> <a href="network_8c_source.html#l00243">network.c:243</a></div></div>
+<div class="ttc" id="network_8c_html_a139629f69df293ba1da88fea96af5e5e"><div class="ttname"><a href="network_8c.html#a139629f69df293ba1da88fea96af5e5e">is_valid_onion</a></div><div class="ttdeci">int is_valid_onion(char *onion_id)</div><div class="ttdoc">Checks wether the given onion-id is a valid onion address. </div><div class="ttdef"><b>Definition:</b> <a href="network_8c_source.html#l00288">network.c:288</a></div></div>
+<div class="ttc" id="network_8c_html_a279f65250f814269adbaadf7f94680c5"><div class="ttname"><a href="network_8c.html#a279f65250f814269adbaadf7f94680c5">ip_version</a></div><div class="ttdeci">int ip_version(struct sockaddr_storage *address)</div><div class="ttdoc">Determines the address family of the given socket address structure. </div><div class="ttdef"><b>Definition:</b> <a href="network_8c_source.html#l00220">network.c:220</a></div></div>
 <div class="ttc" id="structsocks4a__pdu_html_a4cd2c3e1e61dc96897ace681fbc03e0d"><div class="ttname"><a href="structsocks4a__pdu.html#a4cd2c3e1e61dc96897ace681fbc03e0d">socks4a_pdu::delim</a></div><div class="ttdeci">uint8_t delim</div><div class="ttdoc">SOCKS delimiter. </div><div class="ttdef"><b>Definition:</b> <a href="network_8h_source.html#l00055">network.h:55</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
@@ -199,7 +207,7 @@ $(document).ready(function(){initNavTree('network_8h_source.html','');});
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_12ad7392b61b52cb4e8f47577c4b2c84.html">dchat_h</a></li><li class="navelem"><b>network.h</b></li>
-    <li class="footer">Generated on Fri Jun 27 2014 15:22:33 for DChat by
+    <li class="footer">Generated on Fri Aug 8 2014 11:32:18 for DChat by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.7 </li>
   </ul>

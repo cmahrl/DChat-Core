@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['fatal',['fatal',['../log_8c.html#a677da14e8c4326bde43622f233f1ead3',1,'log.c']]]
+  ['encode_5fheader',['encode_header',['../decoder_8c.html#ae5745b50cd3cc0aa6228e35d08690fdc',1,'decoder.c']]]
 ];

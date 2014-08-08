@@ -1,8 +1,10 @@
 var searchData=
 [
-  ['log_2ec',['log.c',['../log_8c.html',1,'']]],
-  ['log_5ferrno',['log_errno',['../log_8c.html#a447124894e44d19ff906633927930c19',1,'log.c']]],
-  ['log_5fhex',['log_hex',['../log_8c.html#aa05818180f0330abd9c560438913101f',1,'log.c']]],
-  ['log_5fmsg',['log_msg',['../log_8c.html#a021b18b681712d42cb07c99171691a84',1,'log.c']]],
-  ['lport',['lport',['../structdchat__pdu.html#a6f925c9e95620edf72f6801253c466fc',1,'dchat_pdu::lport()'],['../structcontact.html#a6f925c9e95620edf72f6801253c466fc',1,'contact::lport()']]]
+  ['handle_5flocal_5fconn_5frequest',['handle_local_conn_request',['../dchat_8c.html#ae2c246a2244b6435d0b307f0e893b0c6',1,'dchat.c']]],
+  ['handle_5flocal_5finput',['handle_local_input',['../dchat_8c.html#af26d1f15348f568261ddb15d886dbaff',1,'dchat.c']]],
+  ['handle_5fremote_5fconn_5frequest',['handle_remote_conn_request',['../dchat_8c.html#a5c79a63478c0df6d16f70940e53338d1',1,'dchat.c']]],
+  ['handle_5fremote_5finput',['handle_remote_input',['../dchat_8c.html#a2cbf2aad21d016dd4852369423d86270',1,'dchat.c']]],
+  ['help_5fparse',['help_parse',['../option_8c.html#a10f1d61c2c63273f416367de493bf5d9',1,'option.c']]],
+  ['hlp_5fexec',['hlp_exec',['../cmdinterpreter_8c.html#afe98f05a74bf03fd79e915b594de9bb5',1,'cmdinterpreter.c']]],
+  ['hostname',['hostname',['../structsocks4a__pdu.html#af203df082d5c6dcaa0c88b07cf86466d',1,'socks4a_pdu']]]
 ];

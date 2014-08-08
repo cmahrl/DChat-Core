@@ -1,0 +1,5 @@
+<map id="realloc_contactlist" name="realloc_contactlist">
+<area shape="rect" id="node2" href="$log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="181,5,253,32"/>
+<area shape="rect" id="node4" href="$log_8c.html#a677da14e8c4326bde43622f233f1ead3" title="Prints an error message and terminates this program. " alt="" coords="194,56,241,83"/>
+<area shape="rect" id="node3" href="$log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="301,31,384,57"/>
+</map>

@@ -31,7 +31,7 @@
   <td id="projectlogo"><img alt="Logo" src="logo.png"/></td>
   <td style="padding-left: 0.5em;">
    <div id="projectname">DChat
-   &#160;<span id="projectnumber">0.1</span>
+   &#160;<span id="projectnumber">0.2</span>
    </div>
   </td>
  </tr>
@@ -120,12 +120,13 @@ $(document).ready(function(){initNavTree('log_8c.html','');});
 <code>#include &lt;errno.h&gt;</code><br />
 <code>#include &lt;readline/readline.h&gt;</code><br />
 <code>#include &quot;dchat_h/log.h&quot;</code><br />
+<code>#include &quot;dchat_h/option.h&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for log.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="log_8c__incl.png" border="0" usemap="#src_2log_8c" alt=""/></div>
 <map name="src_2log_8c" id="src_2log_8c">
-<area shape="rect" id="node9" href="log_8h_source.html" title="dchat_h/log.h" alt="" coords="207,80,309,107"/></map>
+<area shape="rect" id="node9" href="log_8h_source.html" title="dchat_h/log.h" alt="" coords="119,80,221,107"/><area shape="rect" id="node10" href="option_8h_source.html" title="option.h" alt="" coords="219,155,288,181"/><area shape="rect" id="node12" href="types_8h_source.html" title="types.h" alt="" coords="266,229,331,256"/><area shape="rect" id="node14" href="network_8h_source.html" title="network.h" alt="" coords="313,304,393,331"/></map>
 </div>
 </div>
 <p><a href="log_8c_source.html">Go to the source code of this file.</a></p>
@@ -138,21 +139,21 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ac74eb6bdf382e22aec6303d2a1ea5802"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8c.html#ac74eb6bdf382e22aec6303d2a1ea5802">vlog_msgf</a> (FILE *out, int lf, const char *fmt, va_list ap)</td></tr>
-<tr class="memdesc:ac74eb6bdf382e22aec6303d2a1ea5802"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log a message to a file.  <a href="#ac74eb6bdf382e22aec6303d2a1ea5802">More...</a><br /></td></tr>
-<tr class="separator:ac74eb6bdf382e22aec6303d2a1ea5802"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38678da7483f269b8c96f83a8f45ef12"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8c.html#a38678da7483f269b8c96f83a8f45ef12">vlog_msgf</a> (FILE *out, int lf, const char *fmt, va_list ap, int with_errno)</td></tr>
+<tr class="memdesc:a38678da7483f269b8c96f83a8f45ef12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log a message to a file.  <a href="#a38678da7483f269b8c96f83a8f45ef12">More...</a><br /></td></tr>
+<tr class="separator:a38678da7483f269b8c96f83a8f45ef12"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a021b18b681712d42cb07c99171691a84"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8c.html#a021b18b681712d42cb07c99171691a84">log_msg</a> (int lf, const char *fmt,...)</td></tr>
 <tr class="memdesc:a021b18b681712d42cb07c99171691a84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log a message.  <a href="#a021b18b681712d42cb07c99171691a84">More...</a><br /></td></tr>
 <tr class="separator:a021b18b681712d42cb07c99171691a84"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a447124894e44d19ff906633927930c19"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8c.html#a447124894e44d19ff906633927930c19">log_errno</a> (int lf, const char *str)</td></tr>
-<tr class="memdesc:a447124894e44d19ff906633927930c19"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log a message together with a string representation of errno as error.  <a href="#a447124894e44d19ff906633927930c19">More...</a><br /></td></tr>
-<tr class="separator:a447124894e44d19ff906633927930c19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aba81f1b639baac0f96848d9cb3a3b207"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8c.html#aba81f1b639baac0f96848d9cb3a3b207">log_errno</a> (int lf, const char *fmt,...)</td></tr>
+<tr class="memdesc:aba81f1b639baac0f96848d9cb3a3b207"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log a message together with a string representation of errno as error.  <a href="#aba81f1b639baac0f96848d9cb3a3b207">More...</a><br /></td></tr>
+<tr class="separator:aba81f1b639baac0f96848d9cb3a3b207"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa05818180f0330abd9c560438913101f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8c.html#aa05818180f0330abd9c560438913101f">log_hex</a> (int lf, const void *buf, int len)</td></tr>
 <tr class="memdesc:aa05818180f0330abd9c560438913101f"><td class="mdescLeft">&#160;</td><td class="mdescRight">This function output len bytes starting at buf in hexadecimal numbers.  <a href="#aa05818180f0330abd9c560438913101f">More...</a><br /></td></tr>
 <tr class="separator:aa05818180f0330abd9c560438913101f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6564442c4eebad44d91a14de573d24fa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8c.html#a6564442c4eebad44d91a14de573d24fa">usage</a> (const char *fmt,...)</td></tr>
-<tr class="memdesc:a6564442c4eebad44d91a14de573d24fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints usage of this program.  <a href="#a6564442c4eebad44d91a14de573d24fa">More...</a><br /></td></tr>
-<tr class="separator:a6564442c4eebad44d91a14de573d24fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e302d3ca022f632108e1704e2aa166c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8c.html#a1e302d3ca022f632108e1704e2aa166c">usage</a> (int exit_status, <a class="el" href="structcli__options.html">cli_options_t</a> *options, const char *fmt,...)</td></tr>
+<tr class="memdesc:a1e302d3ca022f632108e1704e2aa166c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints usage of this program.  <a href="#a1e302d3ca022f632108e1704e2aa166c">More...</a><br /></td></tr>
+<tr class="separator:a1e302d3ca022f632108e1704e2aa166c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a677da14e8c4326bde43622f233f1ead3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8c.html#a677da14e8c4326bde43622f233f1ead3">fatal</a> (const char *fmt,...)</td></tr>
 <tr class="memdesc:a677da14e8c4326bde43622f233f1ead3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints an error message and terminates this program.  <a href="#a677da14e8c4326bde43622f233f1ead3">More...</a><br /></td></tr>
 <tr class="separator:a677da14e8c4326bde43622f233f1ead3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -218,20 +219,20 @@ char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="lo
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="log_8c_source.html#l00170">170</a> of file <a class="el" href="log_8c_source.html">log.c</a>.</p>
+<p>Definition at line <a class="el" href="log_8c_source.html#l00210">210</a> of file <a class="el" href="log_8c_source.html">log.c</a>.</p>
 
 <p><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="log_8c_a677da14e8c4326bde43622f233f1ead3_cgraph.png" border="0" usemap="#log_8c_a677da14e8c4326bde43622f233f1ead3_cgraph" alt=""/></div>
 <map name="log_8c_a677da14e8c4326bde43622f233f1ead3_cgraph" id="log_8c_a677da14e8c4326bde43622f233f1ead3_cgraph">
-<area shape="rect" id="node2" href="log_8c.html#ac74eb6bdf382e22aec6303d2a1ea5802" title="Log a message to a file. " alt="" coords="101,5,184,32"/></map>
+<area shape="rect" id="node2" href="log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="101,5,184,32"/></map>
 </div>
 </p>
 
 </div>
 </div>
-<a class="anchor" id="a447124894e44d19ff906633927930c19"></a>
+<a class="anchor" id="aba81f1b639baac0f96848d9cb3a3b207"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -245,7 +246,13 @@ Here is the call graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>str</em>&#160;</td>
+          <td class="paramname"><em>fmt</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>...</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -259,19 +266,20 @@ Here is the call graph for this function:</div>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">lf</td><td>Log priority </td></tr>
-    <tr><td class="paramname">str</td><td>String to log </td></tr>
+    <tr><td class="paramname">fmt</td><td>Format string </td></tr>
+    <tr><td class="paramname">...</td><td>arguments </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="log_8c_source.html#l00092">92</a> of file <a class="el" href="log_8c_source.html">log.c</a>.</p>
+<p>Definition at line <a class="el" href="log_8c_source.html#l00101">101</a> of file <a class="el" href="log_8c_source.html">log.c</a>.</p>
 
 <p><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="log_8c_a447124894e44d19ff906633927930c19_cgraph.png" border="0" usemap="#log_8c_a447124894e44d19ff906633927930c19_cgraph" alt=""/></div>
-<map name="log_8c_a447124894e44d19ff906633927930c19_cgraph" id="log_8c_a447124894e44d19ff906633927930c19_cgraph">
-<area shape="rect" id="node2" href="log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="133,5,205,32"/><area shape="rect" id="node3" href="log_8c.html#ac74eb6bdf382e22aec6303d2a1ea5802" title="Log a message to a file. " alt="" coords="253,5,336,32"/></map>
+<div class="center"><img src="log_8c_aba81f1b639baac0f96848d9cb3a3b207_cgraph.png" border="0" usemap="#log_8c_aba81f1b639baac0f96848d9cb3a3b207_cgraph" alt=""/></div>
+<map name="log_8c_aba81f1b639baac0f96848d9cb3a3b207_cgraph" id="log_8c_aba81f1b639baac0f96848d9cb3a3b207_cgraph">
+<area shape="rect" id="node2" href="log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="133,5,216,32"/></map>
 </div>
 </p>
 
@@ -317,14 +325,14 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="log_8c_source.html#l00105">105</a> of file <a class="el" href="log_8c_source.html">log.c</a>.</p>
+<p>Definition at line <a class="el" href="log_8c_source.html#l00117">117</a> of file <a class="el" href="log_8c_source.html">log.c</a>.</p>
 
 <p><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="log_8c_aa05818180f0330abd9c560438913101f_cgraph.png" border="0" usemap="#log_8c_aa05818180f0330abd9c560438913101f_cgraph" alt=""/></div>
 <map name="log_8c_aa05818180f0330abd9c560438913101f_cgraph" id="log_8c_aa05818180f0330abd9c560438913101f_cgraph">
-<area shape="rect" id="node2" href="log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="123,5,195,32"/><area shape="rect" id="node3" href="log_8c.html#ac74eb6bdf382e22aec6303d2a1ea5802" title="Log a message to a file. " alt="" coords="243,5,325,32"/></map>
+<area shape="rect" id="node2" href="log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="123,5,195,32"/><area shape="rect" id="node3" href="log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="243,5,325,32"/></map>
 </div>
 </p>
 
@@ -370,14 +378,14 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="log_8c_source.html#l00077">77</a> of file <a class="el" href="log_8c_source.html">log.c</a>.</p>
+<p>Definition at line <a class="el" href="log_8c_source.html#l00085">85</a> of file <a class="el" href="log_8c_source.html">log.c</a>.</p>
 
 <p><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="log_8c_a021b18b681712d42cb07c99171691a84_cgraph.png" border="0" usemap="#log_8c_a021b18b681712d42cb07c99171691a84_cgraph" alt=""/></div>
 <map name="log_8c_a021b18b681712d42cb07c99171691a84_cgraph" id="log_8c_a021b18b681712d42cb07c99171691a84_cgraph">
-<area shape="rect" id="node2" href="log_8c.html#ac74eb6bdf382e22aec6303d2a1ea5802" title="Log a message to a file. " alt="" coords="125,5,208,32"/></map>
+<area shape="rect" id="node2" href="log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="125,5,208,32"/></map>
 </div>
 </p>
 
@@ -423,7 +431,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="log_8c_source.html#l00242">242</a> of file <a class="el" href="log_8c_source.html">log.c</a>.</p>
+<p>Definition at line <a class="el" href="log_8c_source.html#l00282">282</a> of file <a class="el" href="log_8c_source.html">log.c</a>.</p>
 
 <p><div class="dynheader">
 Here is the call graph for this function:</div>
@@ -436,13 +444,25 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a class="anchor" id="a6564442c4eebad44d91a14de573d24fa"></a>
+<a class="anchor" id="a1e302d3ca022f632108e1704e2aa166c"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">void usage </td>
           <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>exit_status</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structcli__options.html">cli_options_t</a> *&#160;</td>
+          <td class="paramname"><em>options</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">const char *&#160;</td>
           <td class="paramname"><em>fmt</em>, </td>
         </tr>
@@ -463,26 +483,29 @@ Here is the call graph for this function:</div>
 <p>Prints usage of this program. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramname">exit_status</td><td>Status of termination </td></tr>
+    <tr><td class="paramname">options</td><td>Array of options supported </td></tr>
+    <tr><td class="paramname">size</td><td>Size of array </td></tr>
     <tr><td class="paramname">Format</td><td>string </td></tr>
     <tr><td class="paramname">...</td><td>arguments </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="log_8c_source.html#l00137">137</a> of file <a class="el" href="log_8c_source.html">log.c</a>.</p>
+<p>Definition at line <a class="el" href="log_8c_source.html#l00150">150</a> of file <a class="el" href="log_8c_source.html">log.c</a>.</p>
 
 <p><div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="log_8c_a6564442c4eebad44d91a14de573d24fa_cgraph.png" border="0" usemap="#log_8c_a6564442c4eebad44d91a14de573d24fa_cgraph" alt=""/></div>
-<map name="log_8c_a6564442c4eebad44d91a14de573d24fa_cgraph" id="log_8c_a6564442c4eebad44d91a14de573d24fa_cgraph">
-<area shape="rect" id="node2" href="log_8c.html#ac74eb6bdf382e22aec6303d2a1ea5802" title="Log a message to a file. " alt="" coords="112,5,195,32"/></map>
+<div class="center"><img src="log_8c_a1e302d3ca022f632108e1704e2aa166c_cgraph.png" border="0" usemap="#log_8c_a1e302d3ca022f632108e1704e2aa166c_cgraph" alt=""/></div>
+<map name="log_8c_a1e302d3ca022f632108e1704e2aa166c_cgraph" id="log_8c_a1e302d3ca022f632108e1704e2aa166c_cgraph">
+<area shape="rect" id="node2" href="log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="112,5,195,32"/></map>
 </div>
 </p>
 
 </div>
 </div>
-<a class="anchor" id="ac74eb6bdf382e22aec6303d2a1ea5802"></a>
+<a class="anchor" id="a38678da7483f269b8c96f83a8f45ef12"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -508,7 +531,13 @@ Here is the call graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">va_list&#160;</td>
-          <td class="paramname"><em>ap</em>&#160;</td>
+          <td class="paramname"><em>ap</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>with_errno</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -525,11 +554,12 @@ Here is the call graph for this function:</div>
     <tr><td class="paramname">lf</td><td>Logging priority (equal to syslog) </td></tr>
     <tr><td class="paramname">fmt</td><td>Format string </td></tr>
     <tr><td class="paramname">ap</td><td>Variable parameter list </td></tr>
+    <tr><td class="paramname">with_errno</td><td>Flag if errno should be printed too </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="log_8c_source.html#l00046">46</a> of file <a class="el" href="log_8c_source.html">log.c</a>.</p>
+<p>Definition at line <a class="el" href="log_8c_source.html#l00048">48</a> of file <a class="el" href="log_8c_source.html">log.c</a>.</p>
 
 </div>
 </div>
@@ -539,7 +569,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="log_8c.html">log.c</a></li>
-    <li class="footer">Generated on Fri Jun 27 2014 15:22:33 for DChat by
+    <li class="footer">Generated on Fri Aug 8 2014 11:32:18 for DChat by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.7 </li>
   </ul>

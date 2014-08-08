@@ -36,12 +36,6 @@
 
 
 //*********************************
-//         MISC FUNCTIONS
-//*********************************
-int read_conf(dchat_conf_t* cnf);
-
-
-//*********************************
 //      INIT/DESTROY FUNCTIONS
 //*********************************
 int init_global_config(dchat_conf_t* cnf);

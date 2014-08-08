@@ -2,12 +2,12 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([dchat], [0.1], [christoph.mahrl@gmail.com])
+AC_INIT([dchat], [0.2], [christoph.mahrl@gmail.com])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_SRCDIR([src/dchat.c])
 AC_CONFIG_HEADERS([config.h])
 
-AC_DEFINE([CONFIG_PATH], "/usr/local/etc/dchat.conf", [Path to configuration diretory])
+AC_DEFINE([CONFIG_PATH], "/usr/local/etc/dchat/dchat.conf", [Path to configuration diretory])
 
 # Checks for programs.
 AC_PROG_CC

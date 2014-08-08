@@ -1,0 +1,5 @@
+<map id="init_listening" name="init_listening">
+<area shape="rect" id="node2" href="$log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="153,5,225,32"/>
+<area shape="rect" id="node4" href="$log_8c.html#aba81f1b639baac0f96848d9cb3a3b207" title="Log a message together with a string representation of errno as error. " alt="" coords="150,56,229,83"/>
+<area shape="rect" id="node3" href="$log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="277,31,360,57"/>
+</map>

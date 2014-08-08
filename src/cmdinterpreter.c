@@ -32,6 +32,7 @@
 #include "dchat_h/cmdinterpreter.h"
 #include "dchat_h/types.h"
 #include "dchat_h/log.h"
+#include "dchat_h/util.h"
 
 
 /**
@@ -51,13 +52,14 @@ parse_cmd(dchat_conf_t* cnf, char* line)
     int ret = -1;
     char* line_temp;
 
-    if(init_cmds(&cmds) == -1)
+    if (init_cmds(&cmds) == -1)
     {
         return -1;
     }
 
     line_temp = malloc(strlen(line) + 1);
-    if(line_temp == NULL)
+
+    if (line_temp == NULL)
     {
         fatal("Memory allocation for command line failed!");
     }
@@ -65,20 +67,21 @@ parse_cmd(dchat_conf_t* cnf, char* line)
     line_temp[0] = '\0';
     strcat(line_temp, line);
 
-    if((cmd = strtok_r(line_temp, delim, &arg)) == NULL)
+    if ((cmd = strtok_r(line_temp, delim, &arg)) == NULL)
     {
         free(line_temp);
         return -1;
     }
 
-    for(int i = 0; i < CMD_AMOUNT; i++)
+    for (int i = 0; i < CMD_AMOUNT; i++)
     {
-        if(!strcmp(cmd, cmds.cmd[i].cmd_name))
+        if (!strcmp(cmd, cmds.cmd[i].cmd_name))
         {
-            if((ret = cmds.cmd[i].execute(cnf, arg)) == 1)
+            if ((ret = cmds.cmd[i].execute(cnf, arg)) == 1)
             {
                 log_msg(LOG_NOTICE, "Command syntax: %s", cmds.cmd[i].syntax);
             }
+
             break;
         }
     }
@@ -106,7 +109,6 @@ init_cmds(cmds_t* cmds)
         COMMAND(CMD_ID_CON, CMD_NAME_CON, CMD_ARG_CON, con_exec),
         COMMAND(CMD_ID_LST, CMD_NAME_LST, CMD_ARG_LST, lst_exec)
     };
-    
     temp_size = sizeof(temp) / sizeof(temp[0]);
 
     if (temp_size > CMD_AMOUNT)
@@ -124,17 +126,19 @@ init_cmds(cmds_t* cmds)
  * Prints help.
  * @return 0 on success, 1 on syntax error, -1 otherwise
  */
-int 
-hlp_exec(dchat_conf_t* cnf, char* arg){
+int
+hlp_exec(dchat_conf_t* cnf, char* arg)
+{
     cmds_t cmds;
 
-    if(init_cmds(&cmds) == -1)
+    if (init_cmds(&cmds) == -1)
     {
         return -1;
     }
 
     log_msg(LOG_NOTICE, "Available Commands: ");
-    for(int i = 0; i < CMD_AMOUNT; i++)
+
+    for (int i = 0; i < CMD_AMOUNT; i++)
     {
         log_msg(LOG_NOTICE, "%s",cmds.cmd[i].syntax);
     }
@@ -147,8 +151,9 @@ hlp_exec(dchat_conf_t* cnf, char* arg){
  * Connects to a remote host.
  * @return 0 on success, 1 on syntax error, -1 otherwise
  */
-int 
-con_exec(dchat_conf_t* cnf, char* arg){
+int
+con_exec(dchat_conf_t* cnf, char* arg)
+{
     char* address;
     char* port_str;
     int port;
@@ -156,10 +161,7 @@ con_exec(dchat_conf_t* cnf, char* arg){
     char* prefix;
 
     // if the string contains more spaces the pointer is after the loop at a non-space char
-    for (; isspace(*arg); arg++);
-
-    // empty string?
-    if (*arg == '\0')
+    if (remove_leading_spaces(arg) == NULL)
     {
         return 1;
     }
@@ -201,11 +203,12 @@ con_exec(dchat_conf_t* cnf, char* arg){
 
 
 /**
- * Lists alls contacts within the local contactlist. 
+ * Lists alls contacts within the local contactlist.
  * @return 0 on success, 1 on syntax error, -1 otherwise
  */
-int 
-lst_exec(dchat_conf_t* cnf, char* arg){
+int
+lst_exec(dchat_conf_t* cnf, char* arg)
+{
     int i;
 
     // are there no contacts in the list a message will be printed
@@ -225,9 +228,9 @@ lst_exec(dchat_conf_t* cnf, char* arg){
                 log_msg(LOG_NOTICE, "Contact................%s", cnf->cl.contact[i].name);
                 log_msg(LOG_NOTICE, "Onion-ID...............%s", cnf->cl.contact[i].onion_id);
                 log_msg(LOG_NOTICE, "Hidden-Port............%hu", cnf->cl.contact[i].lport);
-
             }
         }
     }
+
     return 0;
 }

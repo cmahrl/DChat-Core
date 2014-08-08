@@ -72,34 +72,37 @@ main(int argc, char** argv)
 {
     char option[2];                     // getopt option
     int required = 0;                   // counter for required options
-    char* short_opts;                   // gnu getopt string
+    int required_set = 0;               // counter for set required options
+    char* short_opts   = NULL;          // gnu getopt string
     struct option* long_opts;           // gnu getopt long options
     int found_opt;                      // boolean if opt has been found
     cli_options_t options;              // available command line options
-    char* remote_onion;                 // onion id of remote host
+    char* remote_onion = NULL;          // onion id of remote host
     int rport;                          // remote port
     int ret;
 
-    if(init_global_config(&cnf) == -1)
+    if (init_global_config(&cnf) == -1)
     {
         fatal("Initialization of global configuration failed!");
     }
-    if(init_cli_options(&options) == -1)
+
+    if (init_cli_options(&options) == -1)
     {
         fatal("Initialization of command line options failed!");
-       
     }
+
     short_opts = get_short_options(&options);
     long_opts = get_long_options(&options);
 
     // deterime amount of required options
-    for(int i = 0; i < CLI_OPT_AMOUNT; i++)
+    for (int i = 0; i < CLI_OPT_AMOUNT; i++)
     {
-        if(options.option[i].mandatory_option)
+        if (options.option[i].mandatory_option)
         {
             required++;
         }
     }
+
     while (1)
     {
         ret = getopt_long(argc, argv, short_opts, long_opts, 0);
@@ -112,27 +115,32 @@ main(int argc, char** argv)
 
         option[0] = ret;
         option[1] = '\0';
-        
+        // iterate available options
         found_opt = 0;
-        for(int i = 0; i < CLI_OPT_AMOUNT; i++)
+
+        for (int i = 0; i < CLI_OPT_AMOUNT; i++)
         {
-            if(!strncmp(&options.option[i].opt, option, 1))
+            if (!strncmp(&options.option[i].opt, option, 1))
             {
-                if(options.option[i].mandatory_option)
-                {
-                    //FIXME: decrement only, if option has not
-                    //been specified yet
-                    required--;
-                }
                 found_opt = 1;
-                if(options.option[i].parse_option(&cnf, optarg, 1) == -1)
+
+                if ((ret = options.option[i].parse_option(&cnf, optarg, 1)) == -1)
                 {
-                    usage(EXIT_FAILURE, &options, "Invalid argument '%s' for option '-%c / --%s'", optarg, options.option[i].opt, options.option[i].long_opt);
+                    usage(EXIT_FAILURE, &options, "Invalid argument '%s' for option '-%c / --%s'",
+                          optarg, options.option[i].opt, options.option[i].long_opt);
+                }
+
+                // increment counter of set required options
+                // if the parsing function has set the options value
+                // in the global conf
+                if (options.option[i].mandatory_option && !ret)
+                {
+                    required_set++;
                 }
             }
         }
-        
-        if(!found_opt)
+
+        if (!found_opt)
         {
             usage(EXIT_FAILURE, &options, "Invalid command-line option!");
         }
@@ -148,15 +156,27 @@ main(int argc, char** argv)
         free(long_opts);
     }
 
-    if((ret = read_conf(&cnf)) == -1)
+    // read configuration file if existent and set corresponding
+    // values in the global config
+    if ((ret = file_exists(CONFIG_PATH)) == 1)
     {
-        fatal("Configuration file contains errors!");
+        if ((ret = read_conf(&cnf, CONFIG_PATH, &required_set)) == -1)
+        {
+            log_msg(LOG_WARN, "Reading configuration file failed!");
+        }
+
+        if (ret > 0)
+        {
+            log_msg(LOG_WARN, "Syntax error in line '%d' of config file!", ret);
+        }
+    }
+    else if (ret == -1)
+    {
+        log_errno(LOG_WARN, "Could not read configuration file '%s'!", CONFIG_PATH);
     }
 
-    required -= ret;
-
     // check if all required options have been specified
-    if (required != 0)
+    if (required != required_set)
     {
         usage(EXIT_FAILURE, &options, "Missing mandatory command-line options!");
     }
@@ -168,11 +188,13 @@ main(int argc, char** argv)
     }
 
     // create listening socket
-    if(init_listening(&cnf, LISTEN_ADDR) == -1){
+    if (init_listening(&cnf, LISTEN_ADDR) == -1)
+    {
         fatal("Initialization of listening socket failed!");
     }
 
-    if(cnf.cl.used_contacts == 1){
+    if (cnf.cl.used_contacts == 1)
+    {
         remote_onion = cnf.cl.contact[0].onion_id;
         rport = cnf.cl.contact[0].lport;
     }
@@ -183,24 +205,33 @@ main(int argc, char** argv)
         fatal("Initialization of threads failed!");
     }
 
-    // has a remote onion address or remote port been specified? if y: connect to it
-    if (remote_onion[0] != '\0' || rport != 0)
+    // has a remote onion address or remote port been specified? (check
+    // fake contact - see: roni_parse() / rprt_parse()) if y: connect to
+    // it
+    if (cnf.cl.used_contacts == 1)
     {
         // use default if onion-id has not been specified
-        if (remote_onion[0] == '\0')
+        if (is_valid_onion(cnf.cl.contact[0].onion_id))
+        {
+            remote_onion = cnf.cl.contact[0].onion_id;
+        }
+        else
         {
             remote_onion = cnf.me.onion_id;
         }
 
         // use default if remote port has not been specified
-        if (rport == 0)
+        if (is_valid_port(cnf.cl.contact[0].lport))
+        {
+            rport = cnf.cl.contact[0].lport;
+        }
+        else
         {
             rport = DEFAULT_PORT;
         }
 
         // delete fake contact
         del_contact(&cnf, 0);
-
         // inform connection handler to connect to the specified
         // remote host
         write(cnf.connect_fd[1], remote_onion, ONION_ADDRLEN);
@@ -217,7 +248,7 @@ main(int argc, char** argv)
 
 /**
  * Initializes basic fields of  the global dchat configuration.
- * Input and output filedescriptor as well as initial values 
+ * Input and output filedescriptor as well as initial values
  * of the contactlist will be set.
  * @param cnf Pointer to global config
  * @return 0 on success, -1 in case of error
@@ -230,7 +261,6 @@ init_global_config(dchat_conf_t* cnf)
     cnf->out_fd           = 1;    // use stdout as output source
     cnf->cl.cl_size       = 0;    // set initial size of contactlist
     cnf->cl.used_contacts = 0;    // no known contacts, at start
-
     return 0;
 }
 
@@ -238,7 +268,7 @@ init_global_config(dchat_conf_t* cnf)
 /**
  * Initializes the listening socket.
  * Binds to a socket address, creates a listening socket for this interface
- * and the given port stored in the global dchat config. 
+ * and the given port stored in the global dchat config.
  * @param cnf Pointer to global configuration structure
  * @param address IP Address for listening
  * @return socket descriptor or -1 if an error occurs
@@ -249,7 +279,6 @@ init_listening(dchat_conf_t* cnf, char* address)
     int s;      // local socket descriptor
     int on = 1; // turn on a socket option
     struct sockaddr_storage sa;
-
     // setup local listening socket address
     memset(&sa, 0, sizeof(sa));
 
@@ -260,7 +289,8 @@ init_listening(dchat_conf_t* cnf, char* address)
     }
 
     ((struct sockaddr_in*)&sa)->sin_family = AF_INET;
-    if(!cnf->me.lport)
+
+    if (!cnf->me.lport)
     {
         cnf->me.lport = DEFAULT_PORT;
         ((struct sockaddr_in*)&sa)->sin_port = htons(DEFAULT_PORT);

@@ -1,0 +1,6 @@
+<map id="del_contact" name="del_contact">
+<area shape="rect" id="node2" href="$log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="320,5,392,32"/>
+<area shape="rect" id="node4" href="$contact_8c.html#a0de7073d40f7447f933e334054d432d8" title="Resizes the contactlist. " alt="" coords="144,56,272,83"/>
+<area shape="rect" id="node3" href="$log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="440,31,523,57"/>
+<area shape="rect" id="node5" href="$log_8c.html#a677da14e8c4326bde43622f233f1ead3" title="Prints an error message and terminates this program. " alt="" coords="333,56,379,83"/>
+</map>

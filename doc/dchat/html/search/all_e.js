@@ -1,5 +1,8 @@
 var searchData=
 [
-  ['version',['version',['../structsocks4a__pdu.html#ab22abc2906422da61885ac6c8e6a1a59',1,'socks4a_pdu']]],
-  ['vlog_5fmsgf',['vlog_msgf',['../log_8c.html#ac74eb6bdf382e22aec6303d2a1ea5802',1,'log.c']]]
+  ['sa',['sa',['../structdchat__conf.html#a36009875905ba03ea3f9bbc472a5f1db',1,'dchat_conf']]],
+  ['select_5fth',['select_th',['../structdchat__conf.html#a99603fa4ab6a0205bb965efd969255b7',1,'dchat_conf']]],
+  ['send_5fcontacts',['send_contacts',['../contact_8c.html#a625b0742c9e1cbd35146d35ecbf25282',1,'contact.c']]],
+  ['socks4a_5fpdu',['socks4a_pdu',['../structsocks4a__pdu.html',1,'']]],
+  ['string_5fto_5fcontact',['string_to_contact',['../contact_8c.html#a5fc6d1fda23da9c12247773139cc9c74',1,'contact.c']]]
 ];

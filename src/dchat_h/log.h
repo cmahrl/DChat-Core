@@ -12,9 +12,9 @@
 //*********************************
 //       LOGGING FUNCTIONS
 //*********************************
-void vlog_msgf(FILE* out, int lf, const char* fmt, va_list ap);
+void vlog_msgf(FILE* out, int lf, const char* fmt, va_list ap, int with_errno);
 void log_msg(int, const char*, ...) __attribute__((format(printf, 2, 3)));
-void log_errno(int, const char*);
+void log_errno(int, const char*, ...);
 void log_hex(int, const void*, int);
 
 

@@ -1,3 +1,30 @@
+2014-08-08  Christoph Mahrl <is121018@fhstp.ac.at>
+
+	* src/util.c: 
+		-) added function `file_exists` and `remove_leading_spaces`
+
+	* src/cmdinterpreter.c: 
+		-) fixed bug that caused a segmentation fault if the command
+		   `/connect` is invoked without arguments. The newly added
+		   function `remove_leading_spaces` from `util.c` has been 
+		   used to fix this bug.
+
+	* src/option.c: 
+		-) added arguments `filepath` and `required_set` to
+		   `read_conf`.
+		-) refactored `read_conf` to be more error prone
+		-) `xxx_parse` functions now return 1 if nothing has been
+		   changed in the global config.
+
+	* src/dchat.c: 
+		-) refactored function `main` to be more error prone if 
+		   a configuration file is existent and therefore read
+
+	* src/log.c: 
+		-) added argument `with_errno` to function `vlog_msgf`
+		-) edited functions `log_msg` and `log_errno` to make use
+		   of the newly added `vlog_msgf` argument.
+
 2014-07-06  Christoph Mahrl <is121018@fhstp.ac.at>
 
 	* src/decoder.c: 

@@ -1,0 +1,8 @@
+<map id="roni_parse" name="roni_parse">
+<area shape="rect" id="node2" href="$network_8c.html#a139629f69df293ba1da88fea96af5e5e" title="Checks wether the given onion&#45;id is a valid onion address. " alt="" coords="139,5,245,32"/>
+<area shape="rect" id="node3" href="$contact_8c.html#a6777b1a477207c7bbc9e560cf9caabed" title="Adds a new contact to the local contactlist. " alt="" coords="145,56,239,83"/>
+<area shape="rect" id="node5" href="$log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="469,107,541,133"/>
+<area shape="rect" id="node4" href="$contact_8c.html#a0de7073d40f7447f933e334054d432d8" title="Resizes the contactlist. " alt="" coords="293,56,421,83"/>
+<area shape="rect" id="node7" href="$log_8c.html#a677da14e8c4326bde43622f233f1ead3" title="Prints an error message and terminates this program. " alt="" coords="482,56,529,83"/>
+<area shape="rect" id="node6" href="$log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="589,81,672,108"/>
+</map>

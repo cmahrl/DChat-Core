@@ -1,0 +1,4 @@
+<map id="connect_to" name="connect_to">
+<area shape="rect" id="node2" href="$log_8c.html#aba81f1b639baac0f96848d9cb3a3b207" title="Log a message together with a string representation of errno as error. " alt="" coords="142,5,221,32"/>
+<area shape="rect" id="node3" href="$log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="269,5,352,32"/>
+</map>

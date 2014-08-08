@@ -1,10 +1,11 @@
 <map id="src/dchat.c" name="src/dchat.c">
-<area shape="rect" id="node17" href="$dchat_8h_source.html" title="dchat_h/dchat.h" alt="" coords="303,80,420,107"/>
-<area shape="rect" id="node18" href="$types_8h_source.html" title="types.h" alt="" coords="682,155,747,181"/>
-<area shape="rect" id="node19" href="$network_8h_source.html" title="network.h" alt="" coords="423,229,503,256"/>
-<area shape="rect" id="node20" href="$decoder_8h_source.html" title="dchat_h/decoder.h" alt="" coords="495,80,627,107"/>
-<area shape="rect" id="node21" href="$contact_8h_source.html" title="dchat_h/contact.h" alt="" coords="651,80,777,107"/>
-<area shape="rect" id="node22" href="$cmdinterpreter_8h_source.html" title="dchat_h/cmdinterpreter.h" alt="" coords="803,80,973,107"/>
-<area shape="rect" id="node23" href="$log_8h_source.html" title="dchat_h/log.h" alt="" coords="74,80,176,107"/>
-<area shape="rect" id="node25" href="$util_8h_source.html" title="dchat_h/util.h" alt="" coords="1099,80,1200,107"/>
+<area shape="rect" id="node17" href="$dchat_8h_source.html" title="dchat_h/dchat.h" alt="" coords="950,80,1067,107"/>
+<area shape="rect" id="node18" href="$types_8h_source.html" title="types.h" alt="" coords="539,229,603,256"/>
+<area shape="rect" id="node19" href="$network_8h_source.html" title="network.h" alt="" coords="531,304,611,331"/>
+<area shape="rect" id="node20" href="$decoder_8h_source.html" title="dchat_h/decoder.h" alt="" coords="609,155,741,181"/>
+<area shape="rect" id="node21" href="$contact_8h_source.html" title="dchat_h/contact.h" alt="" coords="407,155,533,181"/>
+<area shape="rect" id="node22" href="$cmdinterpreter_8h_source.html" title="dchat_h/cmdinterpreter.h" alt="" coords="313,80,483,107"/>
+<area shape="rect" id="node23" href="$option_8h_source.html" title="option.h" alt="" coords="262,155,331,181"/>
+<area shape="rect" id="node24" href="$log_8h_source.html" title="dchat_h/log.h" alt="" coords="84,80,186,107"/>
+<area shape="rect" id="node26" href="$util_8h_source.html" title="dchat_h/util.h" alt="" coords="774,80,875,107"/>
 </map>

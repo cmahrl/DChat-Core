@@ -32,6 +32,7 @@
 //         MISC FUNCTIONS
 //*********************************
 int max(int a, int b);
-void free_ptrs(void** ptrs, int len);
+int file_exists(char* filename);
+char* remove_leading_spaces(char* value);
 
 #endif

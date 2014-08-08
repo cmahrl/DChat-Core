@@ -1,5 +1,19 @@
                           DChat - Peer-To-Peer Chat over TOR 
 
+    2014-08-08:
+        DChat now supports configuration files! This means that on start
+        of dchat the required command line options have not to be defined
+        manually. Instead this options can be configured in the config
+        file located at /usr/local/etc/dchat.conf. In this file the user
+        can specify line-by-line required options, that shall be read
+        from dchat on start. The syntax of an option line is as follows:
+            Syntax:  <long-option-name> <option argument>
+            Example: nickname Christoph
+        
+        Consider that the config file will be read additionally, which
+        means if you specify required options in the command line, these
+        will NOT be overwritten from those configured in the config file!
+
     2014-06-22:
         Huge changes have been applied to DChat. The protocol has been
         redesigned completely and will now only work within the TOR

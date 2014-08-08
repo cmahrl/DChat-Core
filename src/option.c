@@ -26,14 +26,15 @@
 #include "config.h"
 #endif
 
+#include <errno.h>
 #include <string.h>
 #include <stdlib.h>
-#include <ctype.h>
 
 #include "dchat_h/option.h"
 #include "dchat_h/decoder.h"
 #include "dchat_h/contact.h"
 #include "dchat_h/log.h"
+#include "dchat_h/util.h"
 
 
 /**
@@ -112,7 +113,6 @@ int
 init_cli_options(cli_options_t* options)
 {
     int temp_size;
-
     // possible commandline options
     cli_option_t temp[] =
     {
@@ -123,25 +123,38 @@ init_cli_options(cli_options_t* options)
         OPTION(CLI_OPT_RPRT, CLI_LOPT_RPRT, CLI_OPT_ARG_RPRT, 0, "Set the remote port of the remote host who will accept connections on this port.", rprt_parse),
         OPTION(CLI_OPT_HELP, CLI_LOPT_HELP, CLI_OPT_ARG_HELP, 0, "Display help.", help_parse)
     };
-
     temp_size = sizeof(temp) / sizeof(temp[0]);
 
-    if(temp_size > CLI_OPT_AMOUNT)
+    if (temp_size > CLI_OPT_AMOUNT)
     {
         return -1;
     }
 
     memset(options, 0, sizeof(*options));
-    memcpy(options->option, &temp, sizeof(temp));  
+    memcpy(options->option, &temp, sizeof(temp));
     return 0;
 }
 
 
-//FIXME: implement more cleanly
+/**
+ * Reads a configuration file located at CONFIG_PATH.
+ * Reads a dchat configuration file located at CONFIG_PATH and sets read
+ * values in the global config. All required commandline options are
+ * supported and can be specified in the config file as they would have
+ * been specified in the commandline. The only difference is that in
+ * the config a option is specified like this: "<option> <argument>\n".
+ * @param cnf Pointer to global config
+ * @param filepath Path to config file
+ * @param required_set Amount of required options set and specified in
+ * the config file
+ * @return 0 on success, -1 if file could not be read (see: ERRNO of fopen)
+ * or a value > 0 indicating the line in the config file where an error
+ * occured
+ */
 int
-read_conf(dchat_conf_t* cnf)
+read_conf(dchat_conf_t* cnf, char* filepath, int* required_set)
 {
-    FILE *f;               // config file file stream
+    FILE* f;               // config file file stream
     int fd;                // config file file descriptor
     char* line;            // read line of config file
     char* opt;             // cli opt
@@ -149,97 +162,124 @@ read_conf(dchat_conf_t* cnf)
     char* delim = " ";     // cli opt delimiter
     int lctr  = 1;         // line counter
     int end;               // index of termination
+    int found_opt;         // flag if read option has been found
     int error = 0;         // boolean if error occured
-    int req   = 0;
-    int ret;
     cli_options_t options; // available command line options
+    int ret;
 
     // init available options
-    if(init_cli_options(&options) == -1)
+    if (init_cli_options(&options) == -1)
     {
         log_msg(LOG_ERR, "Initialization of command line options failed!");
-        return -1; 
+        return -1;
     }
 
     // open config file
-    f = fopen(CONFIG_PATH, "r");
-    if(f == NULL)
+    f = fopen(filepath, "r");
+
+    if (f == NULL)
     {
+        log_errno(LOG_ERR, "Could not read file '%s'!", filepath);
         return -1;
     }
-    
+
     // get file descriptor of file stream
     fd = fileno(f);
 
     // read confif file line by line
-    while(read_line(fd, &line) > 0)
+    while (read_line(fd, &line) > 0)
     {
         // split line to get option and option argument
-        if((opt = strtok_r(line, delim, &arg)) == NULL)
+        if ((opt = strtok_r(line, delim, &arg)) == NULL)
         {
             error = 1;
             break;
         }
 
-        // skip spaces
-        for(; isspace(*arg); arg++);
+        // skip spaces if there is an argument
+        if (remove_leading_spaces(arg) != NULL)
+        {
+            // get index of termination char (\n or \r\n)
+            if ((end = is_valid_termination(arg)) == -1)
+            {
+                error = 1;
+                break;
+            }
 
-        if((end = is_valid_termination(arg)) == -1){
-            error = 1;
-            break;
+            // remove termination char
+            arg[end] = '\0';
         }
-        arg[end] = '\0';
-        
+        else
+        {
+            arg = "";
+        }
+
         // check if read option is an supported/available option
-        for(int i = 0; i < CLI_OPT_AMOUNT; i++)
+        found_opt = 0;
+
+        for (int i = 0; i < CLI_OPT_AMOUNT; i++)
         {
             // skip non mandatory options
-            if(!options.option[i].mandatory_option)
+            if (!options.option[i].mandatory_option)
             {
                 continue;
             }
-            if(!strcmp(opt, options.option[i].long_opt))
+
+            if (!strcmp(opt, options.option[i].long_opt))
             {
+                found_opt = 1;
+
                 // parse option argument and set in global config
-                // do not force override, if value is already set 
+                // do not force override, if value is already set
                 // in the global config
-                if((ret = options.option[i].parse_option(cnf, arg, 0)) == -1)
+                if ((ret = options.option[i].parse_option(cnf, arg, 0)) == -1)
                 {
                     error = 1;
                     break;
                 }
-                if(!ret){
-                    req++;
+
+                // increment counter of set required options
+                // if the parsing function has set the options value
+                // in the global conf
+                if (!ret)
+                {
+                    (*required_set)++;
                 }
             }
+        }
+
+        // raise error if read option is an unsupported option
+        if (!found_opt)
+        {
+            error = 1;
+            break;
         }
 
         // increase line pointer
         lctr++;
         free(line);
     }
-    
+
     fclose(f);
 
-    if(error)
+    if (error)
     {
-        log_msg(LOG_ERR, "Syntax error in line '%d' of config file!", lctr);
-        return -1;
+        return lctr;
     }
-    
-    return req;
+
+    return 0;
 }
 
 
 /**
- * Parses the terminal command line argument string to a 
+ * Parses the terminal command line argument string to a
  * local onion address
  * and store it in the global dchat configuration.
  * @param cnf Pointer to global config
  * @param value Pointer to argument string
  * @param force If set parsed argument string will override
  *              the corresponding settings in the global config
- * @return 0 on success, -1 otherwise.
+ * @return 0 on success, 1 nothing has been done or -1 on error.
  */
 int
 loni_parse(dchat_conf_t* cnf, char* value, int force)
@@ -248,16 +288,15 @@ loni_parse(dchat_conf_t* cnf, char* value, int force)
     {
         return -1;
     }
-    
-    if(force || !is_valid_onion(cnf->me.onion_id)){
+
+    if (force || !is_valid_onion(cnf->me.onion_id))
+    {
         cnf->me.onion_id[0] = '\0';
         strncat(cnf->me.onion_id, value, ONION_ADDRLEN);
+        return 0;
     }
-    else
-    {
-        return 1;
-    }
-    return 0;
+
+    return 1;
 }
 
 
@@ -268,7 +307,7 @@ loni_parse(dchat_conf_t* cnf, char* value, int force)
  * @param value Pointer to argument string
  * @param force If set parsed argument string will override
  *              the corresponding settings in the global config
- * @return 0 on success, -1 otherwise.
+ * @return 0 on success, 1 nothing has been done or -1 on error.
  */
 int
 nick_parse(dchat_conf_t* cnf, char* value, int force)
@@ -278,33 +317,31 @@ nick_parse(dchat_conf_t* cnf, char* value, int force)
         return -1;
     }
 
-    if(force || !is_valid_nickname(cnf->me.name)){
+    if (force || !is_valid_nickname(cnf->me.name))
+    {
         cnf->me.name[0] = '\0';
         strncat(cnf->me.name, value, MAX_NICKNAME);
+        return 0;
     }
-    else
-    {
-        return 1;
-    }
-    return 0;
+
+    return 1;
 }
 
 
 /**
- * Parses the terminal command line argument string to a local 
+ * Parses the terminal command line argument string to a local
  * listening port
  * and stores it in the global dchat configuration.
  * @param cnf Pointer to global config
  * @param value Pointer to argument string
  * @param force If set parsed argument string will override
  *              the corresponding settings in the global config
- * @return 0 on success, -1 otherwise.
+ * @return 0 on success, 1 nothing has been done or -1 on error.
  */
 int
 lprt_parse(dchat_conf_t* cnf, char* value, int force)
 {
     char* term;
-
     int lport = (int) strtol(value, &term, 10);
 
     if (!is_valid_port(lport) || *term != '\0')
@@ -312,67 +349,76 @@ lprt_parse(dchat_conf_t* cnf, char* value, int force)
         return -1;
     }
 
-    if(force || !is_valid_port(cnf->me.lport)){
-        cnf->me.lport = lport;
-    }
-    else
+    if (force || !is_valid_port(cnf->me.lport))
     {
-        return 1;
+        cnf->me.lport = lport;
+        return 0;
     }
-    return 0;
+
+    return 1;
 }
 
 
 /**
- * Parses the terminal command line argument string to a remote 
- * onion address
- * and stores it in the global dchat configuration.
+ * Parses the terminal command line argument string to a remote
+ * onion address and stores it in the global dchat configuration.
+ * A fake contact will be created at the index 0 of the contactlist,
+ * given that the contactlist is empty, otherwise if its size is 1
+ * the onion address (remote address) will be set.
  * @param cnf Pointer to global config
  * @param value Pointer to argument string
  * @param force If set parsed argument string will override
  *              the corresponding settings in the global config
- * @return 0 on success, -1 otherwise.
+ * @return 0 on success, 1 nothing has been done or -1 on error.
  */
 int
 roni_parse(dchat_conf_t* cnf, char* value, int force)
 {
-    int n = 0;
+    int n;
+
+    if (cnf->cl.used_contacts > 1)
+    {
+        return 1;
+    }
 
     if (!is_valid_onion(value))
     {
         return -1;
     }
 
-    if(!cnf->cl.used_contacts)
+    if (!cnf->cl.used_contacts)
     {
         n = add_contact(cnf, 0); // create fake contact
-        if(n != 0)
+
+        if (n != 0)
         {
             log_msg(LOG_ERR, "Creation of fake contact failed!");
             return -1;
         }
     }
 
-    if(force || !is_valid_onion(cnf->cl.contact[n].onion_id)){
+    if (force || !is_valid_onion(cnf->cl.contact[n].onion_id))
+    {
         cnf->cl.contact[n].onion_id[0] = '\0';
         strncat(cnf->cl.contact[n].onion_id, value, ONION_ADDRLEN);
+        return 0;
     }
-    else
-    {
-        return 1;
-    }
-    return 0;
+
+    return 1;
 }
 
 
 /**
  * Parses the terminal command line argument string to a remote port
  * and stores it in the global dchat configuration.
+ * A fake contact will be created at the index 0 of the contactlist,
+ * given that the contactlist is empty, otherwise if its size is 1
+ * the port (remote port) will be set.
  * @param cnf Pointer to global config
  * @param value Pointer to argument string
  * @param force If set parsed argument string will override
  *              the corresponding settings in the global config
- * @return 0 on success, -1 otherwise.
+ * @return 0 on success, 1 nothing has been done or -1 on error.
  */
 int
 rprt_parse(dchat_conf_t* cnf, char* value, int force)
@@ -381,29 +427,34 @@ rprt_parse(dchat_conf_t* cnf, char* value, int force)
     char* term;
     int rport = (int) strtol(optarg, &term, 10);
 
+    if (cnf->cl.used_contacts > 1)
+    {
+        return 1;
+    }
+
     if (!is_valid_port(rport) || *term != '\0')
     {
         return -1;
     }
 
-    if(!cnf->cl.used_contacts)
+    if (!cnf->cl.used_contacts)
     {
         n = add_contact(cnf, 0); // create fake contact
-        if(n != 0)
+
+        if (n != 0)
         {
             log_msg(LOG_ERR, "Creation of fake contact failed!");
             return -1;
         }
     }
 
-    if(force || !is_valid_port(cnf->cl.contact[n].lport)){
-        cnf->cl.contact[n].lport = rport;
-    }
-    else
+    if (force || !is_valid_port(cnf->cl.contact[n].lport))
     {
-        return 1;
+        cnf->cl.contact[n].lport = rport;
+        return 0;
     }
-    return 0;
+
+    return 1;
 }
 
 
@@ -414,20 +465,18 @@ rprt_parse(dchat_conf_t* cnf, char* value, int force)
  * @param value Pointer to argument string
  * @param force If set parsed argument string will override
  *              the corresponding settings in the global config
- * @return 0 on success, -1 otherwise.
+ * @return 1 on success or -1 on error.
  */
 int
 help_parse(dchat_conf_t* cnf, char* value, int force)
 {
     cli_options_t options;
-    if(init_cli_options(&options) == -1)
+
+    if (init_cli_options(&options) == -1)
     {
         return -1;
     }
 
     usage(EXIT_SUCCESS, &options, "");
-
-    return 0;
+    return 1;
 }
-
-

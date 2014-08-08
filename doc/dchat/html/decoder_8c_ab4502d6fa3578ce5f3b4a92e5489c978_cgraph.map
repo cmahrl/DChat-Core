@@ -1,0 +1,5 @@
+<map id="get_content_part" name="get_content_part">
+<area shape="rect" id="node2" href="$log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="176,5,248,32"/>
+<area shape="rect" id="node4" href="$log_8c.html#a677da14e8c4326bde43622f233f1ead3" title="Prints an error message and terminates this program. " alt="" coords="189,56,235,83"/>
+<area shape="rect" id="node3" href="$log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="296,31,379,57"/>
+</map>

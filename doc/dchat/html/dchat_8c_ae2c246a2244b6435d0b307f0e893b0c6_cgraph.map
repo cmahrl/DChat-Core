@@ -1,5 +1,38 @@
 <map id="handle_local_conn_request" name="handle_local_conn_request">
-<area shape="rect" id="node2" href="$log_8c.html#a447124894e44d19ff906633927930c19" title="Log a message together with a string representation of errno as error. " alt="" coords="241,5,319,32"/>
-<area shape="rect" id="node3" href="$log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="368,5,440,32"/>
-<area shape="rect" id="node4" href="$log_8c.html#ac74eb6bdf382e22aec6303d2a1ea5802" title="Log a message to a file. " alt="" coords="488,5,571,32"/>
+<area shape="rect" id="node2" href="$network_8c.html#abd951e9fd43b0ec9248ca6ec43398c6b" title="Creates a TOR socket. " alt="" coords="240,157,368,184"/>
+<area shape="rect" id="node6" href="$log_8c.html#aba81f1b639baac0f96848d9cb3a3b207" title="Log a message together with a string representation of errno as error. " alt="" coords="623,208,702,235"/>
+<area shape="rect" id="node10" href="$contact_8c.html#a6777b1a477207c7bbc9e560cf9caabed" title="Adds a new contact to the local contactlist. " alt="" coords="257,309,351,336"/>
+<area shape="rect" id="node13" href="$contact_8c.html#a625b0742c9e1cbd35146d35ecbf25282" title="Sends local contactlist to a contact. " alt="" coords="250,487,358,513"/>
+<area shape="rect" id="node3" href="$log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="1139,335,1211,361"/>
+<area shape="rect" id="node5" href="$network_8c.html#a77de9c9eb5a8ea2a6da108270bd7417e" title="Connects to a remote socket using the given socket address. " alt="" coords="443,208,530,235"/>
+<area shape="rect" id="node7" href="$network_8c.html#abd49b4a8eb0f62dc3be6755729d672b8" title="Writes a SOCKS PDU to the given socket. " alt="" coords="433,107,540,133"/>
+<area shape="rect" id="node8" href="$network_8c.html#a0ace1062fab444c73177e0552e019425" title="Reads a SOCKS response PDU from the given socket. " alt="" coords="434,157,539,184"/>
+<area shape="rect" id="node9" href="$network_8c.html#abd3d58b10c19c6d550b6e6aa86c9dc5c" title="Parses given status and returns its corresponding status message. " alt="" coords="417,5,557,32"/>
+<area shape="rect" id="node4" href="$log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="1304,335,1387,361"/>
+<area shape="rect" id="node11" href="$contact_8c.html#a0de7073d40f7447f933e334054d432d8" title="Resizes the contactlist. " alt="" coords="917,360,1045,387"/>
+<area shape="rect" id="node12" href="$log_8c.html#a677da14e8c4326bde43622f233f1ead3" title="Prints an error message and terminates this program. " alt="" coords="1151,512,1198,539"/>
+<area shape="rect" id="node14" href="$decoder_8c.html#abaf80c220fd915287452a6baa5b05e2e" title="Initializes a DChat PDU with the given values. " alt="" coords="927,1171,1036,1197"/>
+<area shape="rect" id="node20" href="$contact_8c.html#ac15f4eb395316547db5ceba947a2f3b9" title="Converts a contact into a string. " alt="" coords="919,1019,1043,1045"/>
+<area shape="rect" id="node21" href="$decoder_8c.html#af4aaf258b8866187ed65d6d1c23083cb" title="Converts a PDU to a string that will be written to a file descriptor. " alt="" coords="447,461,527,488"/>
+<area shape="rect" id="node15" href="$decoder_8c.html#a8a64791a4f610ecaff285d91512ea927" title="Checks if the given version is a valid and supported DChat version. " alt="" coords="1116,1171,1233,1197"/>
+<area shape="rect" id="node16" href="$decoder_8c.html#a2960a3c598ee607801fc333b5d1cfce9" title="Checks if the given Content&#45;Type number is a valid DChat Content&#45;Type. " alt="" coords="1099,1120,1250,1147"/>
+<area shape="rect" id="node17" href="$network_8c.html#a139629f69df293ba1da88fea96af5e5e" title="Checks wether the given onion&#45;id is a valid onion address. " alt="" coords="1121,1069,1228,1096"/>
+<area shape="rect" id="node18" href="$network_8c.html#a53aa686284d28600afef0e06d7ab3d54" title="Checks wether the given port is a valid TCP port. " alt="" coords="1126,943,1223,969"/>
+<area shape="rect" id="node19" href="$decoder_8c.html#a338364bcfd88f32a9b162c4e12bd3cad" title="Checks if the given nickname is a valid DChat nickname. " alt="" coords="1109,1221,1240,1248"/>
+<area shape="rect" id="node22" href="$decoder_8c.html#ae5745b50cd3cc0aa6228e35d08690fdc" title="Crafts a DChat header string. " alt="" coords="605,563,720,589"/>
+<area shape="rect" id="node23" href="$decoder_8c.html#aed8d6a7e8b9b368fa54d7af2f2a5231e" title="Initializes a DChat V1 structure containing all available and supported headers of the DChat V1 proto..." alt="" coords="769,816,869,843"/>
+<area shape="rect" id="node24" href="$decoder_8c.html#a42be8c12ff007b95a9a98175c1738d0c" title="Parses the given value to a supported version of DChat and sets, if valid, its value in the PDU struc..." alt="" coords="926,968,1037,995"/>
+<area shape="rect" id="node25" href="$decoder_8c.html#ae08df473fb28e4f06044d50f8428eafc" title="Converts the version field in the PDU to a string and sets the address of the given value parameter t..." alt="" coords="926,664,1037,691"/>
+<area shape="rect" id="node26" href="$decoder_8c.html#af7a1420a7b9ce8077005793d5baa48b3" title="Parses the given value to a supported content&#45;type of DChat and sets, if valid, its value in the PDU ..." alt="" coords="928,613,1035,640"/>
+<area shape="rect" id="node28" href="$decoder_8c.html#a9ba39a2b36836a7dc2dbe548cd02c21f" title="Converts the content&#45;type field in the PDU to a string and sets the address of the given value parame..." alt="" coords="928,563,1035,589"/>
+<area shape="rect" id="node29" href="$decoder_8c.html#a186b736b428ee1ba79bc538a560a9e28" title="Parses the given value to a content&#45;length and sets its value, if valid, in the given PDU structure..." alt="" coords="929,816,1034,843"/>
+<area shape="rect" id="node31" href="$decoder_8c.html#aa34bd8632014a3a135df77c5786bda6d" title="Converts the content&#45;length field in the PDU to a string and sets the address of the given value para..." alt="" coords="929,715,1034,741"/>
+<area shape="rect" id="node32" href="$decoder_8c.html#ace47761936ccffbfbac61e6905d8333d" title="Parses the given value to an onion address and sets its value , if valid, in the given PDU structure..." alt="" coords="926,1069,1037,1096"/>
+<area shape="rect" id="node33" href="$decoder_8c.html#a019debfd4003c322fba5003b6c191129" title="Converts the onion&#45;id field in the PDU to a string and sets the address of the given value parameter ..." alt="" coords="926,1120,1037,1147"/>
+<area shape="rect" id="node34" href="$decoder_8c.html#a93c5fb5eadf28693c56b187748a284b9" title="Parses the given value to a listening port and sets its value, if valid, in the given PDU structure..." alt="" coords="926,867,1037,893"/>
+<area shape="rect" id="node35" href="$decoder_8c.html#ac89711a42de87d7b24f7e598b0167f85" title="Converts the listening&#45;port field in the PDU to a string and sets the address of the given value para..." alt="" coords="926,765,1037,792"/>
+<area shape="rect" id="node36" href="$decoder_8c.html#a8a21bca3a0374aeda651aba069d0bfb4" title="Parses the given value to a nickname and sets its value, if valid, in the given PDU structure..." alt="" coords="927,917,1036,944"/>
+<area shape="rect" id="node37" href="$decoder_8c.html#a5f3472fbd176480725e69578245d3c61" title="Converts the nickname field in the PDU to a string and sets the address of the given value parameter ..." alt="" coords="927,1221,1036,1248"/>
+<area shape="rect" id="node27" href="$decoder_8c.html#ab89ef1994dd9e9d401b4c0d5feb594b2" title="Initializes a content&#45;types structure with all available content&#45;types in DChat. " alt="" coords="1109,585,1240,626"/>
+<area shape="rect" id="node30" href="$decoder_8c.html#a4ecd7cbbbe72098afc1bd5508067d8e4" title="Checks if the given Content&#45;Length is a valid DChat Content&#45;Length. " alt="" coords="1094,765,1255,792"/>
 </map>

@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['write_5fline',['write_line',['../dchat__decoder_8c.html#ab470071662c436c931b9d1e6fafb94b8',1,'dchat_decoder.c']]],
-  ['write_5fpdu',['write_pdu',['../dchat__decoder_8c.html#af4aaf258b8866187ed65d6d1c23083cb',1,'dchat_decoder.c']]],
-  ['write_5fsocks4a',['write_socks4a',['../dchat__network_8c.html#abd49b4a8eb0f62dc3be6755729d672b8',1,'dchat_network.c']]]
+  ['terminate',['terminate',['../dchat_8c.html#a7fbc5e4f614e5e82b3a1fc5224f1855a',1,'dchat.c']]],
+  ['th_5fmain_5floop',['th_main_loop',['../dchat_8c.html#a39d1655c3815d6db5026c52870b45776',1,'dchat.c']]],
+  ['th_5fnew_5fconn',['th_new_conn',['../dchat_8c.html#a20c922556a3f5ba773faf2b38fc16750',1,'dchat.c']]],
+  ['th_5fnew_5finput',['th_new_input',['../dchat_8c.html#a0a9fd273c9490e8cf99a08da3cfab690',1,'dchat.c']]]
 ];
