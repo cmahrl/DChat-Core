@@ -1,5 +1,7 @@
 var searchData=
 [
+  ['dat_5fpdu_5fto_5fstr',['dat_pdu_to_str',['../decoder_8c.html#ab124906e75a01fb9448bf33eac5906da',1,'decoder.c']]],
+  ['dat_5fstr_5fto_5fpdu',['dat_str_to_pdu',['../decoder_8c.html#ad1fb16f98ba7cba1d0e8394a0a825214',1,'decoder.c']]],
   ['dchat_2ec',['dchat.c',['../dchat_8c.html',1,'']]],
   ['dchat_5fconf',['dchat_conf',['../structdchat__conf.html',1,'']]],
   ['dchat_5fcontent_5ftype',['dchat_content_type',['../structdchat__content__type.html',1,'']]],

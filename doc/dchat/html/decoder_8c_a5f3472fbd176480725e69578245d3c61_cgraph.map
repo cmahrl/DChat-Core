@@ -1,3 +1,5 @@
 <map id="nic_pdu_to_str" name="nic_pdu_to_str">
 <area shape="rect" id="node2" href="$decoder_8c.html#a338364bcfd88f32a9b162c4e12bd3cad" title="Checks if the given nickname is a valid DChat nickname. " alt="" coords="163,5,293,32"/>
+<area shape="rect" id="node3" href="$log_8c.html#a677da14e8c4326bde43622f233f1ead3" title="Prints an error message and terminates this program. " alt="" coords="205,56,251,83"/>
+<area shape="rect" id="node4" href="$log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="341,56,424,83"/>
 </map>

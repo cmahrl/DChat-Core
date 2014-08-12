@@ -1,51 +1,51 @@
 <map id="init_threads" name="init_threads">
-<area shape="rect" id="node2" href="$dchat_8c.html#a7fbc5e4f614e5e82b3a1fc5224f1855a" title="Signal handler function used for termination. " alt="" coords="157,1056,235,1083"/>
-<area shape="rect" id="node6" href="$log_8c.html#aba81f1b639baac0f96848d9cb3a3b207" title="Log a message together with a string representation of errno as error. " alt="" coords="1321,144,1399,171"/>
-<area shape="rect" id="node8" href="$dchat_8c.html#a20c922556a3f5ba773faf2b38fc16750" title="Thread function that reads an onion address from a pipe and connects to this address. " alt="" coords="513,317,615,344"/>
-<area shape="rect" id="node30" href="$dchat_8c.html#a39d1655c3815d6db5026c52870b45776" title="Main chat loop of this client. " alt="" coords="145,727,247,753"/>
-<area shape="rect" id="node3" href="$dchat_8c.html#a103bc702ed34e7ba88e166b169cfe464" title="Frees all global config resources used. " alt="" coords="531,1208,597,1235"/>
-<area shape="rect" id="node4" href="$log_8c.html#aadc76aa2a75bd302883a2bb571a42033" title="Returns the ansi escape code string for clearing the current line in a terminal. " alt="" coords="713,1259,823,1285"/>
-<area shape="rect" id="node5" href="$log_8c.html#ae3ea2f374cda4c473cbd22f83dc6b64f" title="Retruns the ansi escape code string for carriage return . " alt="" coords="735,1208,801,1235"/>
-<area shape="rect" id="node7" href="$log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="1584,701,1667,728"/>
-<area shape="rect" id="node9" href="$dchat_8c.html#a297b3a9a3e921bc25e5559de4c7dcaea" title="Cleanup ressources used by the thread conn_th holded by the global config. " alt="" coords="690,195,846,221"/>
-<area shape="rect" id="node10" href="$log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="1324,701,1396,728"/>
-<area shape="rect" id="node11" href="$dchat_8c.html#ae2c246a2244b6435d0b307f0e893b0c6" title="Handles local connection requests from the user. " alt="" coords="675,524,861,551"/>
-<area shape="rect" id="node12" href="$network_8c.html#abd951e9fd43b0ec9248ca6ec43398c6b" title="Creates a TOR socket. " alt="" coords="912,448,1040,475"/>
-<area shape="rect" id="node17" href="$contact_8c.html#a6777b1a477207c7bbc9e560cf9caabed" title="Adds a new contact to the local contactlist. " alt="" coords="929,524,1023,551"/>
-<area shape="rect" id="node20" href="$contact_8c.html#a625b0742c9e1cbd35146d35ecbf25282" title="Sends local contactlist to a contact. " alt="" coords="922,803,1030,829"/>
-<area shape="rect" id="node13" href="$network_8c.html#a77de9c9eb5a8ea2a6da108270bd7417e" title="Connects to a remote socket using the given socket address. " alt="" coords="1118,195,1205,221"/>
-<area shape="rect" id="node14" href="$network_8c.html#abd49b4a8eb0f62dc3be6755729d672b8" title="Writes a SOCKS PDU to the given socket. " alt="" coords="1108,397,1215,424"/>
-<area shape="rect" id="node15" href="$network_8c.html#a0ace1062fab444c73177e0552e019425" title="Reads a SOCKS response PDU from the given socket. " alt="" coords="1109,448,1214,475"/>
-<area shape="rect" id="node16" href="$network_8c.html#abd3d58b10c19c6d550b6e6aa86c9dc5c" title="Parses given status and returns its corresponding status message. " alt="" coords="1091,499,1231,525"/>
-<area shape="rect" id="node18" href="$contact_8c.html#a0de7073d40f7447f933e334054d432d8" title="Resizes the contactlist. " alt="" coords="1097,600,1225,627"/>
-<area shape="rect" id="node19" href="$log_8c.html#a677da14e8c4326bde43622f233f1ead3" title="Prints an error message and terminates this program. " alt="" coords="1489,1157,1535,1184"/>
-<area shape="rect" id="node21" href="$decoder_8c.html#abaf80c220fd915287452a6baa5b05e2e" title="Initializes a DChat PDU with the given values. " alt="" coords="1107,1005,1216,1032"/>
-<area shape="rect" id="node27" href="$contact_8c.html#ac15f4eb395316547db5ceba947a2f3b9" title="Converts a contact into a string. " alt="" coords="1099,955,1223,981"/>
-<area shape="rect" id="node28" href="$decoder_8c.html#af4aaf258b8866187ed65d6d1c23083cb" title="Converts a PDU to a string that will be written to a file descriptor. " alt="" coords="1121,1107,1201,1133"/>
-<area shape="rect" id="node22" href="$decoder_8c.html#a8a64791a4f610ecaff285d91512ea927" title="Checks if the given version is a valid and supported DChat version. " alt="" coords="1301,1005,1419,1032"/>
-<area shape="rect" id="node23" href="$decoder_8c.html#a2960a3c598ee607801fc333b5d1cfce9" title="Checks if the given Content&#45;Type number is a valid DChat Content&#45;Type. " alt="" coords="1285,1056,1435,1083"/>
-<area shape="rect" id="node24" href="$network_8c.html#a139629f69df293ba1da88fea96af5e5e" title="Checks wether the given onion&#45;id is a valid onion address. " alt="" coords="1307,853,1413,880"/>
-<area shape="rect" id="node25" href="$network_8c.html#a53aa686284d28600afef0e06d7ab3d54" title="Checks wether the given port is a valid TCP port. " alt="" coords="1311,904,1409,931"/>
-<area shape="rect" id="node26" href="$decoder_8c.html#a338364bcfd88f32a9b162c4e12bd3cad" title="Checks if the given nickname is a valid DChat nickname. " alt="" coords="1295,955,1425,981"/>
-<area shape="rect" id="node29" href="$decoder_8c.html#ae5745b50cd3cc0aa6228e35d08690fdc" title="Crafts a DChat header string. " alt="" coords="1303,1208,1417,1235"/>
-<area shape="rect" id="node31" href="$dchat_8c.html#ab40992a684f2718a616237fd50fe9be5" title="Cleanup ressources used by the thread select_th holded by the global config. " alt="" coords="297,1107,453,1133"/>
-<area shape="rect" id="node32" href="$util_8c.html#af082905f7eac6d03e92015146bbc1925" title="Define the maximum of two given integers. " alt="" coords="351,1157,398,1184"/>
-<area shape="rect" id="node33" href="$dchat_8c.html#af26d1f15348f568261ddb15d886dbaff" title="Handles local user input. " alt="" coords="909,1031,1043,1057"/>
-<area shape="rect" id="node38" href="$dchat_8c.html#a5c79a63478c0df6d16f70940e53338d1" title="Handles connection requests from a remote client. " alt="" coords="695,458,841,499"/>
-<area shape="rect" id="node39" href="$dchat_8c.html#a2cbf2aad21d016dd4852369423d86270" title="Handles PDUs received from a remote client. " alt="" coords="301,853,448,880"/>
-<area shape="rect" id="node48" href="$contact_8c.html#a56a9992b188f855108c72588953fe8a6" title="Deletes a contact from the local contactlist. " alt="" coords="931,625,1021,652"/>
-<area shape="rect" id="node34" href="$cmdinterpreter_8c.html#a2fa3c6d0d37d8092bb7065361ac25bd0" title="Parses the given string and executes it if it is a command. " alt="" coords="1117,1208,1205,1235"/>
-<area shape="rect" id="node36" href="$decoder_8c.html#ac0e7619d80bc7c53c88b1e893eb00df5" title="Initializes the content of a DChat PDU with the given value. " alt="" coords="1280,1259,1440,1285"/>
-<area shape="rect" id="node37" href="$decoder_8c.html#ade270b4d1100adbdffbb22fdd5635737" title="Frees all resources dynamically allocated for a PDU structure. " alt="" coords="1124,1259,1199,1285"/>
-<area shape="rect" id="node35" href="$cmdinterpreter_8c.html#a910a5c62ab4a4c2976b6892e8c5e7cac" title="Initializes a commands structure with all available in&#45;chat commands and its executable functions..." alt="" coords="1321,1360,1399,1387"/>
-<area shape="rect" id="node40" href="$decoder_8c.html#ac5566b29faaf60fb8c68a3d97d3fadc3" title="Read a whole DChat PDU from a file descriptor. " alt="" coords="525,955,603,981"/>
-<area shape="rect" id="node43" href="$log_8c.html#ab43cc6f8c6c043d052ebcfebd33023e9" title="Prints a chat message to a file descriptor. " alt="" coords="504,1157,624,1184"/>
-<area shape="rect" id="node46" href="$contact_8c.html#aa0681254b16e6d20d63a03aed84c12e2" title="Checks the local contactlist for duplicates. " alt="" coords="502,853,626,880"/>
-<area shape="rect" id="node49" href="$contact_8c.html#a2161fbd1e0fc61c762f08bb102e54ab8" title="Contacts transferred via PDU will be added to the contactlist. " alt="" coords="503,803,625,829"/>
-<area shape="rect" id="node41" href="$decoder_8c.html#a9a4f2d2d79d140c5d1bcb5be3bc82e0e" title="Read a line terminated with \n from a file descriptor. " alt="" coords="937,1259,1015,1285"/>
-<area shape="rect" id="node42" href="$decoder_8c.html#acdc394373c1cbcfa66f99a9a4579e5c8" title="Decodes a string into a DChat header. " alt="" coords="711,955,825,981"/>
-<area shape="rect" id="node44" href="$log_8c.html#a422252d31fec52cb84c60fc0c18bd93e" title="Returns the ansi escape code string for bold cyan color. " alt="" coords="693,1107,843,1133"/>
-<area shape="rect" id="node45" href="$log_8c.html#a18901a0772a8dd71781402b41579ec95" title="Returns the ansi escape code string for resetting attributes. " alt="" coords="695,1157,841,1184"/>
-<area shape="rect" id="node47" href="$contact_8c.html#a01eb319ee1d229714b6a20e144181a1a" title="Searches a contact in the local contactlist. " alt="" coords="721,853,815,880"/>
-<area shape="rect" id="node50" href="$decoder_8c.html#ab4502d6fa3578ce5f3b4a92e5489c978" title="Extracts a fraction of the content. " alt="" coords="1100,1056,1223,1083"/>
+<area shape="rect" id="node2" href="$dchat_8c.html#a7fbc5e4f614e5e82b3a1fc5224f1855a" title="Signal handler function used for termination. " alt="" coords="157,816,235,843"/>
+<area shape="rect" id="node6" href="$log_8c.html#aba81f1b639baac0f96848d9cb3a3b207" title="Log a message together with a string representation of errno as error. " alt="" coords="1321,1221,1399,1248"/>
+<area shape="rect" id="node8" href="$dchat_8c.html#a20c922556a3f5ba773faf2b38fc16750" title="Thread function that reads an onion address from a pipe and connects to this address. " alt="" coords="513,107,615,133"/>
+<area shape="rect" id="node31" href="$dchat_8c.html#a39d1655c3815d6db5026c52870b45776" title="Main chat loop of this client. " alt="" coords="145,385,247,412"/>
+<area shape="rect" id="node3" href="$dchat_8c.html#a103bc702ed34e7ba88e166b169cfe464" title="Frees all global config resources used. " alt="" coords="531,1019,597,1045"/>
+<area shape="rect" id="node4" href="$log_8c.html#aadc76aa2a75bd302883a2bb571a42033" title="Returns the ansi escape code string for clearing the current line in a terminal. " alt="" coords="713,1019,823,1045"/>
+<area shape="rect" id="node5" href="$log_8c.html#ae3ea2f374cda4c473cbd22f83dc6b64f" title="Retruns the ansi escape code string for carriage return . " alt="" coords="735,968,801,995"/>
+<area shape="rect" id="node7" href="$log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="1637,461,1720,488"/>
+<area shape="rect" id="node9" href="$dchat_8c.html#a297b3a9a3e921bc25e5559de4c7dcaea" title="Cleanup ressources used by the thread conn_th holded by the global config. " alt="" coords="690,56,846,83"/>
+<area shape="rect" id="node10" href="$log_8c.html#a021b18b681712d42cb07c99171691a84" title="Log a message. " alt="" coords="1324,360,1396,387"/>
+<area shape="rect" id="node11" href="$dchat_8c.html#ae2c246a2244b6435d0b307f0e893b0c6" title="Handles local connection requests from the user. " alt="" coords="675,621,861,648"/>
+<area shape="rect" id="node12" href="$network_8c.html#abd951e9fd43b0ec9248ca6ec43398c6b" title="Creates a TOR socket. " alt="" coords="912,917,1040,944"/>
+<area shape="rect" id="node17" href="$contact_8c.html#a6777b1a477207c7bbc9e560cf9caabed" title="Adds a new contact to the local contactlist. " alt="" coords="929,596,1023,623"/>
+<area shape="rect" id="node20" href="$contact_8c.html#a625b0742c9e1cbd35146d35ecbf25282" title="Sends local contactlist to a contact. " alt="" coords="922,647,1030,673"/>
+<area shape="rect" id="node13" href="$network_8c.html#a77de9c9eb5a8ea2a6da108270bd7417e" title="Connects to a remote socket using the given socket address. " alt="" coords="1118,1069,1205,1096"/>
+<area shape="rect" id="node14" href="$network_8c.html#abd49b4a8eb0f62dc3be6755729d672b8" title="Writes a SOCKS PDU to the given socket. " alt="" coords="1108,867,1215,893"/>
+<area shape="rect" id="node15" href="$network_8c.html#a0ace1062fab444c73177e0552e019425" title="Reads a SOCKS response PDU from the given socket. " alt="" coords="1109,917,1214,944"/>
+<area shape="rect" id="node16" href="$network_8c.html#abd3d58b10c19c6d550b6e6aa86c9dc5c" title="Parses given status and returns its corresponding status message. " alt="" coords="1091,968,1231,995"/>
+<area shape="rect" id="node18" href="$contact_8c.html#a0de7073d40f7447f933e334054d432d8" title="Resizes the contactlist. " alt="" coords="1097,664,1225,691"/>
+<area shape="rect" id="node19" href="$log_8c.html#a677da14e8c4326bde43622f233f1ead3" title="Prints an error message and terminates this program. " alt="" coords="1515,461,1562,488"/>
+<area shape="rect" id="node21" href="$decoder_8c.html#abaf80c220fd915287452a6baa5b05e2e" title="Initializes a DChat PDU with the given values. " alt="" coords="1107,715,1216,741"/>
+<area shape="rect" id="node27" href="$contact_8c.html#ac15f4eb395316547db5ceba947a2f3b9" title="Converts a contact into a string. " alt="" coords="1099,765,1223,792"/>
+<area shape="rect" id="node28" href="$decoder_8c.html#af4aaf258b8866187ed65d6d1c23083cb" title="Converts a PDU to a string that will be written to a file descriptor. " alt="" coords="1121,5,1201,32"/>
+<area shape="rect" id="node22" href="$decoder_8c.html#a8a64791a4f610ecaff285d91512ea927" title="Checks if the given version is a valid and supported DChat version. " alt="" coords="1301,563,1419,589"/>
+<area shape="rect" id="node23" href="$decoder_8c.html#a2960a3c598ee607801fc333b5d1cfce9" title="Checks if the given Content&#45;Type number is a valid DChat Content&#45;Type. " alt="" coords="1285,613,1435,640"/>
+<area shape="rect" id="node24" href="$network_8c.html#a139629f69df293ba1da88fea96af5e5e" title="Checks wether the given onion&#45;id is a valid onion address. " alt="" coords="1307,816,1413,843"/>
+<area shape="rect" id="node25" href="$network_8c.html#a53aa686284d28600afef0e06d7ab3d54" title="Checks wether the given port is a valid TCP port. " alt="" coords="1311,765,1409,792"/>
+<area shape="rect" id="node26" href="$decoder_8c.html#a338364bcfd88f32a9b162c4e12bd3cad" title="Checks if the given nickname is a valid DChat nickname. " alt="" coords="1295,664,1425,691"/>
+<area shape="rect" id="node29" href="$decoder_8c.html#aed8d6a7e8b9b368fa54d7af2f2a5231e" title="Initializes a DChat V1 structure containing all available and supported headers of the DChat V1 proto..." alt="" coords="1489,56,1589,83"/>
+<area shape="rect" id="node30" href="$decoder_8c.html#a92bdcc4d06ae8c3fb41f6f0489a44891" title="Crafts a DChat header string. " alt="" coords="1303,56,1417,83"/>
+<area shape="rect" id="node32" href="$dchat_8c.html#ab40992a684f2718a616237fd50fe9be5" title="Cleanup ressources used by the thread select_th holded by the global config. " alt="" coords="297,309,453,336"/>
+<area shape="rect" id="node33" href="$util_8c.html#af082905f7eac6d03e92015146bbc1925" title="Define the maximum of two given integers. " alt="" coords="351,411,398,437"/>
+<area shape="rect" id="node34" href="$dchat_8c.html#af26d1f15348f568261ddb15d886dbaff" title="Handles local user input. " alt="" coords="909,157,1043,184"/>
+<area shape="rect" id="node39" href="$dchat_8c.html#a5c79a63478c0df6d16f70940e53338d1" title="Handles connection requests from a remote client. " alt="" coords="695,555,841,597"/>
+<area shape="rect" id="node40" href="$dchat_8c.html#a2cbf2aad21d016dd4852369423d86270" title="Handles PDUs received from a remote client. " alt="" coords="301,461,448,488"/>
+<area shape="rect" id="node49" href="$contact_8c.html#a56a9992b188f855108c72588953fe8a6" title="Deletes a contact from the local contactlist. " alt="" coords="931,309,1021,336"/>
+<area shape="rect" id="node35" href="$cmdinterpreter_8c.html#a2fa3c6d0d37d8092bb7065361ac25bd0" title="Parses the given string and executes it if it is a command. " alt="" coords="1117,56,1205,83"/>
+<area shape="rect" id="node37" href="$decoder_8c.html#ac0e7619d80bc7c53c88b1e893eb00df5" title="Initializes the content of a DChat PDU with the given value. " alt="" coords="1280,296,1440,323"/>
+<area shape="rect" id="node38" href="$decoder_8c.html#ade270b4d1100adbdffbb22fdd5635737" title="Frees all resources dynamically allocated for a PDU structure. " alt="" coords="1124,259,1199,285"/>
+<area shape="rect" id="node36" href="$cmdinterpreter_8c.html#a910a5c62ab4a4c2976b6892e8c5e7cac" title="Initializes a commands structure with all available in&#45;chat commands and its executable functions..." alt="" coords="1321,157,1399,184"/>
+<area shape="rect" id="node41" href="$decoder_8c.html#ac5566b29faaf60fb8c68a3d97d3fadc3" title="Read a whole DChat PDU from a file descriptor. " alt="" coords="1122,613,1201,640"/>
+<area shape="rect" id="node44" href="$log_8c.html#ab43cc6f8c6c043d052ebcfebd33023e9" title="Prints a chat message to a file descriptor. " alt="" coords="504,917,624,944"/>
+<area shape="rect" id="node47" href="$contact_8c.html#aa0681254b16e6d20d63a03aed84c12e2" title="Checks the local contactlist for duplicates. " alt="" coords="502,612,626,639"/>
+<area shape="rect" id="node50" href="$contact_8c.html#a2161fbd1e0fc61c762f08bb102e54ab8" title="Contacts transferred via PDU will be added to the contactlist. " alt="" coords="503,528,625,555"/>
+<area shape="rect" id="node42" href="$decoder_8c.html#a9a4f2d2d79d140c5d1bcb5be3bc82e0e" title="Read a line terminated with \n from a file descriptor. " alt="" coords="1321,461,1399,488"/>
+<area shape="rect" id="node43" href="$decoder_8c.html#acdc394373c1cbcfa66f99a9a4579e5c8" title="Decodes a string into a DChat header. " alt="" coords="1303,411,1417,437"/>
+<area shape="rect" id="node45" href="$log_8c.html#a422252d31fec52cb84c60fc0c18bd93e" title="Returns the ansi escape code string for bold cyan color. " alt="" coords="693,917,843,944"/>
+<area shape="rect" id="node46" href="$log_8c.html#a18901a0772a8dd71781402b41579ec95" title="Returns the ansi escape code string for resetting attributes. " alt="" coords="695,867,841,893"/>
+<area shape="rect" id="node48" href="$contact_8c.html#a01eb319ee1d229714b6a20e144181a1a" title="Searches a contact in the local contactlist. " alt="" coords="721,672,815,699"/>
 </map>

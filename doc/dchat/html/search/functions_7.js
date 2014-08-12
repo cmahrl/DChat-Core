@@ -16,5 +16,6 @@ var searchData=
   ['is_5fvalid_5fonion',['is_valid_onion',['../network_8c.html#a139629f69df293ba1da88fea96af5e5e',1,'network.c']]],
   ['is_5fvalid_5fport',['is_valid_port',['../network_8c.html#a53aa686284d28600afef0e06d7ab3d54',1,'network.c']]],
   ['is_5fvalid_5ftermination',['is_valid_termination',['../decoder_8c.html#aee415a9aa4d7252364a6aed14d8d1a50',1,'decoder.c']]],
-  ['is_5fvalid_5fversion',['is_valid_version',['../decoder_8c.html#a8a64791a4f610ecaff285d91512ea927',1,'decoder.c']]]
+  ['is_5fvalid_5fversion',['is_valid_version',['../decoder_8c.html#a8a64791a4f610ecaff285d91512ea927',1,'decoder.c']]],
+  ['iszero',['iszero',['../util_8c.html#a14252469532ecf356f22412644467eba',1,'util.c']]]
 ];

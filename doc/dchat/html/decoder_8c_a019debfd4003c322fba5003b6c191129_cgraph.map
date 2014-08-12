@@ -1,3 +1,5 @@
 <map id="oni_pdu_to_str" name="oni_pdu_to_str">
 <area shape="rect" id="node2" href="$network_8c.html#a139629f69df293ba1da88fea96af5e5e" title="Checks wether the given onion&#45;id is a valid onion address. " alt="" coords="165,5,272,32"/>
+<area shape="rect" id="node3" href="$log_8c.html#a677da14e8c4326bde43622f233f1ead3" title="Prints an error message and terminates this program. " alt="" coords="195,56,242,83"/>
+<area shape="rect" id="node4" href="$log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="320,56,403,83"/>
 </map>

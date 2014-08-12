@@ -1,9 +1,9 @@
 <map id="src/option.c" name="src/option.c">
 <area shape="rect" id="node5" href="$option_8h_source.html" title="dchat_h/option.h" alt="" coords="327,155,447,181"/>
-<area shape="rect" id="node11" href="$decoder_8h_source.html" title="dchat_h/decoder.h" alt="" coords="19,155,151,181"/>
-<area shape="rect" id="node12" href="$contact_8h_source.html" title="dchat_h/contact.h" alt="" coords="175,155,301,181"/>
-<area shape="rect" id="node13" href="$log_8h_source.html" title="dchat_h/log.h" alt="" coords="439,80,541,107"/>
-<area shape="rect" id="node16" href="$util_8h_source.html" title="dchat_h/util.h" alt="" coords="633,80,735,107"/>
+<area shape="rect" id="node12" href="$decoder_8h_source.html" title="dchat_h/decoder.h" alt="" coords="19,155,151,181"/>
+<area shape="rect" id="node13" href="$contact_8h_source.html" title="dchat_h/contact.h" alt="" coords="175,155,301,181"/>
+<area shape="rect" id="node14" href="$log_8h_source.html" title="dchat_h/log.h" alt="" coords="439,80,541,107"/>
+<area shape="rect" id="node17" href="$util_8h_source.html" title="dchat_h/util.h" alt="" coords="633,80,735,107"/>
 <area shape="rect" id="node7" href="$types_8h_source.html" title="types.h" alt="" coords="234,229,299,256"/>
-<area shape="rect" id="node9" href="$network_8h_source.html" title="network.h" alt="" coords="227,304,307,331"/>
+<area shape="rect" id="node10" href="$network_8h_source.html" title="network.h" alt="" coords="180,304,260,331"/>
 </map>

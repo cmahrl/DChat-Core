@@ -5,5 +5,6 @@
 <area shape="rect" id="node6" href="$network_8c.html#a139629f69df293ba1da88fea96af5e5e" title="Checks wether the given onion&#45;id is a valid onion address. " alt="" coords="185,157,292,184"/>
 <area shape="rect" id="node7" href="$network_8c.html#a53aa686284d28600afef0e06d7ab3d54" title="Checks wether the given port is a valid TCP port. " alt="" coords="190,208,287,235"/>
 <area shape="rect" id="node8" href="$decoder_8c.html#a338364bcfd88f32a9b162c4e12bd3cad" title="Checks if the given nickname is a valid DChat nickname. " alt="" coords="173,259,304,285"/>
-<area shape="rect" id="node4" href="$log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="363,56,445,83"/>
+<area shape="rect" id="node9" href="$log_8c.html#a677da14e8c4326bde43622f233f1ead3" title="Prints an error message and terminates this program. " alt="" coords="215,309,262,336"/>
+<area shape="rect" id="node4" href="$log_8c.html#a38678da7483f269b8c96f83a8f45ef12" title="Log a message to a file. " alt="" coords="363,183,445,209"/>
 </map>

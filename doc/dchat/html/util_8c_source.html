@@ -161,7 +161,8 @@ $(document).ready(function(){initNavTree('util_8c_source.html','');});
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;}</div>
 <div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;</div>
 <div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
-<div class="line"><a name="l00079"></a><span class="lineno"><a class="line" href="util_8c.html#aec599e83690b143e509ae4dd566fa5aa">   79</a></span>&#160;<span class="keywordtype">char</span>* <a class="code" href="util_8c.html#aec599e83690b143e509ae4dd566fa5aa">remove_leading_spaces</a>(<span class="keywordtype">char</span>* value)</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;<span class="keywordtype">char</span>*</div>
+<div class="line"><a name="l00079"></a><span class="lineno"><a class="line" href="util_8c.html#aec599e83690b143e509ae4dd566fa5aa">   79</a></span>&#160;<a class="code" href="util_8c.html#aec599e83690b143e509ae4dd566fa5aa">remove_leading_spaces</a>(<span class="keywordtype">char</span>* value)</div>
 <div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;{</div>
 <div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordflow">if</span> (value == NULL)</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    {</div>
@@ -172,6 +173,18 @@ $(document).ready(function(){initNavTree('util_8c_source.html','');});
 <div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;</div>
 <div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordflow">return</span> value;</div>
 <div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;}</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;<span class="keywordtype">int</span> </div>
+<div class="line"><a name="l00099"></a><span class="lineno"><a class="line" href="util_8c.html#a14252469532ecf356f22412644467eba">   99</a></span>&#160;<a class="code" href="util_8c.html#a14252469532ecf356f22412644467eba">iszero</a>(<span class="keywordtype">void</span> * ptr, <span class="keywordtype">int</span> n )</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;{</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;   <span class="keywordtype">char</span> * bptr = (<span class="keywordtype">char</span>*)ptr;</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;   <span class="keywordflow">while</span>( n-- )</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;     <span class="keywordflow">if</span>( *bptr++ )</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;         <span class="keywordflow">return</span> 0;</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;  <span class="keywordflow">return</span> 1;</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;}</div>
+<div class="ttc" id="util_8c_html_a14252469532ecf356f22412644467eba"><div class="ttname"><a href="util_8c.html#a14252469532ecf356f22412644467eba">iszero</a></div><div class="ttdeci">int iszero(void *ptr, int n)</div><div class="ttdoc">Checks wether n successive bytes in the memory pointed by ptr are 0. </div><div class="ttdef"><b>Definition:</b> <a href="util_8c_source.html#l00099">util.c:99</a></div></div>
 <div class="ttc" id="util_8c_html_aec599e83690b143e509ae4dd566fa5aa"><div class="ttname"><a href="util_8c.html#aec599e83690b143e509ae4dd566fa5aa">remove_leading_spaces</a></div><div class="ttdeci">char * remove_leading_spaces(char *value)</div><div class="ttdoc">Removes leading whitespaces. </div><div class="ttdef"><b>Definition:</b> <a href="util_8c_source.html#l00079">util.c:79</a></div></div>
 <div class="ttc" id="util_8c_html_af082905f7eac6d03e92015146bbc1925"><div class="ttname"><a href="util_8c.html#af082905f7eac6d03e92015146bbc1925">max</a></div><div class="ttdeci">int max(int a, int b)</div><div class="ttdoc">Define the maximum of two given integers. </div><div class="ttdef"><b>Definition:</b> <a href="util_8c_source.html#l00041">util.c:41</a></div></div>
 <div class="ttc" id="util_8c_html_a35d494e8cf30930557ac449187f7c301"><div class="ttname"><a href="util_8c.html#a35d494e8cf30930557ac449187f7c301">file_exists</a></div><div class="ttdeci">int file_exists(char *filename)</div><div class="ttdoc">Checks if the given file exists. </div><div class="ttdef"><b>Definition:</b> <a href="util_8c_source.html#l00053">util.c:53</a></div></div>
@@ -181,7 +194,7 @@ $(document).ready(function(){initNavTree('util_8c_source.html','');});
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="util_8c.html">util.c</a></li>
-    <li class="footer">Generated on Fri Aug 8 2014 11:32:18 for DChat by
+    <li class="footer">Generated on Tue Aug 12 2014 19:39:08 for DChat by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.7 </li>
   </ul>

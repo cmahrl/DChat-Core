@@ -2,7 +2,6 @@
 
   UNDONE
   ------
-    * support `Date` and `Server` headers
     * async connections
     * support for contact heart beat
     * support for file sharing
@@ -12,6 +11,7 @@
 
   DONE
   ----
+    * support `Date` and `Server` headers
     * print illegal header if received pdu is corrupt
     * refactor write_pdu in decoder.c using dchat headers structure
     * support for config files
