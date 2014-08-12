@@ -60,16 +60,19 @@ decode_header(dchat_pdu_t* pdu, char* line)
     int ret;            // return of parsed value
     dchat_v1_t proto;   // DChat V1 headers
 
-
-    if(line == NULL){
+    if (line == NULL)
+    {
         return -1;
     }
 
     // copy line to work with
     temp = malloc(strlen(line) + 1);
-    if(temp == NULL){
+
+    if (temp == NULL)
+    {
         fatal("Memory allocation for temporary decoder line failed!");
     }
+
     temp[0] = '\0';
     strcat(temp, line);
 
@@ -84,9 +87,10 @@ decode_header(dchat_pdu_t* pdu, char* line)
         free(temp);
         return -1;
     }
+
     // only split the very first token from temp, to keep
     // the value one token (containing possible delim chars)
-    if(save_ptr != NULL)
+    if (save_ptr != NULL)
     {
         value[strlen(value)] = *delim;
     }
@@ -215,7 +219,7 @@ read_pdu(int fd, dchat_pdu_t* pdu)
         ret = -1;
     }
 
-    if(ret != -1)
+    if (ret != -1)
     {
         len += strlen(line);
         free(line);
@@ -225,7 +229,7 @@ read_pdu(int fd, dchat_pdu_t* pdu)
         while ((ret = read_line(fd, &line)) != -1 || ret == 0)
         {
             len += strlen(line);
-            
+
             if (decode_header(pdu, line) == -1)
             {
                 // if line is not a header, it must be an empty line
@@ -233,6 +237,7 @@ read_pdu(int fd, dchat_pdu_t* pdu)
                 {
                     break; // All headers have been read
                 }
+
                 ret = -1;
                 break;
             }
@@ -240,12 +245,13 @@ read_pdu(int fd, dchat_pdu_t* pdu)
             free(line);
         }
     }
-    
+
     // On error print illegal line
-    if(ret == -1)
+    if (ret == -1)
     {
         log_msg(LOG_ERR, "Illegal PDU header received: '%s'", line);
     }
+
     // EOF or ERROR
     if (ret <= 0)
     {
@@ -313,20 +319,21 @@ encode_header(dchat_pdu_t* pdu, int header_id, char** headerline)
         {
             header = proto.header[i].header_name;
             len = strlen(header);
-            if((ret = proto.header[i].pdu_to_str(pdu, &value)) == -1)
+
+            if ((ret = proto.header[i].pdu_to_str(pdu, &value)) == -1)
             {
                 return -1;
             }
-            
-            // check if header is mandatory, if no value has been set 
+
+            // check if header is mandatory, if no value has been set
             // in the pdu structure
-            if(ret == 1)
+            if (ret == 1)
             {
                 // if header is mandatory -> raise error
                 // otherwise just return and do nothing
-                if(proto.header[i].mandatory)
+                if (proto.header[i].mandatory)
                 {
-                    return -1;  
+                    return -1;
                 }
 
                 return 1;
@@ -348,7 +355,6 @@ encode_header(dchat_pdu_t* pdu, int header_id, char** headerline)
             strncat(*headerline, " ", 1); // add a " " after the semicolon -> "key: value"
             strncat(*headerline, value, strlen(value)); // add value
             strncat(*headerline, "\n", 1);
-            
             // free converted pdu structure value
             free(value);
             return 0;
@@ -391,7 +397,9 @@ write_pdu(int fd, dchat_pdu_t* pdu)
     }
 
     pdulen += strlen(header);
-    if((pdu_raw = malloc(pdulen + 1)) == NULL){
+
+    if ((pdu_raw = malloc(pdulen + 1)) == NULL)
+    {
         fatal("Memory allocation for pdu failed!");
     }
 
@@ -404,7 +412,8 @@ write_pdu(int fd, dchat_pdu_t* pdu)
     for (int i = 0; i < HDR_AMOUNT; i++)
     {
         // get header strings except version header, if set in pdu structure
-        if(proto.header[i].header_id != HDR_ID_VER){
+        if (proto.header[i].header_id != HDR_ID_VER)
+        {
             // get header string
             if ((ret = encode_header(pdu, proto.header[i].header_id, &header)) == -1)
             {
@@ -414,9 +423,9 @@ write_pdu(int fd, dchat_pdu_t* pdu)
 
             // if header was mandatory, but value was not set in pdu structure
             // raise an error
-            if(ret == 1)
+            if (ret == 1)
             {
-                if(proto.header[i].mandatory)
+                if (proto.header[i].mandatory)
                 {
                     free(pdu_raw);
                     return -1;
@@ -428,6 +437,7 @@ write_pdu(int fd, dchat_pdu_t* pdu)
             // (re)allocate memory for new header (excluding \0)
             pdulen += strlen(header);
             pdu_raw = realloc(pdu_raw, pdulen);
+
             if (pdu_raw == NULL)
             {
                 fatal("Reallocation of pdu failed!");
@@ -436,13 +446,13 @@ write_pdu(int fd, dchat_pdu_t* pdu)
             // copy header to pdu
             strcat(pdu_raw, header);
             free(header);
-            
         }
     }
 
     // (re)allocate memory for empty line and content (excluding \0)
     pdulen += pdu->content_length + 1;
     pdu_raw = realloc(pdu_raw, pdulen);
+
     if (pdu_raw == NULL)
     {
         fatal("Reallocation of pdu failed!");
@@ -455,7 +465,6 @@ write_pdu(int fd, dchat_pdu_t* pdu)
     //write pdu to file descriptor
     ret = write(fd, pdu_raw, pdulen);
     free(pdu_raw);
-
     return pdulen;
 }
 
@@ -630,8 +639,8 @@ nic_str_to_pdu(char* value, dchat_pdu_t* pdu)
 int
 dat_str_to_pdu(char* value, dchat_pdu_t* pdu)
 {
-    if(strptime(value, "%a, %d %b %Y %H:%M:%S GMT", 
-        &pdu->sent) == NULL)
+    if (strptime(value, "%a, %d %b %Y %H:%M:%S GMT",
+                 &pdu->sent) == NULL)
     {
         return -1;
     }
@@ -649,13 +658,13 @@ dat_str_to_pdu(char* value, dchat_pdu_t* pdu)
 int
 srv_str_to_pdu(char* value, dchat_pdu_t* pdu)
 {
-    if((pdu->server = malloc(strlen(value) + 1)) == NULL)
+    if ((pdu->server = malloc(strlen(value) + 1)) == NULL)
     {
         fatal("Memory allocation for server failed!");
     }
+
     pdu->server[0] = '\0';
     strcat(pdu->server, value);
-
     return 0;
 }
 
@@ -665,7 +674,7 @@ srv_str_to_pdu(char* value, dchat_pdu_t* pdu)
  * value parameter to this string.
  * @param pdu Pointer to PDU structure
  * @param value Double pointer to string
- * @return 1 field was not set in pdu structure, 0 on success (string must be freed), 
+ * @return 1 field was not set in pdu structure, 0 on success (string must be freed),
  * -1 in case of error (e.g. illegal value in pdu structure , ...)
  */
 int
@@ -674,7 +683,7 @@ ver_pdu_to_str(dchat_pdu_t* pdu, char** value)
     char* version = "1.0";
 
     // nothing has been set
-    if(pdu->version == 0)
+    if (pdu->version == 0)
     {
         return 1;
     }
@@ -683,6 +692,7 @@ ver_pdu_to_str(dchat_pdu_t* pdu, char** value)
     if (pdu->version == DCHAT_V1)
     {
         *value = malloc(strlen(version) + 1);
+
         if (*value == NULL)
         {
             fatal("Memory allocation for version failed!");
@@ -702,7 +712,7 @@ ver_pdu_to_str(dchat_pdu_t* pdu, char** value)
  * address of the given value parameter to this string.
  * @param pdu Pointer to PDU structure
  * @param value Double pointer to string
- * @return 1 field was not set in pdu structure, 0 on success (string must be freed), 
+ * @return 1 field was not set in pdu structure, 0 on success (string must be freed),
  * -1 in case of error (e.g. illegal value in pdu structure , ...)
  */
 int
@@ -712,11 +722,11 @@ ctt_pdu_to_str(dchat_pdu_t* pdu, char** value)
     char* type;
 
     // content type has not been set
-    if(pdu->content_type == 0)
+    if (pdu->content_type == 0)
     {
         return 1;
     }
-    
+
     // init available content types
     if (init_dchat_content_types(&content_types) == -1)
     {
@@ -751,7 +761,7 @@ ctt_pdu_to_str(dchat_pdu_t* pdu, char** value)
  * address of the given value parameter to this string.
  * @param pdu Pointer to PDU structure
  * @param value Double pointer to string
- * @return 1 field was not set in pdu structure, 0 on success (string must be freed), 
+ * @return 1 field was not set in pdu structure, 0 on success (string must be freed),
  * -1 in case of error (e.g. illegal value in pdu structure , ...)
  */
 int
@@ -780,15 +790,14 @@ ctl_pdu_to_str(dchat_pdu_t* pdu, char** value)
  * address of the given value parameter to this string.
  * @param pdu Pointer to PDU structure
  * @param value Double pointer to string
- * @return 1 field was not set in pdu structure, 0 on success (string must be freed), 
+ * @return 1 field was not set in pdu structure, 0 on success (string must be freed),
  * -1 in case of error (e.g. illegal value in pdu structure , ...)
  */
 int
 oni_pdu_to_str(dchat_pdu_t* pdu, char** value)
 {
-
     // no onion-id has been set
-    if(pdu->onion_id[0] == '\0')
+    if (pdu->onion_id[0] == '\0')
     {
         return 1;
     }
@@ -798,9 +807,10 @@ oni_pdu_to_str(dchat_pdu_t* pdu, char** value)
     {
         return -1;
     }
-    
+
     //copy onion id
     *value = malloc(strlen(pdu->onion_id) + 1);
+
     if (*value == NULL)
     {
         fatal("Memory allocation for onion-id failed!");
@@ -808,7 +818,6 @@ oni_pdu_to_str(dchat_pdu_t* pdu, char** value)
 
     *value[0] = '\0';
     strcat(*value, pdu->onion_id);
-
     return 0;
 }
 
@@ -818,14 +827,14 @@ oni_pdu_to_str(dchat_pdu_t* pdu, char** value)
  * address of the given value parameter to this string.
  * @param pdu Pointer to PDU structure
  * @param value Double pointer to string
- * @return 1 field was not set in pdu structure, 0 on success (string must be freed), 
+ * @return 1 field was not set in pdu structure, 0 on success (string must be freed),
  * -1 in case of error (e.g. illegal value in pdu structure , ...)
  */
 int
 lnp_pdu_to_str(dchat_pdu_t* pdu, char** value)
 {
     // listening port has not been specified
-    if(pdu->lport == 0)
+    if (pdu->lport == 0)
     {
         return 1;
     }
@@ -853,13 +862,13 @@ lnp_pdu_to_str(dchat_pdu_t* pdu, char** value)
  * address of the given value parameter to this string.
  * @param pdu Pointer to PDU structure
  * @param value Double pointer to string
- * @return 1 field was not set in pdu structure, 0 on success (string must be freed), 
+ * @return 1 field was not set in pdu structure, 0 on success (string must be freed),
  * -1 in case of error (e.g. illegal value in pdu structure , ...)
  */
 int
 nic_pdu_to_str(dchat_pdu_t* pdu, char** value)
 {
-    if(pdu->nickname[0] == '\0')
+    if (pdu->nickname[0] == '\0')
     {
         return 1;
     }
@@ -869,8 +878,9 @@ nic_pdu_to_str(dchat_pdu_t* pdu, char** value)
         return -1;
     }
 
-    //copy nickname 
+    //copy nickname
     *value = malloc(strlen(pdu->nickname) + 1);
+
     if (*value == NULL)
     {
         fatal("Memory allocation for nickname failed!");
@@ -887,7 +897,7 @@ nic_pdu_to_str(dchat_pdu_t* pdu, char** value)
  * address of the given value parameter to this string.
  * @param pdu Pointer to PDU structure
  * @param value Double pointer to string
- * @return 1 field was not set in pdu structure, 0 on success (string must be freed), 
+ * @return 1 field was not set in pdu structure, 0 on success (string must be freed),
  * -1 in case of error (e.g. illegal value in pdu structure , ...)
  */
 int
@@ -896,12 +906,13 @@ dat_pdu_to_str(dchat_pdu_t* pdu, char** value)
     int max_len = 100;
 
     // check if date field is empty
-    if(iszero(&pdu->sent, sizeof(pdu->sent)))
+    if (iszero(&pdu->sent, sizeof(pdu->sent)))
     {
         return 1;
     }
 
     *value = malloc(max_len);
+
     if (*value == NULL)
     {
         fatal("Memory allocation for date failed!");
@@ -918,18 +929,19 @@ dat_pdu_to_str(dchat_pdu_t* pdu, char** value)
  * address of the given value parameter to this string.
  * @param pdu Pointer to PDU structure
  * @param value Double pointer to string
- * @return 1 field was not set in pdu structure, 0 on success (string must be freed), 
+ * @return 1 field was not set in pdu structure, 0 on success (string must be freed),
  * -1 in case of error (e.g. illegal value in pdu structure , ...)
  */
 int
 srv_pdu_to_str(dchat_pdu_t* pdu, char** value)
 {
-    if(pdu->server == NULL)
+    if (pdu->server == NULL)
     {
         return 1;
     }
 
     *value = malloc(strlen(pdu->server) + 1);
+
     if (*value == NULL)
     {
         fatal("Memory allocation for date failed!");
@@ -1080,15 +1092,16 @@ init_dchat_pdu(dchat_pdu_t* pdu, float version, int content_type,
     char* package_name = PACKAGE_NAME;
     char* package_version = PACKAGE_VERSION;
     pdu->server = malloc(strlen(package_name)+strlen(package_version)+2);
-    if(pdu->server == NULL)
+
+    if (pdu->server == NULL)
     {
         fatal("Memory allocation for server failed!");
     }
+
     pdu->server[0] = '\0';
     strcat(pdu->server, package_name);
     strcat(pdu->server, "/");
     strcat(pdu->server, package_version);
-
     return 0;
 }
 
@@ -1236,7 +1249,7 @@ free_pdu(dchat_pdu_t* pdu)
             free(pdu->content);
         }
 
-        if(pdu->server != NULL)
+        if (pdu->server != NULL)
         {
             free(pdu->server);
         }

@@ -95,12 +95,16 @@ remove_leading_spaces(char* value)
  *  @param ptr Pointer to memory
  *  @return 1 if every byte is zero, 0 otherwise
  */
-int 
-iszero(void * ptr, int n )
+int
+iszero(void* ptr, int n )
 {
-   char * bptr = (char*)ptr;
-   while( n-- )
-     if( *bptr++ )
-         return 0;
-  return 1;
+    char* bptr = (char*)ptr;
+
+    while ( n-- )
+        if ( *bptr++ )
+        {
+            return 0;
+        }
+
+    return 1;
 }
