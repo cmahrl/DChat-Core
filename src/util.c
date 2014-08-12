@@ -73,10 +73,10 @@ int file_exists(char* filename)
  *  Removes leading whitespaces.
  *  @param value Null-terminated string
  *  @return Pointer to string whose leading spaces were removed or
- *  NULL
- *  (check errno of fopen)
+ *  NULL (check errno of fopen)
  */
-char* remove_leading_spaces(char* value)
+char*
+remove_leading_spaces(char* value)
 {
     if (value == NULL)
     {
@@ -86,4 +86,21 @@ char* remove_leading_spaces(char* value)
     for (; isspace(*value); value++);
 
     return value;
+}
+
+
+/**
+ *  Checks wether n successive bytes in the memory pointed by
+ *  ptr are 0.
+ *  @param ptr Pointer to memory
+ *  @return 1 if every byte is zero, 0 otherwise
+ */
+int 
+iszero(void * ptr, int n )
+{
+   char * bptr = (char*)ptr;
+   while( n-- )
+     if( *bptr++ )
+         return 0;
+  return 1;
 }

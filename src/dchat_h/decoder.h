@@ -28,7 +28,7 @@
 //          LIMITS
 //*********************************
 #define MAX_CONTENT_LEN 4096
-#define HDR_AMOUNT      6
+#define HDR_AMOUNT      7
 #define CTT_AMOUNT      4
 
 
@@ -47,6 +47,7 @@
 #define HDR_ID_ONI 0x04
 #define HDR_ID_LNP 0x05
 #define HDR_ID_NIC 0x06
+#define HDR_ID_DAT 0x07
 
 
 //*********************************
@@ -58,6 +59,7 @@
 #define HDR_NAME_ONI "Host"
 #define HDR_NAME_LNP "Listen-Port"
 #define HDR_NAME_NIC "Nickname"
+#define HDR_NAME_DAT "Date"
 
 
 //*********************************

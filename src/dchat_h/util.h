@@ -34,5 +34,6 @@
 int max(int a, int b);
 int file_exists(char* filename);
 char* remove_leading_spaces(char* value);
+int iszero(void* ptr, int n);
 
 #endif

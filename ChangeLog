@@ -4,8 +4,12 @@
 		-) Updated `handle_remote_input`: Nickname of a contact is not
 		   necessary anymore
 
+	* src/util.c: 
+		-) added function `iszero`
+
 	* src/dchat_h/decoder.h: 
 		-) added field `mandatory` to structure `dchat_header`
+		-) added new header `Date`
 
 	* src/decoder.c: 
 		-) refactored function `write_pdu` to be as generic as possible.
@@ -16,6 +20,9 @@
 
 		-) function `init_dchat_v1` sets an additional header parameter
 		   which indicates wether a header is mandatory or optional
+
+		-) added parsing functions and adapted function `init_dchat_v1`
+		   to support the new header `Date`
 
 2014-08-08  Christoph Mahrl <is121018@fhstp.ac.at>
 

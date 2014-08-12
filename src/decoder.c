@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "dchat_h/decoder.h"
 #include "dchat_h/network.h"
@@ -82,6 +83,12 @@ decode_header(dchat_pdu_t* pdu, char* line)
     {
         free(temp);
         return -1;
+    }
+    // only split the very first token from temp, to keep
+    // the value one token (containing possible delim chars)
+    if(save_ptr != NULL)
+    {
+        value[strlen(value)] = *delim;
     }
 
     // first character must be a whitespace
@@ -612,6 +619,26 @@ nic_str_to_pdu(char* value, dchat_pdu_t* pdu)
 
 
 /**
+ * Parses the given value to a struct tm and sets its value,
+ * if valid, in the given PDU structure.
+ * @param value String to parse
+ * @param pdu Pointer to PDU structure
+ * @return 0 if value is a valid datetime string, -1 otherwise
+ */
+int
+dat_str_to_pdu(char* value, dchat_pdu_t* pdu)
+{
+    if(strptime(value, "%a, %d %b %Y %H:%M:%S GMT", 
+        &pdu->sent) == NULL)
+    {
+        return -1;
+    }
+
+    return 0;
+}
+
+
+/**
  * Converts the version field in the PDU to a string and sets the address of the given
  * value parameter to this string.
  * @param pdu Pointer to PDU structure
@@ -834,6 +861,37 @@ nic_pdu_to_str(dchat_pdu_t* pdu, char** value)
 
 
 /**
+ * Converts the sent field in the PDU to a string and sets the
+ * address of the given value parameter to this string.
+ * @param pdu Pointer to PDU structure
+ * @param value Double pointer to string
+ * @return 1 field was not set in pdu structure, 0 on success (string must be freed), 
+ * -1 in case of error (e.g. illegal value in pdu structure , ...)
+ */
+int
+dat_pdu_to_str(dchat_pdu_t* pdu, char** value)
+{
+    int max_len = 100;
+
+    // check if date field is empty
+    if(iszero(&pdu->sent, sizeof(pdu->sent)))
+    {
+        return 1;
+    }
+
+    *value = malloc(max_len);
+    if (*value == NULL)
+    {
+        fatal("Memory allocation for nickname failed!");
+    }
+
+    *value[0] = '\0';
+    strftime(*value, max_len, "%a, %d %b %Y %H:%M:%S GMT", &pdu->sent);
+    return 0;
+}
+
+
+/**
  * Initializes a content-types structure with all available
  * content-types in DChat.
  * The structure the given Pointer is pointing to, will be
@@ -890,7 +948,8 @@ init_dchat_v1(dchat_v1_t* proto)
         HEADER(HDR_ID_CTL, HDR_NAME_CTL, 1, ctl_str_to_pdu, ctl_pdu_to_str),
         HEADER(HDR_ID_ONI, HDR_NAME_ONI, 1, oni_str_to_pdu, oni_pdu_to_str),
         HEADER(HDR_ID_LNP, HDR_NAME_LNP, 1, lnp_str_to_pdu, lnp_pdu_to_str),
-        HEADER(HDR_ID_NIC, HDR_NAME_NIC, 0, nic_str_to_pdu, nic_pdu_to_str)
+        HEADER(HDR_ID_NIC, HDR_NAME_NIC, 0, nic_str_to_pdu, nic_pdu_to_str),
+        HEADER(HDR_ID_DAT, HDR_NAME_DAT, 0, dat_str_to_pdu, dat_pdu_to_str)
     };
     temp_size = sizeof(temp) / sizeof(temp[0]);
 
@@ -950,13 +1009,22 @@ init_dchat_pdu(dchat_pdu_t* pdu, float version, int content_type,
     }
 
     memset(pdu, 0, sizeof(*pdu));
+    // set dchat version
     pdu->version      = version;
+    // set content-type
     pdu->content_type = content_type;
+    // set hostname
     pdu->onion_id[0]  = '\0';
     strncpy(pdu->onion_id, onion_id, ONION_ADDRLEN);
+    // set listening port
     pdu->lport        = lport;
+    // set nickname
     pdu->nickname[0]  = '\0';
     strncpy(pdu->nickname, nickname, MAX_NICKNAME);
+    // set initialization datetime
+    time_t now        = time(0);
+    struct tm tm      = *gmtime(&now);
+    memcpy(&pdu->sent, &tm, sizeof(struct tm));
     return 0;
 }
 

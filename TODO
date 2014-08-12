@@ -3,6 +3,7 @@
   UNDONE
   ------
     * support `Date` and `Server` headers
+    * async connections
     * support for contact heart beat
     * support for file sharing
     * check memory leaks with valgrind

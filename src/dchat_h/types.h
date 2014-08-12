@@ -22,6 +22,7 @@
 #define DCHAT_TYPES_H
 
 #include <netinet/in.h>
+#include <time.h>
 #include "network.h"
 
 #define FRAME_BUF_LEN  4096
@@ -45,6 +46,7 @@ typedef struct dchat_pdu
     char onion_id[ONION_ADDRLEN + 1]; //!< onion address of hidden service
     uint16_t lport;                    //!< listening port of hidden service
     char nickname[MAX_NICKNAME + 1];   //!< nickname of the client
+    struct tm sent;                    //!< receive time of pdu
 } dchat_pdu_t;
 
 /*!
