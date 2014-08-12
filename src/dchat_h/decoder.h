@@ -28,7 +28,7 @@
 //          LIMITS
 //*********************************
 #define MAX_CONTENT_LEN 4096
-#define HDR_AMOUNT      7
+#define HDR_AMOUNT      8
 #define CTT_AMOUNT      4
 
 
@@ -48,6 +48,7 @@
 #define HDR_ID_LNP 0x05
 #define HDR_ID_NIC 0x06
 #define HDR_ID_DAT 0x07
+#define HDR_ID_SRV 0x08
 
 
 //*********************************
@@ -60,6 +61,7 @@
 #define HDR_NAME_LNP "Listen-Port"
 #define HDR_NAME_NIC "Nickname"
 #define HDR_NAME_DAT "Date"
+#define HDR_NAME_SRV "Server"
 
 
 //*********************************
@@ -161,6 +163,8 @@ int ctl_str_to_pdu(char* value, dchat_pdu_t* pdu);
 int oni_str_to_pdu(char* value, dchat_pdu_t* pdu);
 int lnp_str_to_pdu(char* value, dchat_pdu_t* pdu);
 int nic_str_to_pdu(char* value, dchat_pdu_t* pdu);
+int dat_str_to_pdu(char* value, dchat_pdu_t* pdu);
+int srv_str_to_pdu(char* value, dchat_pdu_t* pdu);
 
 int ver_pdu_to_str(dchat_pdu_t* pdu, char** value);
 int ctt_pdu_to_str(dchat_pdu_t* pdu, char** value);
@@ -168,6 +172,8 @@ int ctl_pdu_to_str(dchat_pdu_t* pdu, char** value);
 int oni_pdu_to_str(dchat_pdu_t* pdu, char** value);
 int lnp_pdu_to_str(dchat_pdu_t* pdu, char** value);
 int nic_pdu_to_str(dchat_pdu_t* pdu, char** value);
+int dat_pdu_to_str(dchat_pdu_t* pdu, char** value);
+int srv_pdu_to_str(dchat_pdu_t* pdu, char** value);
 
 
 //*********************************

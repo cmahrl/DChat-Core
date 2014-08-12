@@ -326,11 +326,9 @@ encode_header(dchat_pdu_t* pdu, int header_id, char** headerline)
                 // otherwise just return and do nothing
                 if(proto.header[i].mandatory)
                 {
-                    free(value);
                     return -1;  
                 }
 
-                free(value);
                 return 1;
             }
 
@@ -414,13 +412,17 @@ write_pdu(int fd, dchat_pdu_t* pdu)
                 return -1;
             }
 
-              
             // if header was mandatory, but value was not set in pdu structure
             // raise an error
-            if(ret == 1 && proto.header[i].mandatory)
+            if(ret == 1)
             {
-                free(pdu_raw);
-                return -1;
+                if(proto.header[i].mandatory)
+                {
+                    free(pdu_raw);
+                    return -1;
+                }
+
+                continue;
             }
 
             // (re)allocate memory for new header (excluding \0)
@@ -633,6 +635,26 @@ dat_str_to_pdu(char* value, dchat_pdu_t* pdu)
     {
         return -1;
     }
+
+    return 0;
+}
+
+/**
+ * Parses the given value to a server field and sets its value,
+ * if valid, in the given PDU structure.
+ * @param value String to parse
+ * @param pdu Pointer to PDU structure
+ * @return 0 if value is a valid server string, -1 otherwise
+ */
+int
+srv_str_to_pdu(char* value, dchat_pdu_t* pdu)
+{
+    if((pdu->server = malloc(strlen(value) + 1)) == NULL)
+    {
+        fatal("Memory allocation for server failed!");
+    }
+    pdu->server[0] = '\0';
+    strcat(pdu->server, value);
 
     return 0;
 }
@@ -882,11 +904,39 @@ dat_pdu_to_str(dchat_pdu_t* pdu, char** value)
     *value = malloc(max_len);
     if (*value == NULL)
     {
-        fatal("Memory allocation for nickname failed!");
+        fatal("Memory allocation for date failed!");
     }
 
     *value[0] = '\0';
     strftime(*value, max_len, "%a, %d %b %Y %H:%M:%S GMT", &pdu->sent);
+    return 0;
+}
+
+
+/**
+ * Converts the server field in the PDU to a string and sets the
+ * address of the given value parameter to this string.
+ * @param pdu Pointer to PDU structure
+ * @param value Double pointer to string
+ * @return 1 field was not set in pdu structure, 0 on success (string must be freed), 
+ * -1 in case of error (e.g. illegal value in pdu structure , ...)
+ */
+int
+srv_pdu_to_str(dchat_pdu_t* pdu, char** value)
+{
+    if(pdu->server == NULL)
+    {
+        return 1;
+    }
+
+    *value = malloc(strlen(pdu->server) + 1);
+    if (*value == NULL)
+    {
+        fatal("Memory allocation for date failed!");
+    }
+
+    *value[0] = '\0';
+    strcat(*value, pdu->server);
     return 0;
 }
 
@@ -949,7 +999,8 @@ init_dchat_v1(dchat_v1_t* proto)
         HEADER(HDR_ID_ONI, HDR_NAME_ONI, 1, oni_str_to_pdu, oni_pdu_to_str),
         HEADER(HDR_ID_LNP, HDR_NAME_LNP, 1, lnp_str_to_pdu, lnp_pdu_to_str),
         HEADER(HDR_ID_NIC, HDR_NAME_NIC, 0, nic_str_to_pdu, nic_pdu_to_str),
-        HEADER(HDR_ID_DAT, HDR_NAME_DAT, 0, dat_str_to_pdu, dat_pdu_to_str)
+        HEADER(HDR_ID_DAT, HDR_NAME_DAT, 0, dat_str_to_pdu, dat_pdu_to_str),
+        HEADER(HDR_ID_SRV, HDR_NAME_SRV, 0, srv_str_to_pdu, srv_pdu_to_str)
     };
     temp_size = sizeof(temp) / sizeof(temp[0]);
 
@@ -1025,6 +1076,19 @@ init_dchat_pdu(dchat_pdu_t* pdu, float version, int content_type,
     time_t now        = time(0);
     struct tm tm      = *gmtime(&now);
     memcpy(&pdu->sent, &tm, sizeof(struct tm));
+    // set servername
+    char* package_name = PACKAGE_NAME;
+    char* package_version = PACKAGE_VERSION;
+    pdu->server = malloc(strlen(package_name)+strlen(package_version)+2);
+    if(pdu->server == NULL)
+    {
+        fatal("Memory allocation for server failed!");
+    }
+    pdu->server[0] = '\0';
+    strcat(pdu->server, package_name);
+    strcat(pdu->server, "/");
+    strcat(pdu->server, package_version);
+
     return 0;
 }
 
@@ -1170,6 +1234,11 @@ free_pdu(dchat_pdu_t* pdu)
         if (pdu->content != NULL)
         {
             free(pdu->content);
+        }
+
+        if(pdu->server != NULL)
+        {
+            free(pdu->server);
         }
     }
 }

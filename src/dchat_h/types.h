@@ -46,7 +46,8 @@ typedef struct dchat_pdu
     char onion_id[ONION_ADDRLEN + 1]; //!< onion address of hidden service
     uint16_t lport;                    //!< listening port of hidden service
     char nickname[MAX_NICKNAME + 1];   //!< nickname of the client
-    struct tm sent;                    //!< receive time of pdu
+    struct tm sent;                    //!< receive time of pdu (Date header)
+    char* server;                      //!< type of server that crafted this pdu
 } dchat_pdu_t;
 
 /*!

@@ -4,12 +4,18 @@
 		-) Updated `handle_remote_input`: Nickname of a contact is not
 		   necessary anymore
 
+	* src/dchat_h/types.h: 
+		-) added fields `sent` and `server` to `dchat_pdu_t`
+
 	* src/util.c: 
 		-) added function `iszero`
 
 	* src/dchat_h/decoder.h: 
 		-) added field `mandatory` to structure `dchat_header`
+
 		-) added new header `Date`
+
+		-) added new header `Server`
 
 	* src/decoder.c: 
 		-) refactored function `write_pdu` to be as generic as possible.
@@ -23,6 +29,11 @@
 
 		-) added parsing functions and adapted function `init_dchat_v1`
 		   to support the new header `Date`
+
+		-) added parsing functions and adapted function `init_dchat_v1`
+		   to support the new header `Server``
+
+		-) `free_pdu` now also frees the server field of a pdu
 
 2014-08-08  Christoph Mahrl <is121018@fhstp.ac.at>
 
