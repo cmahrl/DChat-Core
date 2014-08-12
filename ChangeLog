@@ -1,3 +1,22 @@
+2014-08-12  Christoph Mahrl <is121018@fhstp.ac.at>
+
+	* src/dchat.c: 
+		-) Updated `handle_remote_input`: Nickname of a contact is not
+		   necessary anymore
+
+	* src/dchat_h/decoder.h: 
+		-) added field `mandatory` to structure `dchat_header`
+
+	* src/decoder.c: 
+		-) refactored function `write_pdu` to be as generic as possible.
+
+		-) changed signature of function `encode_header`:
+			it returns an integer now and has an additional parameter
+			that will be used to store the crafted headerline in it
+
+		-) function `init_dchat_v1` sets an additional header parameter
+		   which indicates wether a header is mandatory or optional
+
 2014-08-08  Christoph Mahrl <is121018@fhstp.ac.at>
 
 	* src/util.c: 

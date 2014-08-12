@@ -3,8 +3,6 @@
   UNDONE
   ------
     * support `Date` and `Server` headers
-    * refactor write_pdu in decoder.c using dchat headers structure
-    * print PDU structure if an illegal one is received
     * support for contact heart beat
     * support for file sharing
     * check memory leaks with valgrind
@@ -13,6 +11,8 @@
 
   DONE
   ----
+    * print illegal header if received pdu is corrupt
+    * refactor write_pdu in decoder.c using dchat headers structure
     * support for config files
     * fix /connect inline-command bug when no args are specified 
     * fix bug where no error is thrown if the same required 

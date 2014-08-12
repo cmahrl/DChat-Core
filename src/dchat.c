@@ -560,11 +560,10 @@ handle_remote_input(dchat_conf_t* cnf, int n)
     }
 
     // the first pdus of a newly connected client have to be a
-    // "control/discover" containing the onion-id, listening
-    // port and nickname, otherwise raise an error and delete
+    // "control/discover" containing the onion-id and listening
+    // port, otherwise raise an error and delete
     // this contact
-    if ((contact->onion_id[0] == '\0' || !contact->lport ||
-         contact->name[0] == '\0')  &&
+    if ((contact->onion_id[0] == '\0' || !contact->lport)  &&
         pdu.content_type != CTT_ID_DSC)
     {
         log_msg(LOG_ERR, "Client '%d' omitted identification!", n);
@@ -596,7 +595,7 @@ handle_remote_input(dchat_conf_t* cnf, int n)
     // set nickname of contact
     contact->name[0] = '\0';
 
-    if (pdu.nickname != NULL)
+    if (pdu.nickname[0] != '\0')
     {
         strncat(contact->name, pdu.nickname, MAX_NICKNAME);
     }
@@ -604,7 +603,7 @@ handle_remote_input(dchat_conf_t* cnf, int n)
     // set onion id of contact
     contact->onion_id[0] = '\0';
 
-    if (pdu.onion_id != NULL)
+    if (pdu.onion_id[0] != '\0')
     {
         strncat(contact->onion_id, pdu.onion_id, ONION_ADDRLEN);
     }

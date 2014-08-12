@@ -83,7 +83,7 @@
 //*********************************
 //             MACRO
 //*********************************
-#define HEADER(ID, NAME, STR2PDU, PDU2STR) { ID, NAME, STR2PDU, PDU2STR }
+#define HEADER(ID, NAME, MAND, STR2PDU, PDU2STR) { ID, NAME, MAND, STR2PDU, PDU2STR }
 #define CONTENT_TYPE(ID, NAME) { ID, NAME }
 
 
@@ -119,6 +119,7 @@ typedef struct dchat_header
 {
     int   header_id;
     char* header_name;
+    int   mandatory;
     int (*str_to_pdu)(char*, dchat_pdu_t*);
     int (*pdu_to_str)(dchat_pdu_t*, char**);
 } dchat_header_t;
@@ -145,7 +146,7 @@ int read_pdu(int fd, dchat_pdu_t* pdu);
 //*********************************
 //        ENCODE FUNCTIONS
 //*********************************
-char* encode_header(dchat_pdu_t* pdu, int header_id);
+int encode_header(dchat_pdu_t* pdu, int header_id, char** headerline);
 int write_pdu(int fd, dchat_pdu_t* pdu);
 
 
