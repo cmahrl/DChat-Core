@@ -445,9 +445,7 @@ destroy(dchat_conf_t* cnf)
     // close write pipe for thread function th_new_input
     close(cnf->user_input[1]);
     // delete readline prompt and return to beginning of current line
-    dprintf(cnf->out_fd, "%s", ansi_clear_line());
-    dprintf(cnf->out_fd, "%s", ansi_cr());
-    dprintf(cnf->out_fd, "Good Bye!\n");
+    log_msg(LOG_INFO, "Good Bye!");
 }
 
 
