@@ -1,6 +1,8 @@
 *.o
 *.log
 *.PO
+*.orig
+*.exe
 config.h
 config.status
 stamp-h1
