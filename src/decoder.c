@@ -126,8 +126,9 @@ decode_header(dchat_pdu_t* pdu, char* line)
     {
         if (!strcmp(key, proto.header[i].header_name))
         {
+            ret = proto.header[i].str_to_pdu(value, pdu);
             free(temp);
-            return proto.header[i].str_to_pdu(value, pdu);
+            return ret;
         }
     }
 
@@ -383,7 +384,7 @@ write_pdu(int fd, dchat_pdu_t* pdu)
     char* header;                    //DChat header
     char* pdu_raw;                   //Final PDU
     int ret;                         //Return value
-    int pdulen=0;                    //Total length of PDU
+    int pdulen=1;                    //Total length of PDU
 
     if (init_dchat_v1(&proto) == -1)
     {
@@ -398,7 +399,7 @@ write_pdu(int fd, dchat_pdu_t* pdu)
 
     pdulen += strlen(header);
 
-    if ((pdu_raw = malloc(pdulen + 1)) == NULL)
+    if ((pdu_raw = malloc(pdulen)) == NULL)
     {
         fatal("Memory allocation for pdu failed!");
     }
@@ -449,7 +450,7 @@ write_pdu(int fd, dchat_pdu_t* pdu)
         }
     }
 
-    // (re)allocate memory for empty line and content (excluding \0)
+    // (re)allocate memory for empty line and content
     pdulen += pdu->content_length + 1;
     pdu_raw = realloc(pdu_raw, pdulen);
 
@@ -462,8 +463,10 @@ write_pdu(int fd, dchat_pdu_t* pdu)
     strcat(pdu_raw, "\n");
     // add content
     strncat(pdu_raw, pdu->content, pdu->content_length);
+    // exclude \0
+    pdulen--;
     //write pdu to file descriptor
-    ret = write(fd, pdu_raw, pdulen);
+    ret = write(fd, pdu_raw, strlen(pdu_raw));
     free(pdu_raw);
     return pdulen;
 }
