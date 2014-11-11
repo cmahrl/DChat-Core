@@ -493,7 +493,7 @@ handle_local_input(dchat_conf_t* cnf, char* line)
     else
     {
         ret = 0;
-        len += strlen(line); // memory for text message
+        len = strlen(line); // memory for text message
 
         if (len != 0)
         {
