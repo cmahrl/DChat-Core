@@ -31,12 +31,14 @@ AX_PTHREAD([LIBS+="$PTHREAD_CFLAGS $PTHREAD_LIBS"])
 AC_CHECK_HEADERS([arpa/inet.h limits.h netinet/in.h stdint.h stdlib.h string.h sys/socket.h syslog.h unistd.h getopt.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_CHECK_FUNCS([getopt_long])
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT8_T
 
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([memset select socket strchr strerror strtol])
+AC_CHECK_FUNCS([memset select socket strchr strerror strtol getopt_long])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile
