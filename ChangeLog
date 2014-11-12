@@ -1,234 +1,327 @@
-2014-08-12  Christoph Mahrl <is121018@fhstp.ac.at>
+2014-11-12  is121018  <christoph.mahrl@gmail.com>
 
-	* src/dchat.c: 
-		-) Updated `handle_remote_input`: Nickname of a contact is not
-		   necessary anymore
+	Update: Configure.ac
+	-) added uint checks
 
-	* src/dchat_h/types.h: 
-		-) added fields `sent` and `server` to `dchat_pdu_t`
+	-) removed *.orig files from dchat_h directory
 
-	* src/util.c: 
-		-) added function `iszero`
+2014-11-12  is121018  <christoph.mahrl@gmail.com>
 
-	* src/dchat_h/decoder.h: 
-		-) added field `mandatory` to structure `dchat_header`
+	Update AUTHORS
 
-		-) added new header `Date`
+	Update: Makefile.am / Readme
+	-) corrected -Wall CFLAG in Makefile.am
+	-) added line break in README
 
-		-) added new header `Server`
+2014-11-11  Andreas Schmoll  <andi.schmoll@gmx.at>
 
-	* src/decoder.c: 
-		-) refactored function `write_pdu` to be as generic as possible.
+	Update Makefile
+	Added -std=c99 flag
 
-		-) changed signature of function `encode_header`:
-			it returns an integer now and has an additional parameter
-			that will be used to store the crafted headerline in it
+	Bugfix: decoder.c
+	decode_header: free temp after using it
+	write_pdu: fix problems with pdulen (problems with \0)
 
-		-) function `init_dchat_v1` sets an additional header parameter
-		   which indicates wether a header is mandatory or optional
+	Bugfix: handle_local_input
+	The strlen of the line should be set into len not added to len
 
-		-) added parsing functions and adapted function `init_dchat_v1`
-		   to support the new header `Date`
+	Update gitignore
+	adding *.orig and *.exe to gitignore
 
-		-) added parsing functions and adapted function `init_dchat_v1`
-		   to support the new header `Server``
+2014-11-04  is121018  <christoph.mahrl@gmail.com>
 
-		-) `free_pdu` now also frees the server field of a pdu
+	Using proper log function
 
-2014-08-08  Christoph Mahrl <is121018@fhstp.ac.at>
+2014-08-12  is121018  <christoph.mahrl@gmail.com>
 
-	* src/util.c: 
-		-) added function `file_exists` and `remove_leading_spaces`
+	Code Formating
 
-	* src/cmdinterpreter.c: 
-		-) fixed bug that caused a segmentation fault if the command
-		   `/connect` is invoked without arguments. The newly added
-		   function `remove_leading_spaces` from `util.c` has been 
-		   used to fix this bug.
+	Updated Documentation / TODO
 
-	* src/option.c: 
-		-) added arguments `filepath` and `required_set` to
-		   `read_conf`.
-		-) refactored `read_conf` to be more error prone
-		-) `xxx_parse` functions now return 1 if nothing has been
-		   changed in the global config.
+	Support for "Server" Header
+	-) added support for header field „server“
 
-	* src/dchat.c: 
-		-) refactored function `main` to be more error prone if 
-		   a configuration file is existent and therefore read
+	Supporting "Date" Header
+	added corresponding parsing functions to decoder.c
+	and new macros to decode.h
 
-	* src/log.c: 
-		-) added argument `with_errno` to function `vlog_msgf`
-		-) edited functions `log_msg` and `log_errno` to make use
-		   of the newly added `vlog_msgf` argument.
+2014-08-12  is121018  <christoph.mahrl@gmail.com>
 
-2014-07-06  Christoph Mahrl <is121018@fhstp.ac.at>
+	Refactoring of `write_pdu`
+	-) write_pdu is now implemented as generic as possible since it does
+	not know how a pdu is structured
 
-	* src/decoder.c: 
-		-) code refactoring of `decode_header`, `read_line`, `read_pdu`
-		`encode_header` and `write_pdu`.
-		-) added param `version` to `init_dchat_pdu`.
-		-) added function `is_valid_termination` to check 
-		wether a string is terminated with \n or \r\n
-		respectively.
-		-) added function `is_valid_content_length`.
+	-) Nickname is not mandatory anymore
 
-	* src/dchat_h/option.h: 
-		-) added preprocessor constants for each gnu short option, long
-		option and its corresponding option argument.
+2014-08-08  is121018  <christoph.mahrl@gmail.com>
 
-	* src/cmdinterpreter.h: 
-		-) added new structures `cmd_t` and `cmds_t` for supporting
-		in-chat commands.
-		-) new cmd macro to define a new in-chat command.
+	Update TODO
 
-	* src/cmdinterpreter.c: 
-		-) code refactoring of whole file using new cmds structures.
+	Updated Error Message for Illegal PDUs
 
-	* src/contact.c: 
-		-) code cleanup
+	Update Doxygen Documentation
 
-	* src/dchat_h/decoder.h: 
-		-) added new dchat header id and name `HDR_ID_VER` and
-		`HDR_NAME_VER` to support the dchat version header.
-		-) deleted old header and content-type preprocessor constants
-		that have been replaced with new one.
-		
+2014-08-08  is121018  <christoph.mahrl@gmail.com>
 
-2014-07-05  Christoph Mahrl <is121018@fhstp.ac.at>
+	Supporting Configuration file
+	see: NEWS and ChangeLog file!
 
-	* src/decoder.c: 
-		-) added and implemented `pdu_to_str` and `str_to_pdu` functions 
-		to parse dchat headers and its corresponding values.
-		-) reimplemented `decode_header` and `encode_header` using the new 
-		header parser functions.
+	-) configuration file is now supported using a PPC constant distributed
+	from autotools. Path: /usr/local/etc/dchat/dchat.conf
 
-	* src/dchat_h/decoder.h: 
-		-) added structures `dchat_content_type`, `dchat_content_types`
-		`dchat_header` and `dchat_v1` used for encoding and decoding
-		DChat headers.
-		-) furthermore the dchat header and content-typer preprocessor 
-		constants have been replaced with new constants. 
-		-) added new macros `HEADER` and `CONTENT_TYPE` for defining
-		dchat headers or dchat content-types respectively.
+	-) code refactoring in dchat.c and option.c to be more error prone if
+	config file is used
 
-2014-07-02  Christoph Mahrl <is121018@fhstp.ac.at>
+	-) added functions to util.c
 
-	* src/dchat.c: 
-		-) in main`()`: a cli_option_t structure will be crafted
-		containing all available DChat command line options
-		-) moved `usage()` and `fatal()` to log.c
+	-) updated doxygen documentation
 
-	* src/dchat_h/option.h: 
-		-) new header file; contains structure `cli_option_t` and
-		important pre-processor defines and macros for ccommand line
-		options.
+2014-08-07  is121018  <christoph.mahrl@gmail.com>
 
-	* src/option.c: 
-		-) new source file; contains functions to extract a GNU
-		short/long option string using the information stored in
-		a `struct cli_option_t` structure. It contains other functions
-		used to handle storing of options and retrieving information
-		about them.
+	Update TODO
 
-	* src/log.c: 
-		-) changed signature of `usage()`. It requires an exit status
-		a `cli_option_t` pointer, size of `cli_option_t` array, format string
-		and variable arguments. 
+	Update TODO
 
-2014-06-27  Christoph Mahrl <is121018@fhstp.ac.at>
+	Supporting Config file
+	-) „CONFIG_PATH“ for the configuration file path will be populated as
+	PPC using GNU autoools
+	-) supporting configuration files
+	-) renamed header for transporting onion ids from „Onion-ID“ to „Host“
+	-) added options structure for dchat command line options
+	-) general code cleanup
 
-	* src/dchat.c:
-		-) major changes to support the redesign of the DChat
-		   protocol and work with TOR.
-		-) overall code refactoring and cleanup.
+2014-07-06  is121018  <christoph.mahrl@gmail.com>
 
-	* src/dchat_h/types.h: 
-		-) renamed `dchat_types.h` to `types.h`
+	Update TODO
 
-	* src/cmdinterpreter.c: 
-		-) renamed `dchat_cmd.c` and `dchat_cmd.h` to
-		   `cmdinterpreter.c` and `cmdinterpreter.h`.
+	Code Cleanup: cmdinterpreter.c
+	-) general code cleanup in whole file
+	-) added new cmd structures for more modular in-chat commands
 
-	* src/network.c: 
-		-) renamed `dchat_network.c` and `dchat_network.h` to
-		   `network.c` and `network.h`.
+	Code Cleanup: contact.c
+	-) general code cleanup
 
-	* src/contact.c: 
-		-) renamed `dchat_contact.c` and `dchat_contact.h` to
-		   `contact.c` and `contact.h`.
+	Code cleanup: Decoder.c
+	-) general code cleanup and code refactoring of whole file
 
-	* src/decoder.c: 
-		-) renamed `dchat_decoder.c` and `dchat_decoder.h` to
-		   `decoder.c` and `decoder.h`.
+2014-07-02  is121018  <christoph.mahrl@gmail.com>
 
-2014-06-22  Christoph Mahrl <is121018@fhstp.ac.at>
+	Update ChangeLog
 
-	* src/util.c:
-		-) changed function signature and renamed function
-		   `ansi_ter_clear_line()` and `ansi_term_cr()`.
-		-) `print_dchat_msg`: added new parameter `nickname` 
-		    to function signature.
+	Code Cleanup
+	-) code cleanup in dchat.c - more flexible handling of command line
+	options
+	-) flexible „usage“ by using cli options structure
 
-	* src/dchat.c: 
-		-) in `main()`: for remote connections `sockaddr_storage`
-		   will be used. If a remote port has been specified
-		   but no remote address, it will connect to the address
-		   stored as listening ip in the global config to the 
-		   specified port.
+2014-06-27  is121018  <christoph.mahrl@gmail.com>
 
-	* src/dchat_contact.c: 
-		-) in `check_duplicates()`: compares own contact info
-		   with the client stored in the contactlist. If it is
-		   us, the index will be returned (for deletion).
+	Formatted Code
 
-	* src/dchat_decoder.c: 
-		-) supporing nicknames in functions `decode_header()`
-		   and `encode_header()`
+	Updated Documentation
 
-	* src/dchat_h/dchat_decoder.h: 
-		-) added preproc define header field `HDR_NICKNAME`.
+	Renamed Source Files
+	-) renamed source files with prefix `dchat_`
+	-) formatted code
+	-) updated documentation
 
-	* src/dchat_h/dchat_types.h: 
-	    -) in struct `dchat_pdu`: added new header field 
-		   nickname.
+	Major Code Cleanup
+	-) major code cleanup and code refactoring in dchat.c
+	-) removed unnecessary include statements from source file
+	-) several code cleanups in other source files
 
-2014-06-21  Christoph Mahrl <is121018@fhstp.ac.at>
+2014-06-26  is121018  <christoph.mahrl@gmail.com>
 
-	* src/dchat.c: 
-		-) in `init()`: added sigmask to block certain signals
-		-) `th_new_input()` is now the main thread function. Changed
-		   return value to int. 0 will be returned on success and
-		   -1 if an error occured.
-		   Also the prompt is now colored yellow by calling the
-		   function `ansi_color_bold_yellow()`.
-		-) in `th_new_conn()`: added thread cancelation and cleanup 
-		   handler
-		-) in `th_main_loop()`: added thread cancelation and cleanup
-		   handler; changed return value to void* - nothing will
-		   be returned.
-		-) in `main()`: no signals will be raised for termination
-		   instead `destroy()` will be called directly and a return
-		   happens afterwards.
-		   Changed names of long options from `dst` to `dest`and
-		   `nick` to `nickname`
+	Update TODO
 
-	* src/util.c: 
-		-) added ansi terminal escape code functions to print colors
-		   and reset attributes.
-		-) `print_dchat_msg()` calls `ansi_color_bold_cyan()` to
-		   colorize the text message cyan.
+	Updated Documentation
 
-	* src/dchat_h/dchat_types.h: 
-		-) in struct `dchat_conf`: added pthread_t `select_th` and
-		   removed pthread_t `userin_th`.
+	Updated Documentation
+	-) Updated INSTALL, NEWS, README files
+	-) Updated man page
 
-2014-06-20  Christoph Mahrl <is121018@fhstp.ac.at>
+	Removed index.html
 
-	* src/dchat.c: 
-		-) in `main()`: supporting getopt_long()
-		-) moved `getifaddr()` to parse network interfaces from
-		   `init_global_config()` to `main()`
-	* src/dchat.c: 
-	    -) updated `usage(`)
+	Formatted Code
 
+	Generated Doxygen Documentation
+
+	Genereated Doxygen Documentation
+
+	IMPLEMENTED TOR
+	complete code refactoring
+
+2014-06-25  is121018  <christoph.mahrl@gmail.com>
+
+	Added API for TOR connections
+
+2014-06-22  is121018  <christoph.mahrl@gmail.com>
+
+	Fixed Deadlock
+
+	Updated Docu
+
+	Updated Docu
+	updated doxygen documentation
+
+2014-06-22  is121018  <christoph.mahrl@gmail.com>
+
+	Added IPv6 support for remote connection
+	-) default value for `—dest` if `-r / —rport` has been specified
+
+	-) ipv6 support for remote connection that have been specified with
+	long options
+
+	-) fixed a bug in main that caused a segfault, because the contactlist
+	has not been locked
+
+	-) fixed a bug in the contact duplication check, where it was possible
+	to connect to yourself and have invalid contact information stored in
+	the contactlist
+
+2014-06-22  is121018  <christoph.mahrl@gmail.com>
+
+	Update TODO
+
+	Added Nickname header field
+	added an optional header field `Nickname`
+
+2014-06-21  is121018  <christoph.mahrl@gmail.com>
+
+	Code cleanup
+	-) `th_new_input()` is now the main thread, since signals
+	    will be caught from readline
+	-) structure `dchat_conf_t`: removed `userin_th` and added
+	   `select_th` instead
+	-) added ansi escape code functions to utilise colours
+	-) colorised prompt and text messages
+	-) changed names of long options
+	-) adapted names of long options in the man page
+	-) adapted usage() to use the new long option names
+	-) updated TODO and NEWS
+
+2014-06-20  is121018  <christoph.mahrl@gmail.com>
+
+	Update usage()
+	added newline at the end of the message
+
+	Update manpage
+
+	Update manage
+
+	Update .gitignore
+	Added doxygen documentation directory
+
+	Update .gitignore
+
+	Support for GNU getopt
+	-) implemented DChat options using GNU getopt_long()
+	-) updated usage()
+	-) moved getifaddr() to main()
+	-) updated manage
+	-) added checks for GNU getopt in autotools
+
+2014-06-19  is121018  <christoph.mahrl@gmail.com>
+
+	Update TODO
+
+	Update TODO
+
+	GNU/LINUX: Support for PTHREAD
+	changed configure.ac to automatically link pthread
+
+	Added aclocal.m4
+
+	Added Autoconf Scripts
+	added config.guess and config.sub scripts and deleted symbolic links
+	previously used
+
+	Checking PTHREAD
+	Checking PTHREAD in Autoconf
+
+2014-06-18  is121018  <christoph.mahrl@gmail.com>
+
+	CHANGED INSTALLATION
+	README, NEWS and INSTALL file will now be installed
+	on `make install`
+
+	ADDED DOXYGEN
+	integrated doxygen into autotools: automatic distribution
+	of doxygen documentation
+
+	ADDED COPYRIGHT
+	copyright has been applied to source and header files
+
+2014-06-17  Christoph  <is121018@users.noreply.github.com>
+
+	UPDATE LICENSE
+	GPLv3
+
+	UPDATE TODO
+
+2014-06-17  is121018  <christoph.mahrl@gmail.com>
+
+	FINISHED DOCUMENTATION
+	-) formatted and documented all source files using doxygen syntax
+	-) added doxygen config file
+
+	FORMATTED SOURCE
+	-) formatted all source files with astyle
+	-) adapted comments of dchat.c to be compatible with doxygen comment
+	syntax
+	-) Added file CODING_STYLE containing the astyle format options used in
+	this project
+	-) changed section EXIT STATUS of the dchat manage
+
+2014-06-16  is121018  <christoph.mahrl@gmail.com>
+
+	FIXED DISTRIBUTION
+	for distribution certain scripts like compile, depcomp, install-sh, …
+	are required
+
+	Added prefix `dist_` to man/Makefile.am to distribute man pages
+
+2014-06-16  is121018  <christoph.mahrl@gmail.com>
+
+	UPDATED GITIGNORE
+	removed install-sh
+
+	UPDATED INSTALL
+	updated INSTALL file
+	updated MAN page
+
+	UPDATED TODO
+
+	UPDATED MANPAGE
+	completed synopsis, options, see also, exit status and bugs section
+
+	MAN PAGE
+	added description in the man page
+
+	FINISHED README
+	Finished section „What is it?“
+	Added link to protocol description in the file PROTOCOL
+
+2014-06-16  is121018  <is121018@users.noreply.github.com>
+
+	Delete .README.swp
+
+2014-06-16  is121018  <christoph.mahrl@gmail.com>
+
+	FINISHED README
+	Finished section „What is it?“ in README file
+
+	INITIAL COMMIT
+
+	INITIAL COMMIT
+
+	INITIAL COMMIT
+
+2014-06-15  is121018  <christoph.mahrl@gmail.com>
+
+	INITIAL COMMIT
+
+	INITIAL COMMIT
+
+	INITIAL COMMIT
+
+	INITIAL COMMIT

@@ -232,7 +232,7 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
-CFLAGS = --pedantic -Wall -std=c99
+CFLAGS = --pedantic - Wall -std=c99
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
@@ -904,8 +904,6 @@ uninstall-am: uninstall-docDATA
 @DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@ done; \
 @DX_COND_doc_TRUE@@DX_COND_pdf_TRUE@ mv refman.pdf ../@PACKAGE@.pdf
 
-@DX_COND_doc_TRUE@.PHONY: doxygen-run doxygen-doc $(DX_PS_GOAL) $(DX_PDF_GOAL)
-
 @DX_COND_doc_TRUE@.INTERMEDIATE: doxygen-run $(DX_PS_GOAL) $(DX_PDF_GOAL)
 
 @DX_COND_doc_TRUE@doxygen-run: @DX_DOCDIR@/@PACKAGE@.tag
@@ -915,6 +913,10 @@ uninstall-am: uninstall-docDATA
 @DX_COND_doc_TRUE@@DX_DOCDIR@/@PACKAGE@.tag: $(DX_CONFIG) $(pkginclude_HEADERS)
 @DX_COND_doc_TRUE@	rm -rf @DX_DOCDIR@
 @DX_COND_doc_TRUE@	$(DX_ENV) $(DX_DOXYGEN) $(srcdir)/$(DX_CONFIG)
+
+.PHONY: changelog doxygen-run doxygen-doc $(DX_PS_GOAL) $(DX_PDF_GOAL)
+
+changelog: ; build/gitlog-to-changelog > ChangeLog;
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
