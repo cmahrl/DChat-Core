@@ -4,6 +4,7 @@
 *.orig
 *.exe
 config.h
+config.h.in~
 config.status
 stamp-h1
 autom4te.cache/
