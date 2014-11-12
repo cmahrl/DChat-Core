@@ -1,11 +1,23 @@
-2014-11-12  is121018  <christoph.mahrl@gmail.com>
+2014-11-12  Andreas Schmoll  <is121024@fhstp.ac.at>
+
+	Read User Input from File-Descriptor
+	Read User Input from File-Descriptor instead of using GNU readline
+
+	Update: Makefile
+	added gitlog-to-changelog
+
+2014-11-12  Christoph Mahrl  <is121018@fhstp.ac.at>
+
+	Remove ignored files
+
+2014-11-12  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Update: Configure.ac
 	-) added uint checks
 
 	-) removed *.orig files from dchat_h directory
 
-2014-11-12  is121018  <christoph.mahrl@gmail.com>
+2014-11-12  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Update AUTHORS
 
@@ -13,7 +25,7 @@
 	-) corrected -Wall CFLAG in Makefile.am
 	-) added line break in README
 
-2014-11-11  Andreas Schmoll  <andi.schmoll@gmx.at>
+2014-11-11  Andreas Schmoll  <is121024@fhstp.ac.at>
 
 	Update Makefile
 	Added -std=c99 flag
@@ -28,11 +40,11 @@
 	Update gitignore
 	adding *.orig and *.exe to gitignore
 
-2014-11-04  is121018  <christoph.mahrl@gmail.com>
+2014-11-04  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Using proper log function
 
-2014-08-12  is121018  <christoph.mahrl@gmail.com>
+2014-08-12  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Code Formating
 
@@ -45,7 +57,7 @@
 	added corresponding parsing functions to decoder.c
 	and new macros to decode.h
 
-2014-08-12  is121018  <christoph.mahrl@gmail.com>
+2014-08-12  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Refactoring of `write_pdu`
 	-) write_pdu is now implemented as generic as possible since it does
@@ -53,7 +65,7 @@
 
 	-) Nickname is not mandatory anymore
 
-2014-08-08  is121018  <christoph.mahrl@gmail.com>
+2014-08-08  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Update TODO
 
@@ -61,7 +73,7 @@
 
 	Update Doxygen Documentation
 
-2014-08-08  is121018  <christoph.mahrl@gmail.com>
+2014-08-08  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Supporting Configuration file
 	see: NEWS and ChangeLog file!
@@ -76,7 +88,7 @@
 
 	-) updated doxygen documentation
 
-2014-08-07  is121018  <christoph.mahrl@gmail.com>
+2014-08-07  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Update TODO
 
@@ -90,7 +102,7 @@
 	-) added options structure for dchat command line options
 	-) general code cleanup
 
-2014-07-06  is121018  <christoph.mahrl@gmail.com>
+2014-07-06  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Update TODO
 
@@ -104,7 +116,7 @@
 	Code cleanup: Decoder.c
 	-) general code cleanup and code refactoring of whole file
 
-2014-07-02  is121018  <christoph.mahrl@gmail.com>
+2014-07-02  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Update ChangeLog
 
@@ -113,7 +125,7 @@
 	options
 	-) flexible „usage“ by using cli options structure
 
-2014-06-27  is121018  <christoph.mahrl@gmail.com>
+2014-06-27  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Formatted Code
 
@@ -129,7 +141,7 @@
 	-) removed unnecessary include statements from source file
 	-) several code cleanups in other source files
 
-2014-06-26  is121018  <christoph.mahrl@gmail.com>
+2014-06-26  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Update TODO
 
@@ -150,11 +162,11 @@
 	IMPLEMENTED TOR
 	complete code refactoring
 
-2014-06-25  is121018  <christoph.mahrl@gmail.com>
+2014-06-25  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Added API for TOR connections
 
-2014-06-22  is121018  <christoph.mahrl@gmail.com>
+2014-06-22  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Fixed Deadlock
 
@@ -163,7 +175,7 @@
 	Updated Docu
 	updated doxygen documentation
 
-2014-06-22  is121018  <christoph.mahrl@gmail.com>
+2014-06-22  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Added IPv6 support for remote connection
 	-) default value for `—dest` if `-r / —rport` has been specified
@@ -178,14 +190,14 @@
 	to connect to yourself and have invalid contact information stored in
 	the contactlist
 
-2014-06-22  is121018  <christoph.mahrl@gmail.com>
+2014-06-22  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Update TODO
 
 	Added Nickname header field
 	added an optional header field `Nickname`
 
-2014-06-21  is121018  <christoph.mahrl@gmail.com>
+2014-06-21  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Code cleanup
 	-) `th_new_input()` is now the main thread, since signals
@@ -199,7 +211,7 @@
 	-) adapted usage() to use the new long option names
 	-) updated TODO and NEWS
 
-2014-06-20  is121018  <christoph.mahrl@gmail.com>
+2014-06-20  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Update usage()
 	added newline at the end of the message
@@ -220,7 +232,7 @@
 	-) updated manage
 	-) added checks for GNU getopt in autotools
 
-2014-06-19  is121018  <christoph.mahrl@gmail.com>
+2014-06-19  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	Update TODO
 
@@ -238,7 +250,7 @@
 	Checking PTHREAD
 	Checking PTHREAD in Autoconf
 
-2014-06-18  is121018  <christoph.mahrl@gmail.com>
+2014-06-18  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	CHANGED INSTALLATION
 	README, NEWS and INSTALL file will now be installed
@@ -258,7 +270,7 @@
 
 	UPDATE TODO
 
-2014-06-17  is121018  <christoph.mahrl@gmail.com>
+2014-06-17  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	FINISHED DOCUMENTATION
 	-) formatted and documented all source files using doxygen syntax
@@ -272,7 +284,7 @@
 	this project
 	-) changed section EXIT STATUS of the dchat manage
 
-2014-06-16  is121018  <christoph.mahrl@gmail.com>
+2014-06-16  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	FIXED DISTRIBUTION
 	for distribution certain scripts like compile, depcomp, install-sh, …
@@ -280,7 +292,7 @@
 
 	Added prefix `dist_` to man/Makefile.am to distribute man pages
 
-2014-06-16  is121018  <christoph.mahrl@gmail.com>
+2014-06-16  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	UPDATED GITIGNORE
 	removed install-sh
@@ -305,7 +317,7 @@
 
 	Delete .README.swp
 
-2014-06-16  is121018  <christoph.mahrl@gmail.com>
+2014-06-16  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	FINISHED README
 	Finished section „What is it?“ in README file
@@ -316,7 +328,7 @@
 
 	INITIAL COMMIT
 
-2014-06-15  is121018  <christoph.mahrl@gmail.com>
+2014-06-15  Christoph Mahrl  <is121018@fhstp.ac.at>
 
 	INITIAL COMMIT
 
