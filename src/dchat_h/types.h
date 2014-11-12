@@ -82,7 +82,7 @@ typedef struct dchat_conf
     contact_t me;               //!< local contact information
     struct sockaddr_storage sa; //!< local socket address
     int acpt_fd;                //!< listening socket
-    int in_fd, out_fd;          //!< console input and output
+    int in_fd, out_fd, log_fd;  //!< console input, output and log
     int connect_fd[2];          //!< pipe to connector
     int cl_change[2];           //!< pipe to signal wait loop from connect
     int user_input[2];          //!< pipe to signal a new user input from stdin

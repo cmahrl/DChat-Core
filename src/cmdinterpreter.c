@@ -27,7 +27,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <readline/readline.h>
 
 #include "dchat_h/cmdinterpreter.h"
 #include "dchat_h/types.h"

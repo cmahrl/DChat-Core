@@ -46,7 +46,6 @@
 #include <errno.h>
 #include <netinet/in.h>
 #include <pthread.h>
-#include <readline/readline.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <signal.h>
@@ -258,7 +257,8 @@ init_global_config(dchat_conf_t* cnf)
 {
     memset(cnf, 0, sizeof(*cnf));
     cnf->in_fd            = 0;    // use stdin as input source
-    cnf->out_fd           = 1;    // use stdout as output source
+    cnf->out_fd           = 1;    // use stdout as output target
+    cnf->log_fd           = 1;    // use stdout as log target
     cnf->cl.cl_size       = 0;    // set initial size of contactlist
     cnf->cl.used_contacts = 0;    // no known contacts, at start
     return 0;
@@ -836,8 +836,8 @@ th_new_conn(dchat_conf_t* cnf)
 
 /**
  * Thread function that reads from stdin until the user hits enter.
- * Waits for new user input on stdin using GNU readline. If the user has
- * entered something, it will be written to the global config pipe `user_input`.
+ * Waits for new user input. If the user has entered something,
+ * it will be written to the global config pipe `user_input`.
  * First the length (int) of the string will be written to the pipe and then each
  * byte of the string. On EOF of stdin 0 will be written
  * @param cnf: Pointer to global config to write to the pipe `user_input`
@@ -846,20 +846,25 @@ th_new_conn(dchat_conf_t* cnf)
 int
 th_new_input(dchat_conf_t* cnf)
 {
-    char prompt[MAX_NICKNAME + 8]; // readline prompt contains nickname
     char* line;                    // line read from stdin
     int len;                       // length of line
-    // Assemble prompt for GNU readline
-    prompt[0] = '\0';
-    strncat(prompt, ansi_color_bold_yellow(), strlen(ansi_color_bold_yellow()));
-    strncat(prompt, cnf->me.name, MAX_NICKNAME);
-    strncat(prompt, "> ", 2);
-    strncat(prompt, ansi_reset_attributes(), strlen(ansi_reset_attributes()));
 
     while (1)
     {
-        // wait until user entered a line that can be read from stdin
-        line = readline(prompt);
+        // read one line
+        if(read_line(cnf->in_fd, &line) < 0)
+        {
+            //TODO error
+            break;
+        }
+
+        // remove newline character
+        if((len = is_valid_termination(line)) < 0)
+        {
+            //TODO error
+            break;
+        }
+        line[len] = '\0';
 
         // EOF or user has entered "/exit"
         if (line == NULL || !strcmp(line, "/exit"))
@@ -868,8 +873,6 @@ th_new_input(dchat_conf_t* cnf)
         }
         else
         {
-            len = strlen(line);
-
             // user did not write anything -> just hit enter
             if (len == 0)
             {
@@ -954,7 +957,7 @@ th_main_loop(dchat_conf_t* cnf)
     int nfds;       // number of fd in rset
     int ret;        // return value
     char c;         // for pipe: th_new_conn
-    char* line;     // line returned from GNU readline
+    char* line;     // line returned from user input
     int cancel = 0; // cancel main loop
     int i;
     // setup cleanup handler and cancelation attributes
