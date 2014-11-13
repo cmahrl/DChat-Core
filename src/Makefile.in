@@ -94,8 +94,8 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_dchat_OBJECTS = dchat.$(OBJEXT) decoder.$(OBJEXT) \
-	cmdinterpreter.$(OBJEXT) contact.$(OBJEXT) log.$(OBJEXT) \
-	util.$(OBJEXT) network.$(OBJEXT) option.$(OBJEXT)
+	cmdinterpreter.$(OBJEXT) contact.$(OBJEXT) util.$(OBJEXT) \
+	network.$(OBJEXT) option.$(OBJEXT) consoleui.$(OBJEXT)
 dchat_OBJECTS = $(am_dchat_OBJECTS)
 dchat_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -276,7 +276,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-dchat_SOURCES = dchat.c dchat_h/dchat.h decoder.c dchat_h/decoder.h cmdinterpreter.c dchat_h/cmdinterpreter.h contact.c dchat_h/contact.h log.c dchat_h/log.h util.c dchat_h/util.h dchat_h/types.h network.c dchat_h/network.h option.c dchat_h/option.h
+dchat_SOURCES = dchat.c dchat_h/dchat.h decoder.c dchat_h/decoder.h cmdinterpreter.c dchat_h/cmdinterpreter.h contact.c dchat_h/contact.h util.c dchat_h/util.h dchat_h/types.h network.c dchat_h/network.h option.c dchat_h/option.h dchat_h/consoleui.h consoleui.c
 all: all-am
 
 .SUFFIXES:
@@ -365,10 +365,10 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cmdinterpreter.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/consoleui.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/contact.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dchat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decoder.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/network.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/option.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Po@am__quote@

@@ -30,8 +30,8 @@
 
 #include "dchat_h/cmdinterpreter.h"
 #include "dchat_h/types.h"
-#include "dchat_h/log.h"
 #include "dchat_h/util.h"
+#include "dchat_h/consoleui.h"
 
 
 /**
@@ -60,7 +60,7 @@ parse_cmd(dchat_conf_t* cnf, char* line)
 
     if (line_temp == NULL)
     {
-        fatal("Memory allocation for command line failed!");
+        ui_fatal(cnf->log_fd, "Memory allocation for command line failed!");
     }
 
     line_temp[0] = '\0';
@@ -78,7 +78,7 @@ parse_cmd(dchat_conf_t* cnf, char* line)
         {
             if ((ret = cmds.cmd[i].execute(cnf, arg)) == 1)
             {
-                log_msg(LOG_NOTICE, "Command syntax: %s", cmds.cmd[i].syntax);
+                ui_log(cnf->log_fd, LOG_NOTICE, "Command syntax: %s", cmds.cmd[i].syntax);
             }
 
             break;
@@ -135,11 +135,11 @@ hlp_exec(dchat_conf_t* cnf, char* arg)
         return -1;
     }
 
-    log_msg(LOG_NOTICE, "Available Commands: ");
+    ui_log(cnf->log_fd, LOG_NOTICE, "Available Commands: ");
 
     for (int i = 0; i < CMD_AMOUNT; i++)
     {
-        log_msg(LOG_NOTICE, "%s",cmds.cmd[i].syntax);
+        ui_log(cnf->log_fd, LOG_NOTICE, "%s",cmds.cmd[i].syntax);
     }
 
     return 0;
@@ -176,13 +176,13 @@ con_exec(dchat_conf_t* cnf, char* arg)
 
     if (!is_valid_port(port) || *endptr != '\0')
     {
-        log_msg(LOG_WARN, "Invalid port '%s'!", port_str);
+        ui_log(cnf->log_fd, LOG_WARN, "Invalid port '%s'!", port_str);
         return 1;
     }
 
     if (!is_valid_onion(address))
     {
-        log_msg(LOG_WARN, "Invalid onion-id '%s'!", address);
+        ui_log(cnf->log_fd, LOG_WARN, "Invalid onion-id '%s'!", address);
         return 1;
     }
 
@@ -213,7 +213,7 @@ lst_exec(dchat_conf_t* cnf, char* arg)
     // are there no contacts in the list a message will be printed
     if (!cnf->cl.used_contacts)
     {
-        log_msg(LOG_NOTICE, "No contacts found in the contactlist");
+        ui_log(cnf->log_fd, LOG_NOTICE, "No contacts found in the contactlist");
     }
     else
     {
@@ -222,11 +222,11 @@ lst_exec(dchat_conf_t* cnf, char* arg)
             // check if entry is a valid connection
             if (cnf->cl.contact[i].fd)
             {
-                log_msg(LOG_NOTICE, "");
+                ui_log(cnf->log_fd, LOG_NOTICE, "");
                 // print all available information about the connection
-                log_msg(LOG_NOTICE, "Contact................%s", cnf->cl.contact[i].name);
-                log_msg(LOG_NOTICE, "Onion-ID...............%s", cnf->cl.contact[i].onion_id);
-                log_msg(LOG_NOTICE, "Hidden-Port............%hu", cnf->cl.contact[i].lport);
+                ui_log(cnf->log_fd, LOG_NOTICE, "Contact................%s", cnf->cl.contact[i].name);
+                ui_log(cnf->log_fd, LOG_NOTICE, "Onion-ID...............%s", cnf->cl.contact[i].onion_id);
+                ui_log(cnf->log_fd, LOG_NOTICE, "Hidden-Port............%hu", cnf->cl.contact[i].lport);
             }
         }
     }

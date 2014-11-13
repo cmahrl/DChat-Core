@@ -35,8 +35,8 @@
 #include "dchat_h/types.h"
 #include "dchat_h/decoder.h"
 #include "dchat_h/dchat.h"
-#include "dchat_h/log.h"
 #include "dchat_h/util.h"
+#include "dchat_h/consoleui.h"
 
 
 /**
@@ -57,7 +57,7 @@ send_contacts(dchat_conf_t* cnf, int n)
     int pdu_len = 0;    // total content length of pdu-packet that will be sent
     contact_t* contact; // contact that will be converted to a string
     // initialize PDU
-    init_dchat_pdu(&pdu, 1.0, CTT_ID_DSC, cnf->me.onion_id, cnf->me.lport,
+    init_dchat_pdu(cnf->log_fd, &pdu, 1.0, CTT_ID_DSC, cnf->me.onion_id, cnf->me.lport,
                    cnf->me.name);
 
     // iterate through our contactlist
@@ -76,9 +76,9 @@ send_contacts(dchat_conf_t* cnf, int n)
         if (contact->lport != 0)
         {
             // convert contact to a string
-            if ((contact_str = contact_to_string(contact)) == NULL)
+            if ((contact_str = contact_to_string(cnf->log_fd, contact)) == NULL)
             {
-                log_msg(LOG_WARN, "Conversion of contact '%s' to string failed! - Skipped",
+                ui_log(cnf->log_fd, LOG_WARN, "Conversion of contact '%s' to string failed! - Skipped",
                         contact->name);
                 continue;
             }
@@ -90,7 +90,7 @@ send_contacts(dchat_conf_t* cnf, int n)
             // could not allocate memory for content
             if (pdu.content == NULL)
             {
-                fatal("Memory reallocation for contactlist failed!");
+                ui_fatal(cnf->log_fd, "Memory reallocation for contactlist failed!");
             }
 
             // add contact information to content
@@ -105,9 +105,9 @@ send_contacts(dchat_conf_t* cnf, int n)
     pdu.content_length = pdu_len;
 
     // write pdu inkluding all addresses of our contacts
-    if ((ret = write_pdu(cnf->cl.contact[n].fd, &pdu)) == -1)
+    if ((ret = write_pdu(cnf->log_fd, cnf->cl.contact[n].fd, &pdu)) == -1)
     {
-        log_msg(LOG_ERR, "Sending of contactlist failed!");
+        ui_log(cnf->log_fd, LOG_ERR, "Sending of contactlist failed!");
     }
 
     if (pdu.content_length != 0)
@@ -146,17 +146,17 @@ receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
         line_begin = line_end;
 
         // extract a line from the content of the pdu
-        if ((line_end = get_content_part(pdu, line_begin, '\n', &line)) == -1)
+        if ((line_end = get_content_part(cnf->log_fd, pdu, line_begin, '\n', &line)) == -1)
         {
-            log_msg(LOG_ERR, "Extraction of contact line from received PDU failed!");
+            ui_log(cnf->log_fd, LOG_ERR, "Extraction of contact line from received PDU failed!");
             ret = -1;
             break;
         }
 
         // parse line ane make string to contact
-        if (string_to_contact(&contact, line) == -1)
+        if (string_to_contact(cnf->log_fd, &contact, line) == -1)
         {
-            log_msg(LOG_WARN, "Conversion of string to contact failed! - Skipped");
+            ui_log(cnf->log_fd, LOG_WARN, "Conversion of string to contact failed! - Skipped");
             ret = -1;
             continue;
         }
@@ -170,7 +170,7 @@ receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
             // connect to new contact, add him as contact, and send contactlist to him
             if (handle_local_conn_request(cnf, contact.onion_id, contact.lport) == -1)
             {
-                log_msg(LOG_WARN, "Connection to new contact failed!");
+                ui_log(cnf->log_fd, LOG_WARN, "Connection to new contact failed!");
                 ret = -1;
             }
         }
@@ -282,11 +282,12 @@ check_duplicates(dchat_conf_t* cnf, int n)
  *  Converts a contact into a string.
  *  This function converts a contact into a string representation. The string
  *  of the contact will then be returned and should be freed.
+ *  @param log_fd File Descriptor for log messages
  *  @param contact Pointer to contact that should be converted to a string
  *  @return String representation of contact, NULL on error
  */
 char*
-contact_to_string(contact_t* contact)
+contact_to_string(int log_fd, contact_t* contact)
 {
     char* contact_str; // pointer to string repr. of contact
     char port_str[MAX_INT_STR + 1]; // max. characters of an int
@@ -311,7 +312,7 @@ contact_to_string(contact_t* contact)
     // allocate memory for the contact string repr.
     if ((contact_str = malloc(contact_len)) == NULL)
     {
-        fatal("Memory allocaction for contact string failed!");
+        ui_fatal(log_fd, "Memory allocaction for contact string failed!");
     }
 
     // first byte has to be '\0', otherwise strcat is undefined
@@ -333,11 +334,12 @@ contact_to_string(contact_t* contact)
  *  The string has to be in the form of: <onion-id> <port>\n
  *  Further details can be found in the DChat protocol specification
  *  @see contact_to_string()
+ *  @param log_fd File Descriptor for log messages
  *  @param contact: Pointer to contact that should be converted to a string
  *  @return 0 if conversion was successful, -1 on error
  */
 int
-string_to_contact(contact_t* contact, char* string)
+string_to_contact(int log_fd, contact_t* contact, char* string)
 {
     char* onion_id; // onion address string (splitted from line)
     char* port;     // port string (splitted from line)
@@ -348,20 +350,20 @@ string_to_contact(contact_t* contact, char* string)
     // split onion-id from string
     if ((onion_id = strtok_r(string, " ", &save_ptr)) == NULL)
     {
-        log_msg(LOG_ERR, "Missing onion-id in contact string!");
+        ui_log(log_fd, LOG_ERR, "Missing onion-id in contact string!");
         return -1;
     }
 
     // split port from string
     if ((port = strtok_r(NULL, "\n", &save_ptr)) == NULL)
     {
-        log_msg(LOG_ERR, "Missing listening port in contact string!");
+        ui_log(log_fd, LOG_ERR, "Missing listening port in contact string!");
         return -1;
     }
 
     if (!is_valid_onion(onion_id))
     {
-        log_msg(LOG_ERR, "Invalid onion-id of contact string!");
+        ui_log(log_fd, LOG_ERR, "Invalid onion-id of contact string!");
         return -1;
     }
 
@@ -371,7 +373,7 @@ string_to_contact(contact_t* contact, char* string)
 
     if (ptr[0] != '\0' || !is_valid_port(lport))
     {
-        log_msg(LOG_ERR, "Invalid port of contact string!");
+        ui_log(log_fd, LOG_ERR, "Invalid port of contact string!");
         return -1;
     }
 
@@ -400,7 +402,7 @@ realloc_contactlist(dchat_conf_t* cnf, int newsize)
     // size may not be lower than 1 and not be lower than the amount of contacts actually used
     if (newsize < 1 || newsize < cnf->cl.used_contacts)
     {
-        log_msg(LOG_ERR,
+        ui_log(cnf->log_fd, LOG_ERR,
                 "New size of contactlist must not be lower than 1 or the amount of contacts actually stored in the contactlist!");
         return -1;
     }
@@ -411,7 +413,7 @@ realloc_contactlist(dchat_conf_t* cnf, int newsize)
     // reserve memory for new contactlist
     if ((new_contact_list = malloc(newsize * sizeof(contact_t))) == NULL)
     {
-        fatal("Reallocation of contactlist failed!");
+        ui_fatal(cnf->log_fd, "Reallocation of contactlist failed!");
     }
 
     // zero out new contactlist
@@ -489,7 +491,7 @@ del_contact(dchat_conf_t* cnf, int n)
     // is index 'n' a valid index?
     if ((n < 0) || (n >= cnf->cl.cl_size))
     {
-        log_msg(LOG_ERR, "del_contact() - Index out of bounds '%d'", n);
+        ui_log(cnf->log_fd, LOG_ERR, "del_contact() - Index out of bounds '%d'", n);
         return -1;
     }
 
@@ -517,7 +519,6 @@ del_contact(dchat_conf_t* cnf, int n)
 
     return 0;
 }
-
 
 /**
  *  Searches a contact in the local contactlist.
@@ -559,7 +560,7 @@ find_contact(dchat_conf_t* cnf, contact_t* contact, int begin)
         // dont check empty contacts or temporary contacts
         if (c->lport)
         {
-            if (strcmp(contact_to_string(contact), contact_to_string(c)) == 0)
+            if (strcmp(contact_to_string(cnf->log_fd, contact), contact_to_string(cnf->log_fd, c)) == 0)
             {
                 return i;
             }

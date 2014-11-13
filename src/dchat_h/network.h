@@ -68,14 +68,14 @@ char* parse_socks_status(unsigned char status);
 //*********************************
 //       TOR FUNCTIONS
 //*********************************
-int create_tor_socket(char* hostname, uint16_t rport);
+int create_tor_socket(int log_fd, char* hostname, uint16_t rport);
 
 
 //*********************************
 //         MISC FUNCTIONS
 //*********************************
 int ip_version(struct sockaddr_storage* addr);
-int connect_to(struct sockaddr* sa);
+int connect_to(int log_fd, struct sockaddr* sa);
 int is_valid_port(int port);
 int is_valid_onion(char* onion_id);
 

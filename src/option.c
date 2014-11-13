@@ -29,11 +29,12 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "dchat_h/option.h"
 #include "dchat_h/decoder.h"
 #include "dchat_h/contact.h"
-#include "dchat_h/log.h"
+#include "dchat_h/consoleui.h"
 #include "dchat_h/util.h"
 
 
@@ -45,13 +46,13 @@
  * options paramters like ":" to specify a required argument)
  */
 char*
-get_short_options(cli_options_t* options)
+get_short_options(int log_fd, cli_options_t* options)
 {
     char* opt_str = malloc(CLI_OPT_AMOUNT * 2 + 1); // max. possible string
 
     if (opt_str == NULL)
     {
-        fatal("Memory allocation for short options failed!");
+        ui_fatal(log_fd, "Memory allocation for short options failed!");
     }
 
     opt_str[0] = '\0';
@@ -80,13 +81,13 @@ get_short_options(cli_options_t* options)
  * @return An option struct containing all long options
  */
 struct option*
-get_long_options(cli_options_t* options)
+get_long_options(int log_fd, cli_options_t* options)
 {
     struct option* long_options = malloc(CLI_OPT_AMOUNT * sizeof(struct option));
 
     if (long_options == NULL)
     {
-        fatal("Memory allocation for long options failed!");
+        ui_fatal(log_fd, "Memory allocation for long options failed!");
     }
 
     for (int i = 0; i < CLI_OPT_AMOUNT; i++)
@@ -170,7 +171,7 @@ read_conf(dchat_conf_t* cnf, char* filepath, int* required_set)
     // init available options
     if (init_cli_options(&options) == -1)
     {
-        log_msg(LOG_ERR, "Initialization of command line options failed!");
+        ui_log(cnf->log_fd, LOG_ERR, "Initialization of command line options failed!");
         return -1;
     }
 
@@ -179,7 +180,7 @@ read_conf(dchat_conf_t* cnf, char* filepath, int* required_set)
 
     if (f == NULL)
     {
-        log_errno(LOG_ERR, "Could not read file '%s'!", filepath);
+        ui_log_errno(cnf->log_fd, LOG_ERR, "Could not read file '%s'!", filepath);
         return -1;
     }
 
@@ -187,7 +188,7 @@ read_conf(dchat_conf_t* cnf, char* filepath, int* required_set)
     fd = fileno(f);
 
     // read confif file line by line
-    while (read_line(fd, &line) > 0)
+    while (read_line(cnf->log_fd, fd, &line) > 0)
     {
         // split line to get option and option argument
         if ((opt = strtok_r(line, delim, &arg)) == NULL)
@@ -392,7 +393,7 @@ roni_parse(dchat_conf_t* cnf, char* value, int force)
 
         if (n != 0)
         {
-            log_msg(LOG_ERR, "Creation of fake contact failed!");
+            ui_log(cnf->log_fd, LOG_ERR, "Creation of fake contact failed!");
             return -1;
         }
     }
@@ -443,7 +444,7 @@ rprt_parse(dchat_conf_t* cnf, char* value, int force)
 
         if (n != 0)
         {
-            log_msg(LOG_ERR, "Creation of fake contact failed!");
+            ui_log(cnf->log_fd, LOG_ERR, "Creation of fake contact failed!");
             return -1;
         }
     }
@@ -477,6 +478,6 @@ help_parse(dchat_conf_t* cnf, char* value, int force)
         return -1;
     }
 
-    usage(EXIT_SUCCESS, &options, "");
+    usage(cnf->log_fd, EXIT_SUCCESS, &options, "");
     return 1;
 }

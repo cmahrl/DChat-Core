@@ -34,8 +34,8 @@ int check_duplicates(dchat_conf_t* cnf, int n);
 //*********************************
 //       CONVERSION FUNCTIONS
 //*********************************
-char* contact_to_string(contact_t* contact);
-int string_to_contact(contact_t* contact, char* string);
+char* contact_to_string(int log_fd, contact_t* contact);
+int string_to_contact(int log_fd, contact_t* contact, char* string);
 
 
 //*********************************

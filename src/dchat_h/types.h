@@ -18,8 +18,8 @@
  */
 
 
-#ifndef DCHAT_TYPES_H
-#define DCHAT_TYPES_H
+#ifndef TYPES_H
+#define TYPES_H
 
 #include <netinet/in.h>
 #include <time.h>

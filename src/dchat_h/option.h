@@ -100,8 +100,8 @@ typedef struct cli_options
 //*********************************
 //       INIT FUNCTIONS
 //*********************************
-char* get_short_options(cli_options_t* options);
-struct option* get_long_options(cli_options_t* options);
+char* get_short_options(int log_fd, cli_options_t* options);
+struct option* get_long_options(int log_fd, cli_options_t* options);
 int init_cli_options(cli_options_t* options);
 int read_conf(dchat_conf_t* cnf, char* filepath, int* required_set);
 

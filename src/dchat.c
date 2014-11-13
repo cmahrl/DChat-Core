@@ -58,9 +58,11 @@
 #include "dchat_h/contact.h"
 #include "dchat_h/cmdinterpreter.h"
 #include "dchat_h/network.h"
-#include "dchat_h/log.h"
 #include "dchat_h/util.h"
 #include "dchat_h/option.h"
+
+
+#include "dchat_h/consoleui.h"
 
 
 dchat_conf_t cnf; //!< global dchat configuration structure
@@ -82,16 +84,21 @@ main(int argc, char** argv)
 
     if (init_global_config(&cnf) == -1)
     {
-        fatal("Initialization of global configuration failed!");
+        ui_fatal(cnf.log_fd, "Initialization of global configuration failed!");
+    }
+
+    if(init_ui(&cnf) == -1)
+    {
+        ui_fatal(cnf.log_fd, "Initialization of user interface failed!");
     }
 
     if (init_cli_options(&options) == -1)
     {
-        fatal("Initialization of command line options failed!");
+        ui_fatal(cnf.log_fd, "Initialization of command line options failed!");
     }
 
-    short_opts = get_short_options(&options);
-    long_opts = get_long_options(&options);
+    short_opts = get_short_options(cnf.log_fd, &options);
+    long_opts = get_long_options(cnf.log_fd, &options);
 
     // deterime amount of required options
     for (int i = 0; i < CLI_OPT_AMOUNT; i++)
@@ -125,7 +132,7 @@ main(int argc, char** argv)
 
                 if ((ret = options.option[i].parse_option(&cnf, optarg, 1)) == -1)
                 {
-                    usage(EXIT_FAILURE, &options, "Invalid argument '%s' for option '-%c / --%s'",
+                    usage(cnf.log_fd, EXIT_FAILURE, &options, "Invalid argument '%s' for option '-%c / --%s'",
                           optarg, options.option[i].opt, options.option[i].long_opt);
                 }
 
@@ -141,7 +148,7 @@ main(int argc, char** argv)
 
         if (!found_opt)
         {
-            usage(EXIT_FAILURE, &options, "Invalid command-line option!");
+            usage(cnf.log_fd, EXIT_FAILURE, &options, "Invalid command-line option!");
         }
     }
 
@@ -161,35 +168,35 @@ main(int argc, char** argv)
     {
         if ((ret = read_conf(&cnf, CONFIG_PATH, &required_set)) == -1)
         {
-            log_msg(LOG_WARN, "Reading configuration file failed!");
+            ui_log(cnf.log_fd, LOG_WARN, "Reading configuration file failed!");
         }
 
         if (ret > 0)
         {
-            log_msg(LOG_WARN, "Syntax error in line '%d' of config file!", ret);
+            ui_log(cnf.log_fd, LOG_WARN, "Syntax error in line '%d' of config file!", ret);
         }
     }
     else if (ret == -1)
     {
-        log_errno(LOG_WARN, "Could not read configuration file '%s'!", CONFIG_PATH);
+        ui_log_errno(cnf.log_fd, LOG_WARN, "Could not read configuration file '%s'!", CONFIG_PATH);
     }
 
     // check if all required options have been specified
     if (required != required_set)
     {
-        usage(EXIT_FAILURE, &options, "Missing mandatory command-line options!");
+        usage(cnf.log_fd, EXIT_FAILURE, &options, "Missing mandatory command-line options!");
     }
 
     // client requires no arguments -> raise error if there are any
     if (optind < argc)
     {
-        usage(EXIT_FAILURE, &options, "Invalid command-line arguments!");
+        usage(cnf.log_fd, EXIT_FAILURE, &options, "Invalid command-line arguments!");
     }
 
     // create listening socket
     if (init_listening(&cnf, LISTEN_ADDR) == -1)
     {
-        fatal("Initialization of listening socket failed!");
+        ui_fatal(cnf.log_fd, "Initialization of listening socket failed!");
     }
 
     if (cnf.cl.used_contacts == 1)
@@ -201,7 +208,7 @@ main(int argc, char** argv)
     // init threads (connection thread, userinput thread, ...)
     if (init_threads(&cnf) == -1)
     {
-        fatal("Initialization of threads failed!");
+        ui_fatal(cnf.log_fd, "Initialization of threads failed!");
     }
 
     // has a remote onion address or remote port been specified? (check
@@ -247,8 +254,7 @@ main(int argc, char** argv)
 
 /**
  * Initializes basic fields of  the global dchat configuration.
- * Input and output filedescriptor as well as initial values
- * of the contactlist will be set.
+ * Initial values of the contactlist will be set.
  * @param cnf Pointer to global config
  * @return 0 on success, -1 in case of error
  */
@@ -256,9 +262,6 @@ int
 init_global_config(dchat_conf_t* cnf)
 {
     memset(cnf, 0, sizeof(*cnf));
-    cnf->in_fd            = 0;    // use stdin as input source
-    cnf->out_fd           = 1;    // use stdout as output target
-    cnf->log_fd           = 1;    // use stdout as log target
     cnf->cl.cl_size       = 0;    // set initial size of contactlist
     cnf->cl.used_contacts = 0;    // no known contacts, at start
     return 0;
@@ -284,7 +287,7 @@ init_listening(dchat_conf_t* cnf, char* address)
 
     if (inet_pton(AF_INET, address, &((struct sockaddr_in*)&sa)->sin_addr) != 1)
     {
-        log_msg(LOG_ERR, "Invalid listening ip address '%s'", address);
+        ui_log(cnf->log_fd, LOG_ERR, "Invalid listening ip address '%s'", address);
         return -1;
     }
 
@@ -303,14 +306,14 @@ init_listening(dchat_conf_t* cnf, char* address)
     // create socket
     if ((s = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
-        log_errno(LOG_ERR, "Creation of socket failed!");
+        ui_log_errno(cnf->log_fd, LOG_ERR, "Creation of socket failed!");
         return -1;
     }
 
     // socketoption to prevent: 'bind() address already in use'
     if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
     {
-        log_errno(LOG_ERR,
+        ui_log_errno(cnf->log_fd, LOG_ERR,
                   "Setting socket options to reuse an already bound address failed!");
         close(s);
         return -1;
@@ -319,7 +322,7 @@ init_listening(dchat_conf_t* cnf, char* address)
     // bind socket to a socket address
     if (bind(s, (struct sockaddr*) &sa, sizeof(struct sockaddr)) == -1)
     {
-        log_errno(LOG_ERR, "Binding to socket address failed!");
+        ui_log_errno(cnf->log_fd, LOG_ERR, "Binding to socket address failed!");
         close(s);
         return -1;
     }
@@ -327,7 +330,7 @@ init_listening(dchat_conf_t* cnf, char* address)
     // listen on this socket
     if (listen(s, LISTEN_BACKLOG) == -1)
     {
-        log_errno(LOG_ERR, "Listening on socket descriptor failed!");
+        ui_log_errno(cnf->log_fd, LOG_ERR, "Listening on socket descriptor failed!");
         close(s);
         return -1;
     }
@@ -371,28 +374,28 @@ init_threads(dchat_conf_t* cnf)
     // pipe to the th_new_conn
     if (pipe(cnf->connect_fd) == -1)
     {
-        log_errno(LOG_ERR, "Creation of connection pipe failed!");
+        ui_log_errno(cnf->log_fd, LOG_ERR, "Creation of connection pipe failed!");
         return -1;
     }
 
     // pipe to send signal to wait loop from connect
     if (pipe(cnf->cl_change) == -1)
     {
-        log_errno(LOG_ERR, "Creation of change pipe failed!");
+        ui_log_errno(cnf->log_fd, LOG_ERR, "Creation of change pipe failed!");
         return -1;
     }
 
     // pipe to signal new user input from stdin
     if (pipe(cnf->user_input) == -1)
     {
-        log_errno(LOG_ERR, "Creation of userinput pipe faild!");
+        ui_log_errno(cnf->log_fd, LOG_ERR, "Creation of userinput pipe faild!");
         return -1;
     }
 
     // init the mutex function used for locking the contactlist
     if (pthread_mutex_init(&cnf->cl.cl_mx, NULL))
     {
-        log_errno(LOG_ERR, "Initialization of mutex failed!");
+        ui_log_errno(cnf->log_fd, LOG_ERR, "Initialization of mutex failed!");
         return -1;
     }
 
@@ -400,7 +403,7 @@ init_threads(dchat_conf_t* cnf)
     if (pthread_create
         (&cnf->conn_th, NULL, (void* (*)(void*)) th_new_conn, cnf) == -1)
     {
-        log_errno(LOG_ERR, "Creation of connection thread failed!");
+        ui_log_errno(cnf->log_fd, LOG_ERR, "Creation of connection thread failed!");
         return -1;
     }
 
@@ -408,7 +411,7 @@ init_threads(dchat_conf_t* cnf)
     if (pthread_create
         (&cnf->select_th, NULL, (void* (*)(void*)) th_main_loop, cnf) == -1)
     {
-        log_errno(LOG_ERR, "Creation of selection thread failed!");
+        ui_log_errno(cnf->log_fd, LOG_ERR, "Creation of selection thread failed!");
         return -1;
     }
 
@@ -445,7 +448,7 @@ destroy(dchat_conf_t* cnf)
     // close write pipe for thread function th_new_input
     close(cnf->user_input[1]);
     // delete readline prompt and return to beginning of current line
-    log_msg(LOG_INFO, "Good Bye!");
+    ui_log(cnf->log_fd, LOG_INFO, "Good Bye!");
 }
 
 
@@ -498,22 +501,22 @@ handle_local_input(dchat_conf_t* cnf, char* line)
         if (len != 0)
         {
             // inititialize pdu
-            if (init_dchat_pdu(&msg, CTT_ID_TXT, 1.0, cnf->me.onion_id, cnf->me.lport,
+            if (init_dchat_pdu(cnf->log_fd, &msg, CTT_ID_TXT, 1.0, cnf->me.onion_id, cnf->me.lport,
                                cnf->me.name) == -1)
             {
-                log_msg(LOG_ERR, "Initialization of PDU failed!");
+                ui_log(cnf->log_fd, LOG_ERR, "Initialization of PDU failed!");
                 return -1;
             }
 
             // set content of pdu
-            init_dchat_pdu_content(&msg, line, strlen(line));
+            init_dchat_pdu_content(cnf->log_fd, &msg, line, strlen(line));
 
             // write pdu to known contacts
             for (i = 0; i < cnf->cl.cl_size; i++)
             {
                 if (cnf->cl.contact[i].fd)
                 {
-                    ret = write_pdu(cnf->cl.contact[i].fd, &msg);
+                    ret = write_pdu(cnf->log_fd, cnf->cl.contact[i].fd, &msg);
                 }
             }
 
@@ -545,15 +548,15 @@ handle_remote_input(dchat_conf_t* cnf, int n)
     contact = &cnf->cl.contact[n];
 
     // read pdu from file descriptor (-1 indicates error)
-    if ((len = read_pdu(contact->fd, &pdu)) == -1)
+    if ((len = read_pdu(cnf->log_fd, contact->fd, &pdu)) == -1)
     {
-        log_msg(LOG_ERR, "Illegal PDU from '%s'!", contact->name);
+        ui_log(cnf->log_fd, LOG_ERR, "Illegal PDU from '%s'!", contact->name);
         return -1;
     }
     // EOF
     else if (!len)
     {
-        log_msg(LOG_INFO, "'%s' disconnected!", contact->name);
+        ui_log(cnf->log_fd, LOG_INFO, "'%s' disconnected!", contact->name);
         return 0;
     }
 
@@ -564,28 +567,28 @@ handle_remote_input(dchat_conf_t* cnf, int n)
     if ((contact->onion_id[0] == '\0' || !contact->lport)  &&
         pdu.content_type != CTT_ID_DSC)
     {
-        log_msg(LOG_ERR, "Client '%d' omitted identification!", n);
+        ui_log(cnf->log_fd, LOG_ERR, "Client '%d' omitted identification!", n);
         return -1;
     }
 
     // check mandatory headers received
     if (contact->name[0] != '\0' && strcmp(contact->name, pdu.nickname) != 0)
     {
-        log_msg(LOG_INFO, "'%s' changed nickname to '%s'!", contact->name,
+        ui_log(cnf->log_fd, LOG_INFO, "'%s' changed nickname to '%s'!", contact->name,
                 pdu.nickname);
     }
 
     if (contact->onion_id[0] != '\0' &&
         strcmp(contact->onion_id, pdu.onion_id) != 0)
     {
-        log_msg(LOG_ERR, "'%s' changed Onion-ID! Contact will be removed!",
+        ui_log(cnf->log_fd, LOG_ERR, "'%s' changed Onion-ID! Contact will be removed!",
                 contact->name);
         return -1;
     }
 
     if (contact->lport != 0 && contact->lport != pdu.lport)
     {
-        log_msg(LOG_ERR, "'%s' changed Listening Port! Contact will be removed!",
+        ui_log(cnf->log_fd, LOG_ERR, "'%s' changed Listening Port! Contact will be removed!",
                 contact->name);
         return -1;
     }
@@ -617,14 +620,15 @@ handle_remote_input(dchat_conf_t* cnf, int n)
         // allocate memory for text message
         if ((txt_msg = malloc(pdu.content_length + 1)) == NULL)
         {
-            fatal("Memory allocation for text message failed!");
+            ui_fatal(cnf->log_fd, "Memory allocation for text message failed!");
         }
 
         // store bytes from pdu in txt_msg and terminate it
         memcpy(txt_msg, pdu.content, pdu.content_length);
         txt_msg[pdu.content_length] = '\0';
         // print text message
-        print_dchat_msg(pdu.nickname, txt_msg, cnf->out_fd);
+        //print_dchat_msg(pdu.nickname, txt_msg, cnf->out_fd);
+        ui_write(cnf->out_fd, pdu.nickname, txt_msg);
         free(txt_msg);
     }
     /*
@@ -636,7 +640,7 @@ handle_remote_input(dchat_conf_t* cnf, int n)
         // check if there are duplicate contacts in the contactlist
         if ((ret = check_duplicates(cnf, n)) != -1) //error
         {
-            log_msg(LOG_INFO, "Detected duplicate contact - removing it!");
+            ui_log(cnf->log_fd, LOG_INFO, "Detected duplicate contact - removing it!");
             del_contact(cnf, ret);  // delete duplicate
         }
 
@@ -644,7 +648,7 @@ handle_remote_input(dchat_conf_t* cnf, int n)
         // the new contacts
         if ((ret = receive_contacts(cnf, &pdu)) == -1)
         {
-            log_msg(LOG_WARN, "Could not add all contacts from the received contactlist!");
+            ui_log(cnf->log_fd, LOG_WARN, "Could not add all contacts from the received contactlist!");
         }
     }
     /*
@@ -652,7 +656,7 @@ handle_remote_input(dchat_conf_t* cnf, int n)
      */
     else
     {
-        log_msg(LOG_WARN, "Unknown Content-Type!");
+        ui_log(cnf->log_fd, LOG_WARN, "Unknown Content-Type!");
     }
 
     free_pdu(&pdu);
@@ -678,7 +682,7 @@ handle_local_conn_request(dchat_conf_t* cnf, char* onion_id, uint16_t port)
     int n; // index of the contact in our contactlist
 
     // connect to given address
-    if ((s = create_tor_socket(onion_id, port)) == -1)
+    if ((s = create_tor_socket(cnf->log_fd, onion_id, port)) == -1)
     {
         return -1;
     }
@@ -687,7 +691,7 @@ handle_local_conn_request(dchat_conf_t* cnf, char* onion_id, uint16_t port)
         // add contact
         if ((n = add_contact(cnf, s)) == -1)
         {
-            log_errno(LOG_ERR, "Could not add new contact!");
+            ui_log_errno(cnf->log_fd, LOG_ERR, "Could not add new contact!");
             return -1;
         }
         else
@@ -725,18 +729,18 @@ handle_remote_conn_request(dchat_conf_t* cnf)
     // accept connection request
     if ((s = accept(cnf->acpt_fd, NULL, NULL)) == -1)
     {
-        log_errno(LOG_ERR, "Could not accept connection from remote host!");
+        ui_log_errno(cnf->log_fd, LOG_ERR, "Could not accept connection from remote host!");
         return -1;
     }
 
     // add new contact to contactlist
     if ((n = add_contact(cnf, s)) != -1)
     {
-        log_msg(LOG_INFO, "Remote host (%d) connected!", n);
+        ui_log(cnf->log_fd, LOG_INFO, "Remote host (%d) connected!", n);
     }
     else
     {
-        log_errno(LOG_ERR, "Could not add new contact!");
+        ui_log_errno(cnf->log_fd, LOG_ERR, "Could not add new contact!");
         return -1;
     }
 
@@ -789,7 +793,7 @@ th_new_conn(dchat_conf_t* cnf)
         // read from pipe to get new address
         if ((ret = read(cnf->connect_fd[0], onion_id, ONION_ADDRLEN)) == -1)
         {
-            log_msg(LOG_WARN, "Could not read Onion-ID from connection pipe!");
+            ui_log(cnf->log_fd, LOG_WARN, "Could not read Onion-ID from connection pipe!");
         }
 
         // EOF
@@ -801,7 +805,7 @@ th_new_conn(dchat_conf_t* cnf)
         // read from pipe to get new port
         if ((ret = read(cnf->connect_fd[0], &port, sizeof(uint16_t))) == -1)
         {
-            log_msg(LOG_WARN, "Could not read Listening-Port from connection pipe!");
+            ui_log(cnf->log_fd, LOG_WARN, "Could not read Listening-Port from connection pipe!");
         }
 
         // EOF
@@ -817,11 +821,11 @@ th_new_conn(dchat_conf_t* cnf)
 
         if (handle_local_conn_request(cnf, onion_id, port) == -1)
         {
-            log_msg(LOG_WARN, "Connection to remote host failed!");
+            ui_log(cnf->log_fd, LOG_WARN, "Connection to remote host failed!");
         }
         else if ((write(cnf->cl_change[1], &c, sizeof(c))) == -1)
         {
-            log_msg(LOG_WARN, "Could not write to change pipe!");
+            ui_log(cnf->log_fd, LOG_WARN, "Could not write to change pipe!");
         }
 
         // unlock contactlist
@@ -852,7 +856,7 @@ th_new_input(dchat_conf_t* cnf)
     while (1)
     {
         // read one line
-        if(read_line(cnf->in_fd, &line) < 0)
+        if(read_line(cnf->log_fd, cnf->in_fd, &line) < 0)
         {
             //TODO error
             break;
@@ -1012,7 +1016,7 @@ th_main_loop(dchat_conf_t* cnf)
                     continue;
                 }
 
-                log_errno(LOG_ERR, "select() failed!");
+                ui_log_errno(cnf->log_fd, LOG_ERR, "select() failed!");
                 cancel = 1;
                 break;
             }
