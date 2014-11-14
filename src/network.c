@@ -138,13 +138,12 @@ parse_socks_status(unsigned char status)
  * This function creates a TOR socket by establishing a connection to the listening
  * address and port of the TOR client and sending a SOCKS connection request so that
  * a curcuit to the remote host will be created.
- * @param log_fd Filedescriptor for log messages
  * @param hostname The hostname of the destination
  * @param rport    The port to connect to
  * @return open socket whose traffic will be relayed through TOR or -1 in case of error
  */
 int
-create_tor_socket(int log_fd, char* hostname, uint16_t rport)
+create_tor_socket(char* hostname, uint16_t rport)
 {
     int s;                 // tor socket
     struct sockaddr_in da; // destination address to connec to
@@ -155,7 +154,7 @@ create_tor_socket(int log_fd, char* hostname, uint16_t rport)
     // socket address for connection to the TOR client
     if (inet_pton(AF_INET, TOR_ADDR, &da.sin_addr) != 1)
     {
-        ui_log(log_fd, LOG_ERR, "Invalid ip address '%s'!", TOR_ADDR);
+        ui_log(LOG_ERR, "Invalid ip address '%s'!", TOR_ADDR);
         return -1;
     }
 
@@ -163,9 +162,9 @@ create_tor_socket(int log_fd, char* hostname, uint16_t rport)
     da.sin_port = htons(TOR_PORT);
 
     // connect to TOR client
-    if ((s = connect_to(log_fd, (struct sockaddr*) &da)) == -1)
+    if ((s = connect_to((struct sockaddr*) &da)) == -1)
     {
-        ui_log(log_fd, LOG_ERR, "Could not create TOR socket!");
+        ui_log(LOG_ERR, "Could not create TOR socket!");
         return -1;
     }
 
@@ -181,7 +180,7 @@ create_tor_socket(int log_fd, char* hostname, uint16_t rport)
     // send connection request to TOR
     if (write_socks4a(s, &pdu) == -1)
     {
-        ui_log_errno(log_fd, LOG_ERR, "Could not write SOCKS connection request!");
+        ui_log_errno(LOG_ERR, "Could not write SOCKS connection request!");
         return -1;
     }
 
@@ -190,19 +189,19 @@ create_tor_socket(int log_fd, char* hostname, uint16_t rport)
 
     if ((ret = read_socks4a(s, &pdu)) == -1)
     {
-        ui_log(log_fd, LOG_ERR, "Could not read SOCKS connection response!");
+        ui_log(LOG_ERR, "Could not read SOCKS connection response!");
         return -1;
     }
 
     if (!ret)
     {
-        ui_log(log_fd, LOG_ERR, "Connection to TOR client has been closed!");
+        ui_log(LOG_ERR, "Connection to TOR client has been closed!");
         return -1;
     }
 
     if (pdu.command != 90)
     {
-        ui_log(log_fd, LOG_WARN,
+        ui_log(LOG_WARN,
                 "TOR Connection to remote host failed. Status code: %d - '%s'", pdu.command,
                 parse_socks_status(pdu.command));
         return -1;
@@ -237,24 +236,23 @@ ip_version(struct sockaddr_storage* address)
 
 /**
  * Connects to a remote socket using the given socket address.
- * @param log_fd Filedescriptor for log messages
  * @param sa Pointer to initalized sockaddr structure.
  * @return file descriptor of new socket or -1 in case of error
  */
 int
-connect_to(int log_fd, struct sockaddr* sa)
+connect_to(struct sockaddr* sa)
 {
     int s; // socket file descriptor
 
     if ((s = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
-        ui_log_errno(log_fd, LOG_ERR, "socket() failed in connect_to()");
+        ui_log_errno(LOG_ERR, "socket() failed in connect_to()");
         return -1;
     }
 
     if (connect(s, sa, sizeof(struct sockaddr_in)) == -1)
     {
-        ui_log_errno(log_fd, LOG_ERR, "connect() failed");
+        ui_log_errno(LOG_ERR, "connect() failed");
         close(s);
         return -1;
     }

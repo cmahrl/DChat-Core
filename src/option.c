@@ -46,13 +46,13 @@
  * options paramters like ":" to specify a required argument)
  */
 char*
-get_short_options(int log_fd, cli_options_t* options)
+get_short_options(cli_options_t* options)
 {
     char* opt_str = malloc(CLI_OPT_AMOUNT * 2 + 1); // max. possible string
 
     if (opt_str == NULL)
     {
-        ui_fatal(log_fd, "Memory allocation for short options failed!");
+        ui_fatal("Memory allocation for short options failed!");
     }
 
     opt_str[0] = '\0';
@@ -81,13 +81,13 @@ get_short_options(int log_fd, cli_options_t* options)
  * @return An option struct containing all long options
  */
 struct option*
-get_long_options(int log_fd, cli_options_t* options)
+get_long_options(cli_options_t* options)
 {
     struct option* long_options = malloc(CLI_OPT_AMOUNT * sizeof(struct option));
 
     if (long_options == NULL)
     {
-        ui_fatal(log_fd, "Memory allocation for long options failed!");
+        ui_fatal("Memory allocation for long options failed!");
     }
 
     for (int i = 0; i < CLI_OPT_AMOUNT; i++)
@@ -144,7 +144,6 @@ init_cli_options(cli_options_t* options)
  * supported and can be specified in the config file as they would have
  * been specified in the commandline. The only difference is that in
  * the config a option is specified like this: "<option> <argument>\n".
- * @param cnf Pointer to global config
  * @param filepath Path to config file
  * @param required_set Amount of required options set and specified in
  * the config file
@@ -153,7 +152,7 @@ init_cli_options(cli_options_t* options)
  * occured
  */
 int
-read_conf(dchat_conf_t* cnf, char* filepath, int* required_set)
+read_conf(char* filepath, int* required_set)
 {
     FILE* f;               // config file file stream
     int fd;                // config file file descriptor
@@ -171,7 +170,7 @@ read_conf(dchat_conf_t* cnf, char* filepath, int* required_set)
     // init available options
     if (init_cli_options(&options) == -1)
     {
-        ui_log(cnf->log_fd, LOG_ERR, "Initialization of command line options failed!");
+        ui_log(LOG_ERR, "Initialization of command line options failed!");
         return -1;
     }
 
@@ -180,7 +179,7 @@ read_conf(dchat_conf_t* cnf, char* filepath, int* required_set)
 
     if (f == NULL)
     {
-        ui_log_errno(cnf->log_fd, LOG_ERR, "Could not read file '%s'!", filepath);
+        ui_log_errno(LOG_ERR, "Could not read file '%s'!", filepath);
         return -1;
     }
 
@@ -188,7 +187,7 @@ read_conf(dchat_conf_t* cnf, char* filepath, int* required_set)
     fd = fileno(f);
 
     // read confif file line by line
-    while (read_line(cnf->log_fd, fd, &line) > 0)
+    while (read_line(fd, &line) > 0)
     {
         // split line to get option and option argument
         if ((opt = strtok_r(line, delim, &arg)) == NULL)
@@ -233,7 +232,7 @@ read_conf(dchat_conf_t* cnf, char* filepath, int* required_set)
                 // parse option argument and set in global config
                 // do not force override, if value is already set
                 // in the global config
-                if ((ret = options.option[i].parse_option(cnf, arg, 0)) == -1)
+                if ((ret = options.option[i].parse_option(arg, 0)) == -1)
                 {
                     error = 1;
                     break;
@@ -276,24 +275,23 @@ read_conf(dchat_conf_t* cnf, char* filepath, int* required_set)
  * Parses the terminal command line argument string to a
  * local onion address
  * and store it in the global dchat configuration.
- * @param cnf Pointer to global config
  * @param value Pointer to argument string
  * @param force If set parsed argument string will override
  *              the corresponding settings in the global config
  * @return 0 on success, 1 nothing has been done or -1 on error.
  */
 int
-loni_parse(dchat_conf_t* cnf, char* value, int force)
+loni_parse(char* value, int force)
 {
     if (!is_valid_onion(value))
     {
         return -1;
     }
 
-    if (force || !is_valid_onion(cnf->me.onion_id))
+    if (force || !is_valid_onion(_cnf->me.onion_id))
     {
-        cnf->me.onion_id[0] = '\0';
-        strncat(cnf->me.onion_id, value, ONION_ADDRLEN);
+        _cnf->me.onion_id[0] = '\0';
+        strncat(_cnf->me.onion_id, value, ONION_ADDRLEN);
         return 0;
     }
 
@@ -304,24 +302,23 @@ loni_parse(dchat_conf_t* cnf, char* value, int force)
 /**
  * Parses the terminal command line argument string to a nickname
  * and stores it in the global dchat configuration.
- * @param cnf Pointer to global config
  * @param value Pointer to argument string
  * @param force If set parsed argument string will override
  *              the corresponding settings in the global config
  * @return 0 on success, 1 nothing has been done or -1 on error.
  */
 int
-nick_parse(dchat_conf_t* cnf, char* value, int force)
+nick_parse(char* value, int force)
 {
     if (!is_valid_nickname(value))
     {
         return -1;
     }
 
-    if (force || !is_valid_nickname(cnf->me.name))
+    if (force || !is_valid_nickname(_cnf->me.name))
     {
-        cnf->me.name[0] = '\0';
-        strncat(cnf->me.name, value, MAX_NICKNAME);
+        _cnf->me.name[0] = '\0';
+        strncat(_cnf->me.name, value, MAX_NICKNAME);
         return 0;
     }
 
@@ -333,14 +330,13 @@ nick_parse(dchat_conf_t* cnf, char* value, int force)
  * Parses the terminal command line argument string to a local
  * listening port
  * and stores it in the global dchat configuration.
- * @param cnf Pointer to global config
  * @param value Pointer to argument string
  * @param force If set parsed argument string will override
  *              the corresponding settings in the global config
  * @return 0 on success, 1 nothing has been done or -1 on error.
  */
 int
-lprt_parse(dchat_conf_t* cnf, char* value, int force)
+lprt_parse(char* value, int force)
 {
     char* term;
     int lport = (int) strtol(value, &term, 10);
@@ -350,9 +346,9 @@ lprt_parse(dchat_conf_t* cnf, char* value, int force)
         return -1;
     }
 
-    if (force || !is_valid_port(cnf->me.lport))
+    if (force || !is_valid_port(_cnf->me.lport))
     {
-        cnf->me.lport = lport;
+        _cnf->me.lport = lport;
         return 0;
     }
 
@@ -366,18 +362,17 @@ lprt_parse(dchat_conf_t* cnf, char* value, int force)
  * A fake contact will be created at the index 0 of the contactlist,
  * given that the contactlist is empty, otherwise if its size is 1
  * the onion address (remote address) will be set.
- * @param cnf Pointer to global config
  * @param value Pointer to argument string
  * @param force If set parsed argument string will override
  *              the corresponding settings in the global config
  * @return 0 on success, 1 nothing has been done or -1 on error.
  */
 int
-roni_parse(dchat_conf_t* cnf, char* value, int force)
+roni_parse(char* value, int force)
 {
     int n;
 
-    if (cnf->cl.used_contacts > 1)
+    if (_cnf->cl.used_contacts > 1)
     {
         return 1;
     }
@@ -387,21 +382,21 @@ roni_parse(dchat_conf_t* cnf, char* value, int force)
         return -1;
     }
 
-    if (!cnf->cl.used_contacts)
+    if (!_cnf->cl.used_contacts)
     {
-        n = add_contact(cnf, 0); // create fake contact
+        n = add_contact(0); // create fake contact
 
         if (n != 0)
         {
-            ui_log(cnf->log_fd, LOG_ERR, "Creation of fake contact failed!");
+            ui_log(LOG_ERR, "Creation of fake contact failed!");
             return -1;
         }
     }
 
-    if (force || !is_valid_onion(cnf->cl.contact[n].onion_id))
+    if (force || !is_valid_onion(_cnf->cl.contact[n].onion_id))
     {
-        cnf->cl.contact[n].onion_id[0] = '\0';
-        strncat(cnf->cl.contact[n].onion_id, value, ONION_ADDRLEN);
+        _cnf->cl.contact[n].onion_id[0] = '\0';
+        strncat(_cnf->cl.contact[n].onion_id, value, ONION_ADDRLEN);
         return 0;
     }
 
@@ -415,20 +410,19 @@ roni_parse(dchat_conf_t* cnf, char* value, int force)
  * A fake contact will be created at the index 0 of the contactlist,
  * given that the contactlist is empty, otherwise if its size is 1
  * the port (remote port) will be set.
- * @param cnf Pointer to global config
  * @param value Pointer to argument string
  * @param force If set parsed argument string will override
  *              the corresponding settings in the global config
  * @return 0 on success, 1 nothing has been done or -1 on error.
  */
 int
-rprt_parse(dchat_conf_t* cnf, char* value, int force)
+rprt_parse(char* value, int force)
 {
     int n = 0;
     char* term;
     int rport = (int) strtol(optarg, &term, 10);
 
-    if (cnf->cl.used_contacts > 1)
+    if (_cnf->cl.used_contacts > 1)
     {
         return 1;
     }
@@ -438,20 +432,20 @@ rprt_parse(dchat_conf_t* cnf, char* value, int force)
         return -1;
     }
 
-    if (!cnf->cl.used_contacts)
+    if (!_cnf->cl.used_contacts)
     {
-        n = add_contact(cnf, 0); // create fake contact
+        n = add_contact(0); // create fake contact
 
         if (n != 0)
         {
-            ui_log(cnf->log_fd, LOG_ERR, "Creation of fake contact failed!");
+            ui_log(LOG_ERR, "Creation of fake contact failed!");
             return -1;
         }
     }
 
-    if (force || !is_valid_port(cnf->cl.contact[n].lport))
+    if (force || !is_valid_port(_cnf->cl.contact[n].lport))
     {
-        cnf->cl.contact[n].lport = rport;
+        _cnf->cl.contact[n].lport = rport;
         return 0;
     }
 
@@ -462,14 +456,13 @@ rprt_parse(dchat_conf_t* cnf, char* value, int force)
 /**
  * Parses the terminal command line string and if it is the
  * help option, the usage of this program will be printed.
- * @param cnf Pointer to global config
  * @param value Pointer to argument string
  * @param force If set parsed argument string will override
  *              the corresponding settings in the global config
  * @return 1 on success or -1 on error.
  */
 int
-help_parse(dchat_conf_t* cnf, char* value, int force)
+help_parse(char* value, int force)
 {
     cli_options_t options;
 
@@ -478,6 +471,6 @@ help_parse(dchat_conf_t* cnf, char* value, int force)
         return -1;
     }
 
-    usage(cnf->log_fd, EXIT_SUCCESS, &options, "");
+    usage(EXIT_SUCCESS, &options, "");
     return 1;
 }

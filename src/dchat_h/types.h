@@ -90,4 +90,12 @@ typedef struct dchat_conf
     pthread_t select_th;        //!< thread responsible for select(2) fd
 } dchat_conf_t;
 
+
+//*********************************
+//          global Variables
+//*********************************
+
+extern dchat_conf_t* _cnf; //!< pointer to global dchat configƒ
+
+
 #endif

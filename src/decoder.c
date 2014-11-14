@@ -42,14 +42,13 @@
  *  Decodes a string into a DChat header.
  *  Attempts to decode the given \\n terminated line and sets
  *  corresponding header attributes in the given pdu.
- *  @param log_fd File Descriptor for log messages
  *  @param pdu  Pointer to PDU structure where header attributes
  *  will be set
  *  @param line Line to parse for dchat-headers; must be \\n terminated
  *  @return 0 if line is a dchat header, -1 otherwise
  */
 int
-decode_header(int log_fd, dchat_pdu_t* pdu, char* line)
+decode_header(dchat_pdu_t* pdu, char* line)
 {
     char* temp;
     char* key;          // header key (e.g. Content-Type)
@@ -71,7 +70,7 @@ decode_header(int log_fd, dchat_pdu_t* pdu, char* line)
 
     if (temp == NULL)
     {
-        ui_fatal(log_fd, "Memory allocation for temporary decoder line failed!");
+        ui_fatal("Memory allocation for temporary decoder line failed!");
     }
 
     temp[0] = '\0';
@@ -127,7 +126,7 @@ decode_header(int log_fd, dchat_pdu_t* pdu, char* line)
     {
         if (!strcmp(key, proto.header[i].header_name))
         {
-            ret = proto.header[i].str_to_pdu(log_fd, value, pdu);
+            ret = proto.header[i].str_to_pdu(value, pdu);
             free(temp);
             return ret;
         }
@@ -141,14 +140,12 @@ decode_header(int log_fd, dchat_pdu_t* pdu, char* line)
 /**
  *  Read a line terminated with \\n from a file descriptor.
  *  Reads a line from the given file descriptor until \\n is found.
- *  @param cnf Pointer to global configuration structure
- *  @param log_fd File Descriptor for log messages
  *  @param line Double pointer used for dynamic memory allocation since
  *              characters will be stored on the heap.
  *  @return: length of bytes read, 0 on EOF, -1 on error
  */
 int
-read_line(int log_fd, int fd, char** line)
+read_line(int fd, char** line)
 {
     char* ptr;             // line pointer
     char* alc_ptr = NULL;  // used for realloc
@@ -168,7 +165,7 @@ read_line(int log_fd, int fd, char** line)
                 free(*line);
             }
 
-            ui_fatal(log_fd, "Reallocation of input string failed!");
+            ui_fatal("Reallocation of input string failed!");
         }
 
         *line = alc_ptr;
@@ -194,14 +191,13 @@ read_line(int log_fd, int fd, char** line)
  *  Read a whole DChat PDU from a file descriptor.
  *  Read linewise from a file descriptor to form a DChat protocol data unit.
  *  Information read from the file descriptor will be stored in this pdu.
- *  @param log_fd File Descriptor for log messages
  *  @param fd  File descriptor to read from
  *  @param pdu Pointer to a PDU structure whose headers will be filled.
  *  @return amount of bytes read in total if a protocol data unit has been read successfully, 0 on EOF ,
  *  -1 on error
  */
 int
-read_pdu(int log_fd, int fd, dchat_pdu_t* pdu)
+read_pdu(int fd, dchat_pdu_t* pdu)
 {
     char* line;     // line read from file descriptor
     char* contentp; // content pointer
@@ -212,13 +208,13 @@ read_pdu(int log_fd, int fd, dchat_pdu_t* pdu)
     memset(pdu, 0, sizeof(*pdu));
 
     // read each line of the received pdu
-    if ((ret = read_line(log_fd, fd, &line)) == -1 || !ret)
+    if ((ret = read_line(fd, &line)) == -1 || !ret)
     {
         return ret;
     }
 
     // first header must be version header
-    if (decode_header(log_fd, pdu, line) == -1 || pdu->version != DCHAT_V1)
+    if (decode_header(pdu, line) == -1 || pdu->version != DCHAT_V1)
     {
         ret = -1;
     }
@@ -230,11 +226,11 @@ read_pdu(int log_fd, int fd, dchat_pdu_t* pdu)
 
         // read header lines from file descriptors, until
         // an empty line is received
-        while ((ret = read_line(log_fd, fd, &line)) != -1 || ret == 0)
+        while ((ret = read_line(fd, &line)) != -1 || ret == 0)
         {
             len += strlen(line);
 
-            if (decode_header(log_fd, pdu, line) == -1)
+            if (decode_header(pdu, line) == -1)
             {
                 // if line is not a header, it must be an empty line
                 if (!strcmp(line, "\n") || !strcmp(line, "\r\n"))
@@ -253,7 +249,7 @@ read_pdu(int log_fd, int fd, dchat_pdu_t* pdu)
     // On error print illegal line
     if (ret == -1)
     {
-        ui_log(log_fd, LOG_ERR, "Illegal PDU header received: '%s'", line);
+        ui_log(LOG_ERR, "Illegal PDU header received: '%s'", line);
     }
 
     // EOF or ERROR
@@ -266,7 +262,7 @@ read_pdu(int log_fd, int fd, dchat_pdu_t* pdu)
     // has content type, onion-id and listen-port been specified?
     if (pdu->content_type == 0 || pdu->onion_id == NULL || pdu->lport == 0)
     {
-        ui_log(log_fd, LOG_ERR, "Mandatory PDU headers are missing!");
+        ui_log(LOG_ERR, "Mandatory PDU headers are missing!");
         free(line);
         return -1;
     }
@@ -296,7 +292,6 @@ read_pdu(int log_fd, int fd, dchat_pdu_t* pdu)
  *  Crafts a DChat header string.
  *  Crafts a header string according to the given header_id (see: dchat_encoder.h) together
  *  with the header information stored in the PDU structure.
- *  @param log_fd File Descriptor for log messages
  *  @param pdu       Pointer to a message structure that holds header information like
  *                   Content-Type, Content-Length, ...
  *  @param header_id Defines for which header a string should be crafted (Content-Type, ...)
@@ -304,7 +299,7 @@ read_pdu(int log_fd, int fd, dchat_pdu_t* pdu)
  *           This string is not terminated with \\n or \\r\\n respectively
  */
 int
-encode_header(int log_fd, dchat_pdu_t* pdu, int header_id, char** headerline)
+encode_header(dchat_pdu_t* pdu, int header_id, char** headerline)
 {
     dchat_v1_t proto;    // DChat V1 headers
     char* header = NULL; // header key string
@@ -325,7 +320,7 @@ encode_header(int log_fd, dchat_pdu_t* pdu, int header_id, char** headerline)
             header = proto.header[i].header_name;
             len = strlen(header);
 
-            if ((ret = proto.header[i].pdu_to_str(log_fd, pdu, &value)) == -1)
+            if ((ret = proto.header[i].pdu_to_str(pdu, &value)) == -1)
             {
                 return -1;
             }
@@ -350,7 +345,7 @@ encode_header(int log_fd, dchat_pdu_t* pdu, int header_id, char** headerline)
             // allocate memory for header string
             if ((*headerline = malloc(len)) == NULL)
             {
-                ui_fatal(log_fd, "Memory allocation for header-value string failed!");
+                ui_fatal("Memory allocation for header-value string failed!");
             }
 
             // assemble header string
@@ -375,7 +370,6 @@ encode_header(int log_fd, dchat_pdu_t* pdu, int header_id, char** headerline)
  * Converts the given PDU to string which then will be written to the given file descriptor.
  * First the headers of the PDU will be written, then an empty line and at last the content.
  * (See specification of the dchat protocol)
- * @param log_fd File Descriptor for log messages
  * @param fd  File descriptor where the dchat PDU will be written to
  * @param pdu Pointer to a PDU structure holding the header and content data
  * @return Amount of bytes of content that that have been written. This should be equal
@@ -383,7 +377,7 @@ encode_header(int log_fd, dchat_pdu_t* pdu, int header_id, char** headerline)
  *         or -1 in case of error
  */
 int
-write_pdu(int log_fd, int fd, dchat_pdu_t* pdu)
+write_pdu(int fd, dchat_pdu_t* pdu)
 {
     dchat_v1_t proto;                //Available DChat headers
     char* header;                    //DChat header
@@ -397,7 +391,7 @@ write_pdu(int log_fd, int fd, dchat_pdu_t* pdu)
     }
 
     // get version header string
-    if ((ret = encode_header(log_fd, pdu, HDR_ID_VER, &header)) == -1 || ret == 1)
+    if ((ret = encode_header(pdu, HDR_ID_VER, &header)) == -1 || ret == 1)
     {
         return -1;
     }
@@ -406,7 +400,7 @@ write_pdu(int log_fd, int fd, dchat_pdu_t* pdu)
 
     if ((pdu_raw = malloc(pdulen)) == NULL)
     {
-        ui_fatal(log_fd, "Memory allocation for pdu failed!");
+        ui_fatal("Memory allocation for pdu failed!");
     }
 
     // copy version header to raw pdu
@@ -421,7 +415,7 @@ write_pdu(int log_fd, int fd, dchat_pdu_t* pdu)
         if (proto.header[i].header_id != HDR_ID_VER)
         {
             // get header string
-            if ((ret = encode_header(log_fd, pdu, proto.header[i].header_id, &header)) == -1)
+            if ((ret = encode_header(pdu, proto.header[i].header_id, &header)) == -1)
             {
                 free(pdu_raw);
                 return -1;
@@ -446,7 +440,7 @@ write_pdu(int log_fd, int fd, dchat_pdu_t* pdu)
 
             if (pdu_raw == NULL)
             {
-                ui_fatal(log_fd, "Reallocation of pdu failed!");
+                ui_fatal("Reallocation of pdu failed!");
             }
 
             // copy header to pdu
@@ -461,7 +455,7 @@ write_pdu(int log_fd, int fd, dchat_pdu_t* pdu)
 
     if (pdu_raw == NULL)
     {
-        ui_fatal(log_fd, "Reallocation of pdu failed!");
+        ui_fatal("Reallocation of pdu failed!");
     }
 
     // add empty line
@@ -480,13 +474,12 @@ write_pdu(int log_fd, int fd, dchat_pdu_t* pdu)
 /**
  * Parses the given value to a supported version of DChat
  * and sets, if valid, its value in the PDU structure.
- *  @param log_fd File Descriptor for log messages
  * @param value String to parse
  * @param pdu Pointer to PDU structure
  * @return 0 if value is a valid version, -1 otherwise
  */
 int
-ver_str_to_pdu(int log_fd, char* value, dchat_pdu_t* pdu)
+ver_str_to_pdu(char* value, dchat_pdu_t* pdu)
 {
     char* version = "1.0";
 
@@ -503,13 +496,12 @@ ver_str_to_pdu(int log_fd, char* value, dchat_pdu_t* pdu)
 /**
  * Parses the given value to a supported content-type of DChat
  * and sets, if valid, its value in the PDU structure..
- * @param log_fd File Descriptor for log messages
  * @param value String to parse
  * @param pdu Pointer to PDU structure
  * @return 0 if value is a valid content-type, -1 otherwise
  */
 int
-ctt_str_to_pdu(int log_fd, char* value, dchat_pdu_t* pdu)
+ctt_str_to_pdu(char* value, dchat_pdu_t* pdu)
 {
     int found = 0;
     dchat_content_types_t ctt;
@@ -536,13 +528,12 @@ ctt_str_to_pdu(int log_fd, char* value, dchat_pdu_t* pdu)
  * Parses the given value to a content-length and sets its
  * value, if valid, in the given PDU structure.
  * A valid content-length does not exceed MAX_CONTENT_LEN.
- * @param log_fd File Descriptor for log messages
  * @param value String to parse
  * @param pdu Pointer to PDU structure
  * @return 0 if value is a valid content-length, -1 otherwise
  */
 int
-ctl_str_to_pdu(int log_fd, char* value, dchat_pdu_t* pdu)
+ctl_str_to_pdu(char* value, dchat_pdu_t* pdu)
 {
     int length = -1;
     char* ptr;
@@ -566,13 +557,12 @@ ctl_str_to_pdu(int log_fd, char* value, dchat_pdu_t* pdu)
  * A valid onion address is max. 16 characters long (22 characters
  * including the prefix ".onion").
  * @see is_valid_onion
- * @param log_fd File Descriptor for log messages
  * @param value String to parse
  * @param pdu Pointer to PDU structure
  * @return 0 if value is a valid onion address, -1 otherwise
  */
 int
-oni_str_to_pdu(int log_fd, char* value, dchat_pdu_t* pdu)
+oni_str_to_pdu(char* value, dchat_pdu_t* pdu)
 {
     int len = strlen(value);
 
@@ -592,13 +582,12 @@ oni_str_to_pdu(int log_fd, char* value, dchat_pdu_t* pdu)
  * Parses the given value to a listening port and sets its value,
  * if valid, in the given PDU structure.
  * @see is_valid_por
- * @param log_fd File Descriptor for log messages
  * @param value String to parse
  * @param pdu Pointer to PDU structure
  * @return 0 if value is a valid listening port, -1 otherwise
  */
 int
-lnp_str_to_pdu(int log_fd, char* value, dchat_pdu_t* pdu)
+lnp_str_to_pdu(char* value, dchat_pdu_t* pdu)
 {
     int lport;
     char* ptr;
@@ -621,13 +610,12 @@ lnp_str_to_pdu(int log_fd, char* value, dchat_pdu_t* pdu)
  * if valid, in the given PDU structure.
  * MAX_NICKNAME characters will be copied to the PDU structure,
  * thus if the given value is longer the rest will be cut off
- * @param log_fd File Descriptor for log messages
  * @param value String to parse
  * @param pdu Pointer to PDU structure
  * @return 0 if value is a valid nickname, -1 otherwise
  */
 int
-nic_str_to_pdu(int log_fd, char* value, dchat_pdu_t* pdu)
+nic_str_to_pdu(char* value, dchat_pdu_t* pdu)
 {
     int len = strlen(value);
     pdu->nickname[0] = '\0';
@@ -646,13 +634,12 @@ nic_str_to_pdu(int log_fd, char* value, dchat_pdu_t* pdu)
 /**
  * Parses the given value to a struct tm and sets its value,
  * if valid, in the given PDU structure
- * @param log_fd File Descriptor for log messages
  * @param value String to parse
  * @param pdu Pointer to PDU structure
  * @return 0 if value is a valid datetime string, -1 otherwise
  */
 int
-dat_str_to_pdu(int log_fd, char* value, dchat_pdu_t* pdu)
+dat_str_to_pdu(char* value, dchat_pdu_t* pdu)
 {
     if (strptime(value, "%a, %d %b %Y %H:%M:%S GMT",
                  &pdu->sent) == NULL)
@@ -666,17 +653,16 @@ dat_str_to_pdu(int log_fd, char* value, dchat_pdu_t* pdu)
 /**
  * Parses the given value to a server field and sets its value,
  * if valid, in the given PDU structure.
- * @param log_fd File Descriptor for log messages
  * @param value String to parse
  * @param pdu Pointer to PDU structure
  * @return 0 if value is a valid server string, -1 otherwise
  */
 int
-srv_str_to_pdu(int log_fd, char* value, dchat_pdu_t* pdu)
+srv_str_to_pdu(char* value, dchat_pdu_t* pdu)
 {
     if ((pdu->server = malloc(strlen(value) + 1)) == NULL)
     {
-        ui_fatal(log_fd, "Memory allocation for server failed!");
+        ui_fatal("Memory allocation for server failed!");
     }
 
     pdu->server[0] = '\0';
@@ -688,14 +674,13 @@ srv_str_to_pdu(int log_fd, char* value, dchat_pdu_t* pdu)
 /**
  * Converts the version field in the PDU to a string and sets the address of the given
  * value parameter to this string.
- * @param log_fd File Descriptor for log messages
  * @param pdu Pointer to PDU structure
  * @param value Double pointer to string
  * @return 1 field was not set in pdu structure, 0 on success (string must be freed),
  * -1 in case of error (e.g. illegal value in pdu structure , ...)
  */
 int
-ver_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
+ver_pdu_to_str(dchat_pdu_t* pdu, char** value)
 {
     char* version = "1.0";
 
@@ -712,7 +697,7 @@ ver_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
 
         if (*value == NULL)
         {
-            ui_fatal(log_fd, "Memory allocation for version failed!");
+            ui_fatal("Memory allocation for version failed!");
         }
 
         *value[0] = '\0';
@@ -727,14 +712,13 @@ ver_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
 /**
  * Converts the content-type field in the PDU to a string and sets the
  * address of the given value parameter to this string.
- * @param log_fd File Descriptor for log messages
  * @param pdu Pointer to PDU structure
  * @param value Double pointer to string
  * @return 1 field was not set in pdu structure, 0 on success (string must be freed),
  * -1 in case of error (e.g. illegal value in pdu structure , ...)
  */
 int
-ctt_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
+ctt_pdu_to_str(dchat_pdu_t* pdu, char** value)
 {
     dchat_content_types_t content_types;
     char* type;
@@ -761,7 +745,7 @@ ctt_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
 
             if (*value == NULL)
             {
-                ui_fatal(log_fd, "Memory allocation for content-type failed!");
+                ui_fatal("Memory allocation for content-type failed!");
             }
 
             *value[0] = '\0';
@@ -777,14 +761,13 @@ ctt_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
 /**
  * Converts the content-length field in the PDU to a string and sets the
  * address of the given value parameter to this string.
- * @param log_fd File Descriptor for log messages
  * @param pdu Pointer to PDU structure
  * @param value Double pointer to string
  * @return 1 field was not set in pdu structure, 0 on success (string must be freed),
  * -1 in case of error (e.g. illegal value in pdu structure , ...)
  */
 int
-ctl_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
+ctl_pdu_to_str(dchat_pdu_t* pdu, char** value)
 {
     // check if content-length is valid
     if (!is_valid_content_length(pdu->content_length))
@@ -796,7 +779,7 @@ ctl_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
 
     if (*value == NULL)
     {
-        ui_fatal(log_fd, "Memory allocation for content-length failed!");
+        ui_fatal("Memory allocation for content-length failed!");
     }
 
     snprintf(*value, MAX_INT_STR, "%d", pdu->content_length);
@@ -807,14 +790,13 @@ ctl_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
 /**
  * Converts the onion-id field in the PDU to a string and sets the
  * address of the given value parameter to this string.
- * @param log_fd File Descriptor for log messages
  * @param pdu Pointer to PDU structure
  * @param value Double pointer to string
  * @return 1 field was not set in pdu structure, 0 on success (string must be freed),
  * -1 in case of error (e.g. illegal value in pdu structure , ...)
  */
 int
-oni_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
+oni_pdu_to_str(dchat_pdu_t* pdu, char** value)
 {
     // no onion-id has been set
     if (pdu->onion_id[0] == '\0')
@@ -833,7 +815,7 @@ oni_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
 
     if (*value == NULL)
     {
-        ui_fatal(log_fd, "Memory allocation for onion-id failed!");
+        ui_fatal("Memory allocation for onion-id failed!");
     }
 
     *value[0] = '\0';
@@ -845,14 +827,13 @@ oni_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
 /**
  * Converts the listening-port field in the PDU to a string and sets the
  * address of the given value parameter to this string.
- * @param log_fd File Descriptor for log messages
  * @param pdu Pointer to PDU structure
  * @param value Double pointer to string
  * @return 1 field was not set in pdu structure, 0 on success (string must be freed),
  * -1 in case of error (e.g. illegal value in pdu structure , ...)
  */
 int
-lnp_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
+lnp_pdu_to_str(dchat_pdu_t* pdu, char** value)
 {
     // listening port has not been specified
     if (pdu->lport == 0)
@@ -870,7 +851,7 @@ lnp_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
 
     if (*value == NULL)
     {
-        ui_fatal(log_fd, "Memory allocation for listening-port failed!");
+        ui_fatal("Memory allocation for listening-port failed!");
     }
 
     snprintf(*value, MAX_INT_STR, "%d", pdu->lport);
@@ -881,14 +862,13 @@ lnp_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
 /**
  * Converts the nickname field in the PDU to a string and sets the
  * address of the given value parameter to this string.
- * @param log_fd File Descriptor for log messages
  * @param pdu Pointer to PDU structure
  * @param value Double pointer to string
  * @return 1 field was not set in pdu structure, 0 on success (string must be freed),
  * -1 in case of error (e.g. illegal value in pdu structure , ...)
  */
 int
-nic_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
+nic_pdu_to_str(dchat_pdu_t* pdu, char** value)
 {
     if (pdu->nickname[0] == '\0')
     {
@@ -905,7 +885,7 @@ nic_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
 
     if (*value == NULL)
     {
-        ui_fatal(log_fd, "Memory allocation for nickname failed!");
+        ui_fatal("Memory allocation for nickname failed!");
     }
 
     *value[0] = '\0';
@@ -917,14 +897,13 @@ nic_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
 /**
  * Converts the sent field in the PDU to a string and sets the
  * address of the given value parameter to this string.
- * @param log_fd File Descriptor for log messages
  * @param pdu Pointer to PDU structure
  * @param value Double pointer to string
  * @return 1 field was not set in pdu structure, 0 on success (string must be freed),
  * -1 in case of error (e.g. illegal value in pdu structure , ...)
  */
 int
-dat_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
+dat_pdu_to_str(dchat_pdu_t* pdu, char** value)
 {
     int max_len = 100;
 
@@ -938,7 +917,7 @@ dat_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
 
     if (*value == NULL)
     {
-        ui_fatal(log_fd, "Memory allocation for date failed!");
+        ui_fatal("Memory allocation for date failed!");
     }
 
     *value[0] = '\0';
@@ -950,14 +929,13 @@ dat_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
 /**
  * Converts the server field in the PDU to a string and sets the
  * address of the given value parameter to this string.
- * @param log_fd File Descriptor for log messages
  * @param pdu Pointer to PDU structure
  * @param value Double pointer to string
  * @return 1 field was not set in pdu structure, 0 on success (string must be freed),
  * -1 in case of error (e.g. illegal value in pdu structure , ...)
  */
 int
-srv_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
+srv_pdu_to_str(dchat_pdu_t* pdu, char** value)
 {
     if (pdu->server == NULL)
     {
@@ -968,7 +946,7 @@ srv_pdu_to_str(int log_fd, dchat_pdu_t* pdu, char** value)
 
     if (*value == NULL)
     {
-        ui_fatal(log_fd, "Memory allocation for date failed!");
+        ui_fatal("Memory allocation for date failed!");
     }
 
     *value[0] = '\0';
@@ -1053,7 +1031,6 @@ init_dchat_v1(dchat_v1_t* proto)
 
 /**
  * Initializes a DChat PDU with the given values.
- * @param log_fd File Descriptor for log messages
  * @param pdu          Pointer to PDU structure whose members will be initialized
  * @param version      Version of DChat Protocol
  * @param content_type Content-Type
@@ -1062,37 +1039,37 @@ init_dchat_v1(dchat_v1_t* proto)
  * @param nickname     Nickname
  */
 int
-init_dchat_pdu(int log_fd, dchat_pdu_t* pdu, float version, int content_type,
+init_dchat_pdu(dchat_pdu_t* pdu, float version, int content_type,
                char* onion_id, int lport,
                char* nickname)
 {
     if (!is_valid_version(version))
     {
-        ui_log(log_fd, LOG_WARN, "Invalid version '%2.1f'!", version);
+        ui_log(LOG_WARN, "Invalid version '%2.1f'!", version);
         return -1;
     }
 
     if (!is_valid_content_type(content_type))
     {
-        ui_log(log_fd, LOG_WARN, "Invalid Content-Type '0x%02x'!", content_type);
+        ui_log(LOG_WARN, "Invalid Content-Type '0x%02x'!", content_type);
         return -1;
     }
 
     if (!is_valid_onion(onion_id))
     {
-        ui_log(log_fd, LOG_WARN, "Invalid Onion-ID '%s'!", onion_id);
+        ui_log(LOG_WARN, "Invalid Onion-ID '%s'!", onion_id);
         return -1;
     }
 
     if (!is_valid_port(lport))
     {
-        ui_log(log_fd, LOG_WARN, "Invalid Listening-Port '%d'!", lport);
+        ui_log(LOG_WARN, "Invalid Listening-Port '%d'!", lport);
         return -1;
     }
 
     if (!is_valid_nickname(nickname))
     {
-        ui_log(log_fd, LOG_WARN, "Invalid Nickname '%s'!", nickname);
+        ui_log(LOG_WARN, "Invalid Nickname '%s'!", nickname);
         return -1;
     }
 
@@ -1120,7 +1097,7 @@ init_dchat_pdu(int log_fd, dchat_pdu_t* pdu, float version, int content_type,
 
     if (pdu->server == NULL)
     {
-        ui_fatal(log_fd, "Memory allocation for server failed!");
+        ui_fatal("Memory allocation for server failed!");
     }
 
     pdu->server[0] = '\0';
@@ -1133,17 +1110,16 @@ init_dchat_pdu(int log_fd, dchat_pdu_t* pdu, float version, int content_type,
 
 /**
  * Initializes the content of a DChat PDU with the given value.
- * @param log_fd File Descriptor for log messages
  * @param pdu     Pointer to PDU whose content will be initialized
  * @param content Pointer to content
  * @param         len Lenght of content
  */
 void
-init_dchat_pdu_content(int log_fd, dchat_pdu_t* pdu, char* content, int len)
+init_dchat_pdu_content(dchat_pdu_t* pdu, char* content, int len)
 {
     if ((pdu->content = malloc(len)) == NULL)
     {
-        ui_fatal(log_fd, "Memory allocation for PDU content failed!");
+        ui_fatal("Memory allocation for PDU content failed!");
     }
 
     memcpy(pdu->content, content, len);
@@ -1288,7 +1264,6 @@ free_pdu(dchat_pdu_t* pdu)
  *  Part of the content of a PDU will be extracted beginning at offset and
  *  ending at the given terminating character term. The partial content, given
  *  as double pointer should be freed after the successfull call of this function.
- *  @param log_fd File Descriptor for log messages
  *  @param pdu      Pointer to a pdu containing the content
  *  @param offset   Offset where the extraction will begin
  *  @param term     Terminating character where the extraction will end
@@ -1297,7 +1272,7 @@ free_pdu(dchat_pdu_t* pdu)
  *          been found in the content of the pdu, -1 on error
  */
 int
-get_content_part(int log_fd, dchat_pdu_t* pdu, int offset, char term, char** content)
+get_content_part(dchat_pdu_t* pdu, int offset, char term, char** content)
 {
     int line_end; // detected end of line, represented as index
     char* ptr;    // content pointer
@@ -1305,7 +1280,7 @@ get_content_part(int log_fd, dchat_pdu_t* pdu, int offset, char term, char** con
     // check if offset is within the content
     if (offset >= pdu->content_length)
     {
-        ui_log(log_fd, LOG_ERR, "Could not extract partial content!");
+        ui_log(LOG_ERR, "Could not extract partial content!");
         return -1;
     }
 
@@ -1316,7 +1291,7 @@ get_content_part(int log_fd, dchat_pdu_t* pdu, int offset, char term, char** con
     // if end of content is reached before \n
     if (line_end == pdu->content_length && *(ptr - 1) != term)
     {
-        ui_log(log_fd, LOG_ERR, "Could not extract partial content!");
+        ui_log(LOG_ERR, "Could not extract partial content!");
         return -1;
     }
 
@@ -1325,7 +1300,7 @@ get_content_part(int log_fd, dchat_pdu_t* pdu, int offset, char term, char** con
 
     if (*content == NULL)
     {
-        ui_fatal(log_fd, "Memory allocation for partial content failed!");
+        ui_fatal("Memory allocation for partial content failed!");
     }
 
     // copy data into line buffer

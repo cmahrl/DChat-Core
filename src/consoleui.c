@@ -4,7 +4,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
 #include <errno.h>
 
@@ -20,28 +19,26 @@ static const char* flty_[8] = {"emerg", "alert", "crit", "err", "warning", "noti
 
 /**
  * Initializes input, output and log filedescriptor.
- * @param cnf Pointer to global config
  * @return 0 on success, -1 in case of error
  */
 int
-init_ui(dchat_conf_t* cnf){
-    cnf->in_fd            = 0;    // use stdin as input source
-    cnf->out_fd           = 1;    // use stdout as output target
-    cnf->log_fd           = 1;    // use stdout as log target
+init_ui(){
+    _cnf->in_fd            = 0;    // use stdin as input source
+    _cnf->out_fd           = 1;    // use stdout as output target
+    _cnf->log_fd           = 1;    // use stdout as log target
 
     return 0;
 }
 
 /**
  * Write recived message to UI.
- * @param fd File descriptor where the message will be written to
  * @nickname Nickname of the client from whom we received the message
  * @msg Text message to print
  * @return 0 on success, -1 in case of error
 */
  int
- ui_write(int fd, char* nickname, char* msg){
-    dprintf(fd, "%s;%s\n", nickname, msg);
+ ui_write(char* nickname, char* msg){
+    dprintf(_cnf->out_fd, "%s;%s\n", nickname, msg);
 
     return 0;
  }
@@ -90,73 +87,69 @@ vlog_msgf(int fd, int lf, const char* fmt, va_list ap, int with_errno)
 
 /**
  *  Log a message to a filedescriptor.
- *  @param fd File descriptor where the log will be written to
  *  @param lf Log priority
  *  @param fmt Format string
  *  @param ... arguments
  */
 void
-ui_log(int fd, int lf,const char* fmt, ...)
+ui_log(int lf,const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    vlog_msgf(fd, lf, fmt, ap, 0);
+    vlog_msgf(_cnf->log_fd, lf, fmt, ap, 0);
     va_end(ap);
 }
 
 /**
  *  Log a message together with a string representation of errno as error.
- *  @param fd Filedescriptor where the log will be written to
  *  @param lf Log priority
  *  @param fmt Format string
  *  @param ... arguments
  */
 void
-ui_log_errno(int fd, int lf, const char* fmt, ...)
+ui_log_errno(int lf, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    vlog_msgf(fd, lf, fmt, ap, 1);
+    vlog_msgf(_cnf->log_fd, lf, fmt, ap, 1);
     va_end(ap);
 }
 
 /**
  * Prints an error message and terminates this program.
- * @param fd File descriptor where the error will be written to
  * @param fmt Format string
  * @param ... Arguments
 */
 void
-ui_fatal(int fd, char* fmt, ...)
+ui_fatal(char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    vlog_msgf(fd, LOG_ERR, fmt, args, 0);
+    vlog_msgf(_cnf->log_fd, LOG_ERR, fmt, args, 0);
     va_end(args);
     exit(EXIT_FAILURE);
 }
 
 /**
  * Prints usage of the program to stdout and log filedescriptor
- * @param fd Log file descriptor
  * @param exit_status Status of termination
  * @param options Array of options supported
  * @param Format string
  * @param ... arguments
  */
 void
-usage(int fd, int exit_status, cli_options_t* options, const char* fmt, ...)
+usage(int exit_status, cli_options_t* options, const char* fmt, ...)
 {
     if (strlen(fmt))
     {
         va_list args;
         va_start(args, fmt);
         vlog_msgf(STDOUT_FILENO, LOG_ERR, fmt, args, 0);
-        vlog_msgf(fd, LOG_ERR, fmt, args, 0);
+        vlog_msgf(_cnf->log_fd, LOG_ERR, fmt, args, 0);
         va_end(args);
     }
     print_usage(STDOUT_FILENO, exit_status, options);
-    print_usage(fd, exit_status, options);
+    print_usage(_cnf->log_fd, exit_status, options);
 }
 
 /**

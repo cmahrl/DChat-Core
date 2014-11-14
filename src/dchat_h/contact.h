@@ -26,25 +26,25 @@
 //*********************************
 //       DCHAT PROTO FUNCTIONS
 //*********************************
-int send_contacts(dchat_conf_t* cnf, int n);
-int receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu);
-int check_duplicates(dchat_conf_t* cnf, int n);
+int send_contacts(int n);
+int receive_contacts(dchat_pdu_t* pdu);
+int check_duplicates(int n);
 
 
 //*********************************
 //       CONVERSION FUNCTIONS
 //*********************************
-char* contact_to_string(int log_fd, contact_t* contact);
-int string_to_contact(int log_fd, contact_t* contact, char* string);
+char* contact_to_string(contact_t* contact);
+int string_to_contact(contact_t* contact, char* string);
 
 
 //*********************************
 //         MISC FUNCTIONS
 //*********************************
-int realloc_contactlist(dchat_conf_t* cnf, int newsize);
-int add_contact(dchat_conf_t* cnf, int fd);
-int del_contact(dchat_conf_t* cnf, int n);
-int find_contact(dchat_conf_t* cnf, contact_t* contact, int begin);
+int realloc_contactlist(int newsize);
+int add_contact(int fd);
+int del_contact(int n);
+int find_contact(contact_t* contact, int begin);
 
 
 #endif

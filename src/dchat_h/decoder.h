@@ -124,8 +124,8 @@ typedef struct dchat_header
     int   header_id;
     char* header_name;
     int   mandatory;
-    int (*str_to_pdu)(int, char*, dchat_pdu_t*);
-    int (*pdu_to_str)(int, dchat_pdu_t*, char**);
+    int (*str_to_pdu)(char*, dchat_pdu_t*);
+    int (*pdu_to_str)(dchat_pdu_t*, char**);
 } dchat_header_t;
 
 
@@ -142,38 +142,38 @@ typedef struct dchat_v1
 //*********************************
 //        DECODE FUNCTIONS
 //*********************************
-int decode_header(int log_fd , dchat_pdu_t* pdu, char* line);
-int read_line(int log_fd , int fd, char** line);
-int read_pdu(int log_fd , int fd, dchat_pdu_t* pdu);
+int decode_header(dchat_pdu_t* pdu, char* line);
+int read_line(int fd, char** line);
+int read_pdu(int fd, dchat_pdu_t* pdu);
 
 
 //*********************************
 //        ENCODE FUNCTIONS
 //*********************************
-int encode_header(int log_fd , dchat_pdu_t* pdu, int header_id, char** headerline);
-int write_pdu(int log_fd , int fd, dchat_pdu_t* pdu);
+int encode_header(dchat_pdu_t* pdu, int header_id, char** headerline);
+int write_pdu(int fd, dchat_pdu_t* pdu);
 
 
 //*********************************
 //        PARSING FUNCTIONS
 //*********************************
-int ver_str_to_pdu(int log_fd , char* value, dchat_pdu_t* pdu);
-int ctt_str_to_pdu(int log_fd , char* value, dchat_pdu_t* pdu);
-int ctl_str_to_pdu(int log_fd , char* value, dchat_pdu_t* pdu);
-int oni_str_to_pdu(int log_fd , char* value, dchat_pdu_t* pdu);
-int lnp_str_to_pdu(int log_fd , char* value, dchat_pdu_t* pdu);
-int nic_str_to_pdu(int log_fd , char* value, dchat_pdu_t* pdu);
-int dat_str_to_pdu(int log_fd , char* value, dchat_pdu_t* pdu);
-int srv_str_to_pdu(int log_fd , char* value, dchat_pdu_t* pdu);
+int ver_str_to_pdu(char* value, dchat_pdu_t* pdu);
+int ctt_str_to_pdu(char* value, dchat_pdu_t* pdu);
+int ctl_str_to_pdu(char* value, dchat_pdu_t* pdu);
+int oni_str_to_pdu(char* value, dchat_pdu_t* pdu);
+int lnp_str_to_pdu(char* value, dchat_pdu_t* pdu);
+int nic_str_to_pdu(char* value, dchat_pdu_t* pdu);
+int dat_str_to_pdu(char* value, dchat_pdu_t* pdu);
+int srv_str_to_pdu(char* value, dchat_pdu_t* pdu);
 
-int ver_pdu_to_str(int log_fd , dchat_pdu_t* pdu, char** value);
-int ctt_pdu_to_str(int log_fd , dchat_pdu_t* pdu, char** value);
-int ctl_pdu_to_str(int log_fd , dchat_pdu_t* pdu, char** value);
-int oni_pdu_to_str(int log_fd , dchat_pdu_t* pdu, char** value);
-int lnp_pdu_to_str(int log_fd , dchat_pdu_t* pdu, char** value);
-int nic_pdu_to_str(int log_fd , dchat_pdu_t* pdu, char** value);
-int dat_pdu_to_str(int log_fd , dchat_pdu_t* pdu, char** value);
-int srv_pdu_to_str(int log_fd , dchat_pdu_t* pdu, char** value);
+int ver_pdu_to_str(dchat_pdu_t* pdu, char** value);
+int ctt_pdu_to_str(dchat_pdu_t* pdu, char** value);
+int ctl_pdu_to_str(dchat_pdu_t* pdu, char** value);
+int oni_pdu_to_str(dchat_pdu_t* pdu, char** value);
+int lnp_pdu_to_str(dchat_pdu_t* pdu, char** value);
+int nic_pdu_to_str(dchat_pdu_t* pdu, char** value);
+int dat_pdu_to_str(dchat_pdu_t* pdu, char** value);
+int srv_pdu_to_str(dchat_pdu_t* pdu, char** value);
 
 
 //*********************************
@@ -181,10 +181,10 @@ int srv_pdu_to_str(int log_fd , dchat_pdu_t* pdu, char** value);
 //*********************************
 int init_dchat_content_types(dchat_content_types_t* ctt);
 int init_dchat_v1(dchat_v1_t* proto);
-int init_dchat_pdu(int log_fd , dchat_pdu_t* pdu, float version, int content_type,
+int init_dchat_pdu(dchat_pdu_t* pdu, float version, int content_type,
                    char* onion_id,
                    int lport, char* nickname);
-void init_dchat_pdu_content(int log_fd , dchat_pdu_t* pdu, char* content, int len);
+void init_dchat_pdu_content(dchat_pdu_t* pdu, char* content, int len);
 
 
 //*********************************
@@ -196,7 +196,7 @@ int is_valid_content_type(int content_type);
 int is_valid_content_length(int ctl);
 int is_valid_nickname(char* nickname);
 void free_pdu(dchat_pdu_t* pdu);
-int get_content_part(int log_fd , dchat_pdu_t* pdu, int offset, char term, char** content);
+int get_content_part(dchat_pdu_t* pdu, int offset, char term, char** content);
 
 
 #endif
