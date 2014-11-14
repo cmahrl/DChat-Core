@@ -33,7 +33,7 @@
 #include <string.h>
 
 #include "dchat_h/network.h"
-#include "dchat_h/log.h"
+#include "dchat_h/consoleui.h"
 
 
 /**
@@ -154,7 +154,7 @@ create_tor_socket(char* hostname, uint16_t rport)
     // socket address for connection to the TOR client
     if (inet_pton(AF_INET, TOR_ADDR, &da.sin_addr) != 1)
     {
-        log_msg(LOG_ERR, "Invalid ip address '%s'!", TOR_ADDR);
+        ui_log(LOG_ERR, "Invalid ip address '%s'!", TOR_ADDR);
         return -1;
     }
 
@@ -164,7 +164,7 @@ create_tor_socket(char* hostname, uint16_t rport)
     // connect to TOR client
     if ((s = connect_to((struct sockaddr*) &da)) == -1)
     {
-        log_msg(LOG_ERR, "Could not create TOR socket!");
+        ui_log(LOG_ERR, "Could not create TOR socket!");
         return -1;
     }
 
@@ -180,7 +180,7 @@ create_tor_socket(char* hostname, uint16_t rport)
     // send connection request to TOR
     if (write_socks4a(s, &pdu) == -1)
     {
-        log_errno(LOG_ERR, "Could not write SOCKS connection request!");
+        ui_log_errno(LOG_ERR, "Could not write SOCKS connection request!");
         return -1;
     }
 
@@ -189,19 +189,19 @@ create_tor_socket(char* hostname, uint16_t rport)
 
     if ((ret = read_socks4a(s, &pdu)) == -1)
     {
-        log_msg(LOG_ERR, "Could not read SOCKS connection response!");
+        ui_log(LOG_ERR, "Could not read SOCKS connection response!");
         return -1;
     }
 
     if (!ret)
     {
-        log_msg(LOG_ERR, "Connection to TOR client has been closed!");
+        ui_log(LOG_ERR, "Connection to TOR client has been closed!");
         return -1;
     }
 
     if (pdu.command != 90)
     {
-        log_msg(LOG_WARN,
+        ui_log(LOG_WARN,
                 "TOR Connection to remote host failed. Status code: %d - '%s'", pdu.command,
                 parse_socks_status(pdu.command));
         return -1;
@@ -246,13 +246,13 @@ connect_to(struct sockaddr* sa)
 
     if ((s = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
-        log_errno(LOG_ERR, "socket() failed in connect_to()");
+        ui_log_errno(LOG_ERR, "socket() failed in connect_to()");
         return -1;
     }
 
     if (connect(s, sa, sizeof(struct sockaddr_in)) == -1)
     {
-        log_errno(LOG_ERR, "connect() failed");
+        ui_log_errno(LOG_ERR, "connect() failed");
         close(s);
         return -1;
     }

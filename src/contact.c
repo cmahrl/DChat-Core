@@ -35,20 +35,19 @@
 #include "dchat_h/types.h"
 #include "dchat_h/decoder.h"
 #include "dchat_h/dchat.h"
-#include "dchat_h/log.h"
 #include "dchat_h/util.h"
+#include "dchat_h/consoleui.h"
 
 
 /**
  *  Sends local contactlist to a contact.
  *  Sends all known contacts stored in the contactlist within the global config
  *  in form of a "control/discover" PDU to the given contact.
- *  @param cnf Pointer to global configuration holding the contactlist
  *  @param n   Index of contact to whom we send our contactlist (excluding him)
  *  @return amount of bytes that have been written as content, -1 on error
  */
 int
-send_contacts(dchat_conf_t* cnf, int n)
+send_contacts(int n)
 {
     dchat_pdu_t pdu;    // pdu with contact information
     char* contact_str;  // pointer to a string representation of a contact
@@ -57,11 +56,11 @@ send_contacts(dchat_conf_t* cnf, int n)
     int pdu_len = 0;    // total content length of pdu-packet that will be sent
     contact_t* contact; // contact that will be converted to a string
     // initialize PDU
-    init_dchat_pdu(&pdu, 1.0, CTT_ID_DSC, cnf->me.onion_id, cnf->me.lport,
-                   cnf->me.name);
+    init_dchat_pdu(&pdu, 1.0, CTT_ID_DSC, _cnf->me.onion_id, _cnf->me.lport,
+                   _cnf->me.name);
 
     // iterate through our contactlist
-    for (i = 0; i < cnf->cl.cl_size; i++)
+    for (i = 0; i < _cnf->cl.cl_size; i++)
     {
         // except client n to whom we sent our contactlist
         if (n == i)
@@ -70,7 +69,7 @@ send_contacts(dchat_conf_t* cnf, int n)
         }
 
         // temporarily point to a contact
-        contact = &(cnf->cl.contact[i]);
+        contact = &(_cnf->cl.contact[i]);
 
         // if its not an empty contact slot and contact is not temporary (has not sent "control/discover" yet)
         if (contact->lport != 0)
@@ -78,7 +77,7 @@ send_contacts(dchat_conf_t* cnf, int n)
             // convert contact to a string
             if ((contact_str = contact_to_string(contact)) == NULL)
             {
-                log_msg(LOG_WARN, "Conversion of contact '%s' to string failed! - Skipped",
+                ui_log(LOG_WARN, "Conversion of contact '%s' to string failed! - Skipped",
                         contact->name);
                 continue;
             }
@@ -90,7 +89,7 @@ send_contacts(dchat_conf_t* cnf, int n)
             // could not allocate memory for content
             if (pdu.content == NULL)
             {
-                fatal("Memory reallocation for contactlist failed!");
+                ui_fatal("Memory reallocation for contactlist failed!");
             }
 
             // add contact information to content
@@ -105,9 +104,9 @@ send_contacts(dchat_conf_t* cnf, int n)
     pdu.content_length = pdu_len;
 
     // write pdu inkluding all addresses of our contacts
-    if ((ret = write_pdu(cnf->cl.contact[n].fd, &pdu)) == -1)
+    if ((ret = write_pdu(_cnf->cl.contact[n].fd, &pdu)) == -1)
     {
-        log_msg(LOG_ERR, "Sending of contactlist failed!");
+        ui_log(LOG_ERR, "Sending of contactlist failed!");
     }
 
     if (pdu.content_length != 0)
@@ -125,12 +124,11 @@ send_contacts(dchat_conf_t* cnf, int n)
  *  , if this client is unknown, the local contactlist within the global config will be sent
  *  to him. Finally the remote client is added as contact to the local contactlist.
  *  For every parsed contact information, this procedure is repeated.
- *  @param cnf Pointer to global configuration holding the contactlist
  *  @param pdu PDU with the contact information in its content
  *  @return amount of new contacts added to the contactlist, -1 on error
  */
 int
-receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
+receive_contacts(dchat_pdu_t* pdu)
 {
     contact_t contact;
     int ret = 0;            // return value
@@ -148,7 +146,7 @@ receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
         // extract a line from the content of the pdu
         if ((line_end = get_content_part(pdu, line_begin, '\n', &line)) == -1)
         {
-            log_msg(LOG_ERR, "Extraction of contact line from received PDU failed!");
+            ui_log(LOG_ERR, "Extraction of contact line from received PDU failed!");
             ret = -1;
             break;
         }
@@ -156,21 +154,21 @@ receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
         // parse line ane make string to contact
         if (string_to_contact(&contact, line) == -1)
         {
-            log_msg(LOG_WARN, "Conversion of string to contact failed! - Skipped");
+            ui_log(LOG_WARN, "Conversion of string to contact failed! - Skipped");
             ret = -1;
             continue;
         }
 
         // if parsed contact is unknown
-        if (find_contact(cnf, &contact, 0) == -2)
+        if (find_contact(&contact, 0) == -2)
         {
             // increment new contacts counter
             new_contacts++;
 
             // connect to new contact, add him as contact, and send contactlist to him
-            if (handle_local_conn_request(cnf, contact.onion_id, contact.lport) == -1)
+            if (handle_local_conn_request(contact.onion_id, contact.lport) == -1)
             {
-                log_msg(LOG_WARN, "Connection to new contact failed!");
+                ui_log(LOG_WARN, "Connection to new contact failed!");
                 ret = -1;
             }
         }
@@ -197,13 +195,12 @@ receive_contacts(dchat_conf_t* cnf, dchat_pdu_t* pdu)
  *  mechanismn of the DChat protocol. Therefore for further information read
  *  the DChat protocol specification for detecting and removing duplicates.
  *  @see find_contact()
- *  @param cnf Pointer to global configuration holding the contactlist
  *  @param n   Index of contact to check for duplicates
  *  @return index of duplicate, -1 if there are no duplicates or if contact
  *  is not in the contactlist
  */
 int
-check_duplicates(dchat_conf_t* cnf, int n)
+check_duplicates(int n)
 {
     int fst_oc;              // index of first occurance of contact
     int sec_oc;              // index of duplicate
@@ -212,7 +209,7 @@ check_duplicates(dchat_conf_t* cnf, int n)
     int accept_contact = 0;  // index of contact from whom we accepted a connection
     int ret;
     // check if given contact is in the contactlist
-    fst_oc = find_contact(cnf, &cnf->cl.contact[n], 0);
+    fst_oc = find_contact(&_cnf->cl.contact[n], 0);
 
     // contact is this client
     if (fst_oc == -1)
@@ -226,7 +223,7 @@ check_duplicates(dchat_conf_t* cnf, int n)
     }
 
     // check if given contact is in the contactlist a second time
-    sec_oc = find_contact(cnf, &cnf->cl.contact[n], fst_oc + 1);
+    sec_oc = find_contact(&_cnf->cl.contact[n], fst_oc + 1);
 
     if (sec_oc == -2)
     {
@@ -234,7 +231,7 @@ check_duplicates(dchat_conf_t* cnf, int n)
     }
 
     // extract port of sockaddr_storage structure
-    temp = &cnf->cl.contact[fst_oc];
+    temp = &_cnf->cl.contact[fst_oc];
 
     // which kind of contact has to be deleted?
     if (temp->accepted)
@@ -251,7 +248,7 @@ check_duplicates(dchat_conf_t* cnf, int n)
     // if local onion address is greater than the remote one
     // than the index of the  contact, who got added because of a "connect",
     // will be returned
-    ret = strcmp(cnf->me.onion_id, cnf->cl.contact[n].onion_id);
+    ret = strcmp(_cnf->me.onion_id, _cnf->cl.contact[n].onion_id);
 
     if (ret > 0)
     {
@@ -263,11 +260,11 @@ check_duplicates(dchat_conf_t* cnf, int n)
         return accept_contact;
     }
     // if ip addresses are equal, do the same for the listening port
-    else if (cnf->me.lport > cnf->cl.contact[n].lport)
+    else if (_cnf->me.lport > _cnf->cl.contact[n].lport)
     {
         return connect_contact;
     }
-    else if (cnf->me.lport < cnf->cl.contact[n].lport)
+    else if (_cnf->me.lport < _cnf->cl.contact[n].lport)
     {
         return accept_contact;
     }
@@ -311,7 +308,7 @@ contact_to_string(contact_t* contact)
     // allocate memory for the contact string repr.
     if ((contact_str = malloc(contact_len)) == NULL)
     {
-        fatal("Memory allocaction for contact string failed!");
+        ui_fatal("Memory allocaction for contact string failed!");
     }
 
     // first byte has to be '\0', otherwise strcat is undefined
@@ -348,20 +345,20 @@ string_to_contact(contact_t* contact, char* string)
     // split onion-id from string
     if ((onion_id = strtok_r(string, " ", &save_ptr)) == NULL)
     {
-        log_msg(LOG_ERR, "Missing onion-id in contact string!");
+        ui_log(LOG_ERR, "Missing onion-id in contact string!");
         return -1;
     }
 
     // split port from string
     if ((port = strtok_r(NULL, "\n", &save_ptr)) == NULL)
     {
-        log_msg(LOG_ERR, "Missing listening port in contact string!");
+        ui_log(LOG_ERR, "Missing listening port in contact string!");
         return -1;
     }
 
     if (!is_valid_onion(onion_id))
     {
-        log_msg(LOG_ERR, "Invalid onion-id of contact string!");
+        ui_log(LOG_ERR, "Invalid onion-id of contact string!");
         return -1;
     }
 
@@ -371,7 +368,7 @@ string_to_contact(contact_t* contact, char* string)
 
     if (ptr[0] != '\0' || !is_valid_port(lport))
     {
-        log_msg(LOG_ERR, "Invalid port of contact string!");
+        ui_log(LOG_ERR, "Invalid port of contact string!");
         return -1;
     }
 
@@ -386,39 +383,38 @@ string_to_contact(contact_t* contact, char* string)
  *  Resizes the contactlist.
  *  Function to resize the contactlist to a given size. Old contacts are copied to the new
  *  resized contact list if they fit in it
- *  @param cnf Global config structure holding the contactlist
  *  @param newsize New size of the contactlist
  *  @return 0 on success, -1 on error
  */
 int
-realloc_contactlist(dchat_conf_t* cnf, int newsize)
+realloc_contactlist(int newsize)
 {
     int i, j = 0;
     contact_t* new_contact_list;
     contact_t* old_contact_list;
 
     // size may not be lower than 1 and not be lower than the amount of contacts actually used
-    if (newsize < 1 || newsize < cnf->cl.used_contacts)
+    if (newsize < 1 || newsize < _cnf->cl.used_contacts)
     {
-        log_msg(LOG_ERR,
+        ui_log(LOG_ERR,
                 "New size of contactlist must not be lower than 1 or the amount of contacts actually stored in the contactlist!");
         return -1;
     }
 
     // pointer to beginning of old contactlist
-    old_contact_list = &(cnf->cl.contact[0]);
+    old_contact_list = &(_cnf->cl.contact[0]);
 
     // reserve memory for new contactlist
     if ((new_contact_list = malloc(newsize * sizeof(contact_t))) == NULL)
     {
-        fatal("Reallocation of contactlist failed!");
+        ui_fatal("Reallocation of contactlist failed!");
     }
 
     // zero out new contactlist
     memset(new_contact_list, 0, newsize * sizeof(contact_t));
 
     // copy contacts to new contactlist
-    for (i = 0; i < cnf->cl.cl_size; i++)
+    for (i = 0; i < _cnf->cl.cl_size; i++)
     {
         if (old_contact_list[i].fd)
         {
@@ -428,8 +424,8 @@ realloc_contactlist(dchat_conf_t* cnf, int newsize)
     }
 
     // set new size and point to new contactlist in the global config
-    cnf->cl.cl_size = newsize;
-    cnf->cl.contact = new_contact_list;
+    _cnf->cl.cl_size = newsize;
+    _cnf->cl.contact = new_contact_list;
     // free old contactlist
     free(old_contact_list);
     return 0;
@@ -440,33 +436,32 @@ realloc_contactlist(dchat_conf_t* cnf, int newsize)
  *  Adds a new contact to the local contactlist.
  *  The given socket descriptor of the remote client will be used to add a new contact
  *  to the contactlist holded by the global config.
- *  @param cnf Pointer to dchat_conf_t structure holding the contact list
  *  @param fd  Socket file descriptor of the new contact
  *  @return index of contact list, where new contact has been added or -1 in case
  *          of error
  */
 int
-add_contact(dchat_conf_t* cnf, int fd)
+add_contact(int fd)
 {
     int i;
 
     // if contactlist is full - resize it so that we can store more contacts in it
-    if (cnf->cl.used_contacts == cnf->cl.cl_size)
+    if (_cnf->cl.used_contacts == _cnf->cl.cl_size)
     {
-        if ((realloc_contactlist(cnf, cnf->cl.cl_size + INIT_CONTACTS)) < 0)
+        if ((realloc_contactlist(_cnf->cl.cl_size + INIT_CONTACTS)) < 0)
         {
             return -1;
         }
     }
 
     // search for an empty place to store the new contact
-    for (i = 0; i < cnf->cl.cl_size; i++)
+    for (i = 0; i < _cnf->cl.cl_size; i++)
     {
         // if fd is 0 -> this place can be used to store a new contact
-        if (!cnf->cl.contact[i].fd)
+        if (!_cnf->cl.contact[i].fd)
         {
-            cnf->cl.contact[i].fd = fd;
-            cnf->cl.used_contacts++; // increase contact counter
+            _cnf->cl.contact[i].fd = fd;
+            _cnf->cl.used_contacts++; // increase contact counter
             break;
         }
     }
@@ -479,37 +474,36 @@ add_contact(dchat_conf_t* cnf, int fd)
 /**
  *  Deletes a contact from the local contactlist.
  *  Deletes a contact from the contact list holded by the global config.
- *  @param cnf Pointer to dchat_conf_t structure holding the contact list
  *  @param n   Index of customer in the customer list
  *  @return 0 on success, -1 if index is out of bounds
  */
 int
-del_contact(dchat_conf_t* cnf, int n)
+del_contact(int n)
 {
     // is index 'n' a valid index?
-    if ((n < 0) || (n >= cnf->cl.cl_size))
+    if ((n < 0) || (n >= _cnf->cl.cl_size))
     {
-        log_msg(LOG_ERR, "del_contact() - Index out of bounds '%d'", n);
+        ui_log(LOG_ERR, "del_contact() - Index out of bounds '%d'", n);
         return -1;
     }
 
-    if (cnf->cl.contact[n].fd == 0)
+    if (_cnf->cl.contact[n].fd == 0)
     {
         return 0;
     }
 
-    close(cnf->cl.contact[n].fd);
+    close(_cnf->cl.contact[n].fd);
     // zero out the contact on index 'n'
-    memset(&cnf->cl.contact[n], 0, sizeof(contact_t));
+    memset(&_cnf->cl.contact[n], 0, sizeof(contact_t));
     // decrease contacts counter variable
-    cnf->cl.used_contacts--;
+    _cnf->cl.used_contacts--;
 
     // if contacts counter has been decreased INIT_CONTACTS time, resize the contactlist to free
     // unused memory
-    if ((cnf->cl.used_contacts == (cnf->cl.cl_size - INIT_CONTACTS)) &&
-        cnf->cl.used_contacts != 0)
+    if ((_cnf->cl.used_contacts == (_cnf->cl.cl_size - INIT_CONTACTS)) &&
+        _cnf->cl.used_contacts != 0)
     {
-        if ((realloc_contactlist(cnf, cnf->cl.cl_size - INIT_CONTACTS)) < 0)
+        if ((realloc_contactlist(_cnf->cl.cl_size - INIT_CONTACTS)) < 0)
         {
             return -1;
         }
@@ -518,42 +512,40 @@ del_contact(dchat_conf_t* cnf, int n)
     return 0;
 }
 
-
 /**
  *  Searches a contact in the local contactlist.
  *  Searches for a contact in the contactlist holded within the global config
  *  and returns its index in the contactlist. To find a contact, its onion address
  *  and listening port will be used and compared with each other.
- *  @param cnf     Pointer to global configuration holding the contactlist
  *  @param contact Pointer to contact to search for
  *  @param begin   Index where the search will begin in the contactlist
  *  @return index of contact, -1 if the contact represents ourself, -2 if not found
  */
 int
-find_contact(dchat_conf_t* cnf, contact_t* contact, int begin)
+find_contact(contact_t* contact, int begin)
 {
     int i;
     contact_t* c;
 
     // is begin a valid index?
-    if (begin < 0 || begin >= cnf->cl.cl_size)
+    if (begin < 0 || begin >= _cnf->cl.cl_size)
     {
         return -2;
     }
 
     // iterate through contactlist, but first check
     // if the contact represents ourself
-    for (i = -1; i < cnf->cl.cl_size; i++)
+    for (i = -1; i < _cnf->cl.cl_size; i++)
     {
         // first check if the given contact matches ourself
         if (i == -1)
         {
-            c = &cnf->me;
+            c = &_cnf->me;
             i = begin - 1;
         }
         else
         {
-            c = &cnf->cl.contact[i];
+            c = &_cnf->cl.contact[i];
         }
 
         // dont check empty contacts or temporary contacts

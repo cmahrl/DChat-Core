@@ -70,7 +70,7 @@ typedef struct cmd
     int   cmd_id;
     char* cmd_name;
     char* syntax;
-    int (*execute)(dchat_conf_t* cnf, char* arg);
+    int (*execute)(char* arg);
 } cmd_t;
 
 
@@ -85,15 +85,15 @@ typedef struct cmds
 //*********************************
 //     MAIN PARSING FUNCTION
 //*********************************
-int parse_cmd(dchat_conf_t* cnf, char* buf);
+int parse_cmd(char* buf);
 
 
 //*********************************
 //       COMMAND FUNCTIONS
 //*********************************
-int hlp_exec(dchat_conf_t* cnf, char* arg);
-int con_exec(dchat_conf_t* cnf, char* arg);
-int lst_exec(dchat_conf_t* cnf, char* arg);
+int hlp_exec(char* arg);
+int con_exec(char* arg);
+int lst_exec(char* arg);
 
 
 //*********************************

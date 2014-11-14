@@ -18,8 +18,8 @@
  */
 
 
-#ifndef DCHAT_TYPES_H
-#define DCHAT_TYPES_H
+#ifndef TYPES_H
+#define TYPES_H
 
 #include <netinet/in.h>
 #include <time.h>
@@ -89,5 +89,13 @@ typedef struct dchat_conf
     pthread_t conn_th;          //!< thread responsible for new connections
     pthread_t select_th;        //!< thread responsible for select(2) fd
 } dchat_conf_t;
+
+
+//*********************************
+//          global Variables
+//*********************************
+
+extern dchat_conf_t* _cnf; //!< pointer to global dchat configƒ
+
 
 #endif

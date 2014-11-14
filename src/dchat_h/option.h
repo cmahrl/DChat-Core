@@ -84,7 +84,7 @@ typedef struct cli_option
     int   mandatory_argument; //!< argument is mandatory for option
     int   mandatory_option;   //!< option is mandatory
     char* description;        //!< description of option
-    int   (*parse_option)(dchat_conf_t*, char*, int); //!< option parser
+    int   (*parse_option)(char*, int); //!< option parser
 } cli_option_t;
 
 
@@ -103,17 +103,17 @@ typedef struct cli_options
 char* get_short_options(cli_options_t* options);
 struct option* get_long_options(cli_options_t* options);
 int init_cli_options(cli_options_t* options);
-int read_conf(dchat_conf_t* cnf, char* filepath, int* required_set);
+int read_conf(char* filepath, int* required_set);
 
 
 //*********************************
 //      CMD PARSING FUNCTIONS
 //*********************************
-int loni_parse(dchat_conf_t* cnf, char* value, int force);
-int nick_parse(dchat_conf_t* cnf, char* value, int force);
-int lprt_parse(dchat_conf_t* cnf, char* value, int force);
-int roni_parse(dchat_conf_t* cnf, char* value, int force);
-int rprt_parse(dchat_conf_t* cnf, char* value, int force);
-int help_parse(dchat_conf_t* cnf, char* value, int force);
+int loni_parse(char* value, int force);
+int nick_parse(char* value, int force);
+int lprt_parse(char* value, int force);
+int roni_parse(char* value, int force);
+int rprt_parse(char* value, int force);
+int help_parse(char* value, int force);
 
 #endif

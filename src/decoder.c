@@ -34,8 +34,8 @@
 
 #include "dchat_h/decoder.h"
 #include "dchat_h/network.h"
-#include "dchat_h/log.h"
 #include "dchat_h/util.h"
+#include "dchat_h/consoleui.h"
 
 
 /**
@@ -70,7 +70,7 @@ decode_header(dchat_pdu_t* pdu, char* line)
 
     if (temp == NULL)
     {
-        fatal("Memory allocation for temporary decoder line failed!");
+        ui_fatal("Memory allocation for temporary decoder line failed!");
     }
 
     temp[0] = '\0';
@@ -140,7 +140,6 @@ decode_header(dchat_pdu_t* pdu, char* line)
 /**
  *  Read a line terminated with \\n from a file descriptor.
  *  Reads a line from the given file descriptor until \\n is found.
- *  @param fd   File descriptor to read from
  *  @param line Double pointer used for dynamic memory allocation since
  *              characters will be stored on the heap.
  *  @return: length of bytes read, 0 on EOF, -1 on error
@@ -166,7 +165,7 @@ read_line(int fd, char** line)
                 free(*line);
             }
 
-            fatal("Reallocation of input string failed!");
+            ui_fatal("Reallocation of input string failed!");
         }
 
         *line = alc_ptr;
@@ -250,7 +249,7 @@ read_pdu(int fd, dchat_pdu_t* pdu)
     // On error print illegal line
     if (ret == -1)
     {
-        log_msg(LOG_ERR, "Illegal PDU header received: '%s'", line);
+        ui_log(LOG_ERR, "Illegal PDU header received: '%s'", line);
     }
 
     // EOF or ERROR
@@ -263,7 +262,7 @@ read_pdu(int fd, dchat_pdu_t* pdu)
     // has content type, onion-id and listen-port been specified?
     if (pdu->content_type == 0 || pdu->onion_id == NULL || pdu->lport == 0)
     {
-        log_msg(LOG_ERR, "Mandatory PDU headers are missing!");
+        ui_log(LOG_ERR, "Mandatory PDU headers are missing!");
         free(line);
         return -1;
     }
@@ -346,7 +345,7 @@ encode_header(dchat_pdu_t* pdu, int header_id, char** headerline)
             // allocate memory for header string
             if ((*headerline = malloc(len)) == NULL)
             {
-                fatal("Memory allocation for header-value string failed!");
+                ui_fatal("Memory allocation for header-value string failed!");
             }
 
             // assemble header string
@@ -401,7 +400,7 @@ write_pdu(int fd, dchat_pdu_t* pdu)
 
     if ((pdu_raw = malloc(pdulen)) == NULL)
     {
-        fatal("Memory allocation for pdu failed!");
+        ui_fatal("Memory allocation for pdu failed!");
     }
 
     // copy version header to raw pdu
@@ -441,7 +440,7 @@ write_pdu(int fd, dchat_pdu_t* pdu)
 
             if (pdu_raw == NULL)
             {
-                fatal("Reallocation of pdu failed!");
+                ui_fatal("Reallocation of pdu failed!");
             }
 
             // copy header to pdu
@@ -456,7 +455,7 @@ write_pdu(int fd, dchat_pdu_t* pdu)
 
     if (pdu_raw == NULL)
     {
-        fatal("Reallocation of pdu failed!");
+        ui_fatal("Reallocation of pdu failed!");
     }
 
     // add empty line
@@ -582,7 +581,7 @@ oni_str_to_pdu(char* value, dchat_pdu_t* pdu)
 /**
  * Parses the given value to a listening port and sets its value,
  * if valid, in the given PDU structure.
- * @see is_valid_port
+ * @see is_valid_por
  * @param value String to parse
  * @param pdu Pointer to PDU structure
  * @return 0 if value is a valid listening port, -1 otherwise
@@ -610,7 +609,7 @@ lnp_str_to_pdu(char* value, dchat_pdu_t* pdu)
  * Parses the given value to a nickname and sets its value,
  * if valid, in the given PDU structure.
  * MAX_NICKNAME characters will be copied to the PDU structure,
- * thus if the given value is longer the rest will be cut off.
+ * thus if the given value is longer the rest will be cut off
  * @param value String to parse
  * @param pdu Pointer to PDU structure
  * @return 0 if value is a valid nickname, -1 otherwise
@@ -634,7 +633,7 @@ nic_str_to_pdu(char* value, dchat_pdu_t* pdu)
 
 /**
  * Parses the given value to a struct tm and sets its value,
- * if valid, in the given PDU structure.
+ * if valid, in the given PDU structure
  * @param value String to parse
  * @param pdu Pointer to PDU structure
  * @return 0 if value is a valid datetime string, -1 otherwise
@@ -663,7 +662,7 @@ srv_str_to_pdu(char* value, dchat_pdu_t* pdu)
 {
     if ((pdu->server = malloc(strlen(value) + 1)) == NULL)
     {
-        fatal("Memory allocation for server failed!");
+        ui_fatal("Memory allocation for server failed!");
     }
 
     pdu->server[0] = '\0';
@@ -698,7 +697,7 @@ ver_pdu_to_str(dchat_pdu_t* pdu, char** value)
 
         if (*value == NULL)
         {
-            fatal("Memory allocation for version failed!");
+            ui_fatal("Memory allocation for version failed!");
         }
 
         *value[0] = '\0';
@@ -746,7 +745,7 @@ ctt_pdu_to_str(dchat_pdu_t* pdu, char** value)
 
             if (*value == NULL)
             {
-                fatal("Memory allocation for content-type failed!");
+                ui_fatal("Memory allocation for content-type failed!");
             }
 
             *value[0] = '\0';
@@ -780,7 +779,7 @@ ctl_pdu_to_str(dchat_pdu_t* pdu, char** value)
 
     if (*value == NULL)
     {
-        fatal("Memory allocation for content-length failed!");
+        ui_fatal("Memory allocation for content-length failed!");
     }
 
     snprintf(*value, MAX_INT_STR, "%d", pdu->content_length);
@@ -816,7 +815,7 @@ oni_pdu_to_str(dchat_pdu_t* pdu, char** value)
 
     if (*value == NULL)
     {
-        fatal("Memory allocation for onion-id failed!");
+        ui_fatal("Memory allocation for onion-id failed!");
     }
 
     *value[0] = '\0';
@@ -852,7 +851,7 @@ lnp_pdu_to_str(dchat_pdu_t* pdu, char** value)
 
     if (*value == NULL)
     {
-        fatal("Memory allocation for listening-port failed!");
+        ui_fatal("Memory allocation for listening-port failed!");
     }
 
     snprintf(*value, MAX_INT_STR, "%d", pdu->lport);
@@ -886,7 +885,7 @@ nic_pdu_to_str(dchat_pdu_t* pdu, char** value)
 
     if (*value == NULL)
     {
-        fatal("Memory allocation for nickname failed!");
+        ui_fatal("Memory allocation for nickname failed!");
     }
 
     *value[0] = '\0';
@@ -918,7 +917,7 @@ dat_pdu_to_str(dchat_pdu_t* pdu, char** value)
 
     if (*value == NULL)
     {
-        fatal("Memory allocation for date failed!");
+        ui_fatal("Memory allocation for date failed!");
     }
 
     *value[0] = '\0';
@@ -947,7 +946,7 @@ srv_pdu_to_str(dchat_pdu_t* pdu, char** value)
 
     if (*value == NULL)
     {
-        fatal("Memory allocation for date failed!");
+        ui_fatal("Memory allocation for date failed!");
     }
 
     *value[0] = '\0';
@@ -1046,31 +1045,31 @@ init_dchat_pdu(dchat_pdu_t* pdu, float version, int content_type,
 {
     if (!is_valid_version(version))
     {
-        log_msg(LOG_WARN, "Invalid version '%2.1f'!", version);
+        ui_log(LOG_WARN, "Invalid version '%2.1f'!", version);
         return -1;
     }
 
     if (!is_valid_content_type(content_type))
     {
-        log_msg(LOG_WARN, "Invalid Content-Type '0x%02x'!", content_type);
+        ui_log(LOG_WARN, "Invalid Content-Type '0x%02x'!", content_type);
         return -1;
     }
 
     if (!is_valid_onion(onion_id))
     {
-        log_msg(LOG_WARN, "Invalid Onion-ID '%s'!", onion_id);
+        ui_log(LOG_WARN, "Invalid Onion-ID '%s'!", onion_id);
         return -1;
     }
 
     if (!is_valid_port(lport))
     {
-        log_msg(LOG_WARN, "Invalid Listening-Port '%d'!", lport);
+        ui_log(LOG_WARN, "Invalid Listening-Port '%d'!", lport);
         return -1;
     }
 
     if (!is_valid_nickname(nickname))
     {
-        log_msg(LOG_WARN, "Invalid Nickname '%s'!", nickname);
+        ui_log(LOG_WARN, "Invalid Nickname '%s'!", nickname);
         return -1;
     }
 
@@ -1098,7 +1097,7 @@ init_dchat_pdu(dchat_pdu_t* pdu, float version, int content_type,
 
     if (pdu->server == NULL)
     {
-        fatal("Memory allocation for server failed!");
+        ui_fatal("Memory allocation for server failed!");
     }
 
     pdu->server[0] = '\0';
@@ -1120,7 +1119,7 @@ init_dchat_pdu_content(dchat_pdu_t* pdu, char* content, int len)
 {
     if ((pdu->content = malloc(len)) == NULL)
     {
-        fatal("Memory allocation for PDU content failed!");
+        ui_fatal("Memory allocation for PDU content failed!");
     }
 
     memcpy(pdu->content, content, len);
@@ -1281,7 +1280,7 @@ get_content_part(dchat_pdu_t* pdu, int offset, char term, char** content)
     // check if offset is within the content
     if (offset >= pdu->content_length)
     {
-        log_msg(LOG_ERR, "Could not extract partial content!");
+        ui_log(LOG_ERR, "Could not extract partial content!");
         return -1;
     }
 
@@ -1292,7 +1291,7 @@ get_content_part(dchat_pdu_t* pdu, int offset, char term, char** content)
     // if end of content is reached before \n
     if (line_end == pdu->content_length && *(ptr - 1) != term)
     {
-        log_msg(LOG_ERR, "Could not extract partial content!");
+        ui_log(LOG_ERR, "Could not extract partial content!");
         return -1;
     }
 
@@ -1301,7 +1300,7 @@ get_content_part(dchat_pdu_t* pdu, int offset, char term, char** content)
 
     if (*content == NULL)
     {
-        fatal("Memory allocation for partial content failed!");
+        ui_fatal("Memory allocation for partial content failed!");
     }
 
     // copy data into line buffer

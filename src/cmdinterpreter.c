@@ -30,19 +30,18 @@
 
 #include "dchat_h/cmdinterpreter.h"
 #include "dchat_h/types.h"
-#include "dchat_h/log.h"
 #include "dchat_h/util.h"
+#include "dchat_h/consoleui.h"
 
 
 /**
  *  Parses the given string and executes it if it is a command.
- *  @param cnf Global config structure
  *  @param line Userinput
  *  @return 0 if command was valid, 1 if command was invalid in all
  *  other cases -1 will be returned.
  */
 int
-parse_cmd(dchat_conf_t* cnf, char* line)
+parse_cmd(char* line)
 {
     cmds_t cmds;
     char* cmd;
@@ -60,7 +59,7 @@ parse_cmd(dchat_conf_t* cnf, char* line)
 
     if (line_temp == NULL)
     {
-        fatal("Memory allocation for command line failed!");
+        ui_fatal("Memory allocation for command line failed!");
     }
 
     line_temp[0] = '\0';
@@ -76,9 +75,9 @@ parse_cmd(dchat_conf_t* cnf, char* line)
     {
         if (!strcmp(cmd, cmds.cmd[i].cmd_name))
         {
-            if ((ret = cmds.cmd[i].execute(cnf, arg)) == 1)
+            if ((ret = cmds.cmd[i].execute(arg)) == 1)
             {
-                log_msg(LOG_NOTICE, "Command syntax: %s", cmds.cmd[i].syntax);
+                ui_log(LOG_NOTICE, "Command syntax: %s", cmds.cmd[i].syntax);
             }
 
             break;
@@ -126,7 +125,7 @@ init_cmds(cmds_t* cmds)
  * @return 0 on success, 1 on syntax error, -1 otherwise
  */
 int
-hlp_exec(dchat_conf_t* cnf, char* arg)
+hlp_exec(char* arg)
 {
     cmds_t cmds;
 
@@ -135,11 +134,11 @@ hlp_exec(dchat_conf_t* cnf, char* arg)
         return -1;
     }
 
-    log_msg(LOG_NOTICE, "Available Commands: ");
+    ui_log(LOG_NOTICE, "Available Commands: ");
 
     for (int i = 0; i < CMD_AMOUNT; i++)
     {
-        log_msg(LOG_NOTICE, "%s",cmds.cmd[i].syntax);
+        ui_log(LOG_NOTICE, "%s",cmds.cmd[i].syntax);
     }
 
     return 0;
@@ -151,7 +150,7 @@ hlp_exec(dchat_conf_t* cnf, char* arg)
  * @return 0 on success, 1 on syntax error, -1 otherwise
  */
 int
-con_exec(dchat_conf_t* cnf, char* arg)
+con_exec(char* arg)
 {
     char* address;
     char* port_str;
@@ -176,23 +175,23 @@ con_exec(dchat_conf_t* cnf, char* arg)
 
     if (!is_valid_port(port) || *endptr != '\0')
     {
-        log_msg(LOG_WARN, "Invalid port '%s'!", port_str);
+        ui_log(LOG_WARN, "Invalid port '%s'!", port_str);
         return 1;
     }
 
     if (!is_valid_onion(address))
     {
-        log_msg(LOG_WARN, "Invalid onion-id '%s'!", address);
+        ui_log(LOG_WARN, "Invalid onion-id '%s'!", address);
         return 1;
     }
 
     // write onion address to connector pipe
-    if (write(cnf->connect_fd[1], address, ONION_ADDRLEN) == -1)
+    if (write(_cnf->connect_fd[1], address, ONION_ADDRLEN) == -1)
     {
         return -1;
     }
 
-    if (write(cnf->connect_fd[1], &port, sizeof(uint16_t)) == -1)
+    if (write(_cnf->connect_fd[1], &port, sizeof(uint16_t)) == -1)
     {
         return -1;
     }
@@ -206,27 +205,27 @@ con_exec(dchat_conf_t* cnf, char* arg)
  * @return 0 on success, 1 on syntax error, -1 otherwise
  */
 int
-lst_exec(dchat_conf_t* cnf, char* arg)
+lst_exec(char* arg)
 {
     int i;
 
     // are there no contacts in the list a message will be printed
-    if (!cnf->cl.used_contacts)
+    if (!_cnf->cl.used_contacts)
     {
-        log_msg(LOG_NOTICE, "No contacts found in the contactlist");
+        ui_log(LOG_NOTICE, "No contacts found in the contactlist");
     }
     else
     {
-        for (i = 0; i < cnf->cl.cl_size; i++)
+        for (i = 0; i < _cnf->cl.cl_size; i++)
         {
             // check if entry is a valid connection
-            if (cnf->cl.contact[i].fd)
+            if (_cnf->cl.contact[i].fd)
             {
-                log_msg(LOG_NOTICE, "");
+                ui_log(LOG_NOTICE, "");
                 // print all available information about the connection
-                log_msg(LOG_NOTICE, "Contact................%s", cnf->cl.contact[i].name);
-                log_msg(LOG_NOTICE, "Onion-ID...............%s", cnf->cl.contact[i].onion_id);
-                log_msg(LOG_NOTICE, "Hidden-Port............%hu", cnf->cl.contact[i].lport);
+                ui_log(LOG_NOTICE, "Contact................%s", _cnf->cl.contact[i].name);
+                ui_log(LOG_NOTICE, "Onion-ID...............%s", _cnf->cl.contact[i].onion_id);
+                ui_log(LOG_NOTICE, "Hidden-Port............%hu", _cnf->cl.contact[i].lport);
             }
         }
     }

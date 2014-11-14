@@ -38,10 +38,10 @@
 //*********************************
 //      INIT/DESTROY FUNCTIONS
 //*********************************
-int init_global_config(dchat_conf_t* cnf);
-int init_listening(dchat_conf_t* cnf, char* address);
-int init_threads(dchat_conf_t* cnf);
-void destroy(dchat_conf_t* cnf);
+int init_global_config();
+int init_listening(char* address);
+int init_threads();
+void destroy();
 void cleanup_th_new_conn(void* arg);
 void cleanup_th_main_loop(void* arg);
 
@@ -50,17 +50,17 @@ void cleanup_th_main_loop(void* arg);
 //      HANDLER FUNCTIONS
 //*********************************
 void terminate(int sig);
-int handle_local_input(dchat_conf_t* cnf, char* line);
-int handle_remote_input(dchat_conf_t* cnf, int n);
-int handle_local_conn_request(dchat_conf_t* cnf, char* onion_id, uint16_t port);
-int handle_remote_conn_request(dchat_conf_t* cnf);
+int handle_local_input(char* line);
+int handle_remote_input(int n);
+int handle_local_conn_request(char* onion_id, uint16_t port);
+int handle_remote_conn_request();
 
 
 //*********************************
 //      THREAD FUNCTIONS
 //*********************************
-void* th_new_conn(dchat_conf_t* cnf);
-int th_new_input(dchat_conf_t* cnf);
-void*  th_main_loop(dchat_conf_t* cnf);
+void* th_new_conn();
+int th_new_input();
+void*  th_main_loop();
 
 #endif
