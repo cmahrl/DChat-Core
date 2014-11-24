@@ -50,8 +50,9 @@ ui_write(char* nickname, char* msg)
 *  @param fmt Format string
 *  @param ap Variable parameter list
 *  @param with_errno Flag if errno should be printed too
+*  @return 0 on success, -1 in case of error
 */
-void
+int
 vlog_msgf(int fd, int lf, const char* fmt, va_list ap, int with_errno)
 {
     int level = LOG_PRI(lf);
@@ -59,7 +60,7 @@ vlog_msgf(int fd, int lf, const char* fmt, va_list ap, int with_errno)
 
     if (level_ < level)
     {
-        return;
+        return 0;
     }
 
     if (fd > -1)
@@ -79,6 +80,8 @@ vlog_msgf(int fd, int lf, const char* fmt, va_list ap, int with_errno)
         vsnprintf(buf, sizeof(buf), fmt, ap);
         syslog(level | LOG_DAEMON, "%s", buf);
     }
+
+    return 0;
 }
 
 
@@ -87,14 +90,18 @@ vlog_msgf(int fd, int lf, const char* fmt, va_list ap, int with_errno)
  *  @param lf Log priority
  *  @param fmt Format string
  *  @param ... arguments
+ *  @return 0 on sucess, -1 in case of error
  */
-void
+int
 ui_log(int lf,const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    vlog_msgf(_cnf->log_fd, lf, fmt, ap, 0);
+    if((vlog_msgf(_cnf->log_fd, lf, fmt, ap, 0)) < 0)
+        return -1;
     va_end(ap);
+
+    return 0;
 }
 
 /**
@@ -117,14 +124,18 @@ local_log(int lf, const char* fmt, ...)
  *  @param lf Log priority
  *  @param fmt Format string
  *  @param ... arguments
+ *  @return 0 on sucess, -1 in case of error
  */
-void
+int
 ui_log_errno(int lf, const char* fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    vlog_msgf(_cnf->log_fd, lf, fmt, ap, 1);
+    if((vlog_msgf(_cnf->log_fd, lf, fmt, ap, 1)) < 0)
+        return -1;
     va_end(ap);
+
+    return 0;
 }
 
 /**
@@ -143,7 +154,7 @@ local_log_errno(int lf, const char* fmt, ...)
 }
 
 /**
- * Prints an error message and terminates this program.
+ * Prints an error message to log filedescriptor and terminates this program.
  * @param fmt Format string
  * @param ... Arguments
 */
@@ -158,11 +169,12 @@ ui_fatal(char* fmt, ...)
 }
 
 /**
- * Prints usage of the program to stdout and log filedescriptor
+ * Prints usage of the program to stdout and log filedescriptor and terminates this program.
  * @param exit_status Status of termination
  * @param options Array of options supported
  * @param Format string
  * @param ... arguments
+ * @return 0 on success, -1 in case of error
  */
 void
 usage(int exit_status, cli_options_t* options, const char* fmt, ...)
@@ -176,8 +188,10 @@ usage(int exit_status, cli_options_t* options, const char* fmt, ...)
         va_end(args);
     }
 
-    print_usage(STDOUT_FILENO, exit_status, options);
-    print_usage(_cnf->log_fd, exit_status, options);
+    print_usage(STDOUT_FILENO, options);
+    print_usage(_cnf->log_fd, options);
+
+    exit(exit_status);
 }
 
 /**
@@ -187,7 +201,7 @@ usage(int exit_status, cli_options_t* options, const char* fmt, ...)
  * @param options Array of options supported
  */
 void
-print_usage(int fd, int exit_status, cli_options_t* options)
+print_usage(int fd, cli_options_t* options)
 {
     dprintf(fd, "\n");
     dprintf(fd, " %s", PACKAGE_NAME);
@@ -229,5 +243,4 @@ print_usage(int fd, int exit_status, cli_options_t* options)
     dprintf(fd,
             " More detailed information can be found in the man page. See %s(1).\n",
             PACKAGE_NAME);
-    exit(exit_status);
 }
