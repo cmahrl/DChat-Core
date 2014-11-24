@@ -9,6 +9,12 @@ AC_CONFIG_HEADERS([config.h])
 
 AC_DEFINE([CONFIG_PATH], "/usr/local/etc/dchat/dchat.conf", [Path to configuration diretory])
 
+PREFIX=`test "$prefix" = NONE && prefix=""; eval echo "${prefix}"`
+
+AC_DEFINE_UNQUOTED([INP_SOCK_PATH], ["$PREFIX/var/run/dinp.sock"], [Location of user interface input socket])
+AC_DEFINE_UNQUOTED([OUT_SOCK_PATH], ["$PREFIX/var/run/dout.sock"], [Location of user interface output socket])
+AC_DEFINE_UNQUOTED([LOG_SOCK_PATH], ["$PREFIX/var/run/dlog.sock"], [Location of user interface logging socket])
+
 # Checks for programs.
 AC_PROG_CC
 

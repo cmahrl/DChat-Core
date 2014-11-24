@@ -2895,6 +2895,24 @@ ac_config_headers="$ac_config_headers config.h"
 $as_echo "#define CONFIG_PATH \"/usr/local/etc/dchat/dchat.conf\"" >>confdefs.h
 
 
+PREFIX=`test "$prefix" = NONE && prefix=""; eval echo "${prefix}"`
+
+
+cat >>confdefs.h <<_ACEOF
+#define INP_SOCK_PATH "$PREFIX/var/run/dinp.sock"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define OUT_SOCK_PATH "$PREFIX/var/run/dout.sock"
+_ACEOF
+
+
+cat >>confdefs.h <<_ACEOF
+#define LOG_SOCK_PATH "$PREFIX/var/run/dlog.sock"
+_ACEOF
+
+
 # Checks for programs.
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -8438,4 +8456,3 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unrecognized options: $ac_unrecognized_opts" >&5
 $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
-
