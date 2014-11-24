@@ -1,5 +1,5 @@
 /** @file consoleui.c
- *  
+ *
  */
 
 #include <stdio.h>
@@ -13,7 +13,7 @@
 
 #include "dchat_h/consoleui.h"
 
- // log level
+// log level
 static int level_ = LOG_DEBUG;
 static const char* flty_[8] = {"emerg", "alert", "crit", "err", "warning", "notice", "info", "debug"};
 
@@ -22,38 +22,35 @@ static const char* flty_[8] = {"emerg", "alert", "crit", "err", "warning", "noti
  * @return 0 on success, -1 in case of error
  */
 int
-init_ui(){
+init_ui()
+{
     _cnf->in_fd            = 0;    // use stdin as input source
     _cnf->out_fd           = 1;    // use stdout as output target
     _cnf->log_fd           = 1;    // use stdout as log target
-
     return 0;
 }
 
 /**
- * Write recived message to UI.
+ * Write recived message to out file descriptor.
  * @nickname Nickname of the client from whom we received the message
  * @msg Text message to print
  * @return 0 on success, -1 in case of error
 */
- int
- ui_write(char* nickname, char* msg){
+int
+ui_write(char* nickname, char* msg)
+{
     dprintf(_cnf->out_fd, "%s;%s\n", nickname, msg);
-
     return 0;
- }
+}
 
-
-
-
- /**
- *  Log a message to a filedescriptor.
- *  @param fd File descritpor where the log will be written to
- *  @param lf Logging priority (equal to syslog)
- *  @param fmt Format string
- *  @param ap Variable parameter list
- *  @param with_errno Flag if errno should be printed too
- */
+/**
+*  Log a message to a filedescriptor.
+*  @param fd File descritpor where the log will be written to
+*  @param lf Logging priority (equal to syslog)
+*  @param fmt Format string
+*  @param ap Variable parameter list
+*  @param with_errno Flag if errno should be printed too
+*/
 void
 vlog_msgf(int fd, int lf, const char* fmt, va_list ap, int with_errno)
 {
@@ -86,7 +83,7 @@ vlog_msgf(int fd, int lf, const char* fmt, va_list ap, int with_errno)
 
 
 /**
- *  Log a message to a filedescriptor.
+ *  Log a message to log filedescriptor.
  *  @param lf Log priority
  *  @param fmt Format string
  *  @param ... arguments
@@ -101,7 +98,22 @@ ui_log(int lf,const char* fmt, ...)
 }
 
 /**
- *  Log a message together with a string representation of errno as error.
+* Log a message to standard out
+* @param lf Log priority
+* @param fmt Format string
+* @param ... arguments
+*/
+void
+local_log(int lf, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    vlog_msgf(STDOUT_FILENO, lf, fmt, ap, 0);
+    va_end(ap);
+}
+
+/**
+ *  Log a message together with a string representation of errno as error to log filedescriptor.
  *  @param lf Log priority
  *  @param fmt Format string
  *  @param ... arguments
@@ -112,6 +124,21 @@ ui_log_errno(int lf, const char* fmt, ...)
     va_list ap;
     va_start(ap, fmt);
     vlog_msgf(_cnf->log_fd, lf, fmt, ap, 1);
+    va_end(ap);
+}
+
+/**
+ * Log a message together with a string representation of errno as error to standard out.
+ *  @param lf Log priority
+ *  @param fmt Format string
+ *  @param ... arguments
+ */
+void
+local_log_errno(int lf, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    vlog_msgf(STDOUT_FILENO, lf, fmt, ap, 1);
     va_end(ap);
 }
 
@@ -148,6 +175,7 @@ usage(int exit_status, cli_options_t* options, const char* fmt, ...)
         vlog_msgf(_cnf->log_fd, LOG_ERR, fmt, args, 0);
         va_end(args);
     }
+
     print_usage(STDOUT_FILENO, exit_status, options);
     print_usage(_cnf->log_fd, exit_status, options);
 }

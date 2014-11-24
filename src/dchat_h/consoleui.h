@@ -12,7 +12,9 @@
 int init_ui();
 int ui_write(char* nickname, char* msg);
 void ui_log(int lf,const char* fmt, ...);
+void local_log(int lf, const char* fmt, ...);
 void ui_log_errno(int lf, const char* fmt, ...);
+void local_log_errno(int lf, const char* fmt, ...);
 void ui_fatal(char* fmt, ...);
 void vlog_msgf(int fd, int lf, const char* fmt, va_list ap, int with_errno);
 
