@@ -78,7 +78,7 @@ send_contacts(int n)
             if ((contact_str = contact_to_string(contact)) == NULL)
             {
                 ui_log(LOG_WARN, "Conversion of contact '%s' to string failed! - Skipped",
-                        contact->name);
+                       contact->name);
                 continue;
             }
 
@@ -397,7 +397,7 @@ realloc_contactlist(int newsize)
     if (newsize < 1 || newsize < _cnf->cl.used_contacts)
     {
         ui_log(LOG_ERR,
-                "New size of contactlist must not be lower than 1 or the amount of contacts actually stored in the contactlist!");
+               "New size of contactlist must not be lower than 1 or the amount of contacts actually stored in the contactlist!");
         return -1;
     }
 

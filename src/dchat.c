@@ -87,7 +87,7 @@ main(int argc, char** argv)
         ui_fatal("Initialization of global configuration failed!");
     }
 
-    if(init_ui() == -1)
+    if (init_ui() == -1)
     {
         ui_fatal("Initialization of user interface failed!");
     }
@@ -312,7 +312,7 @@ init_listening(char* address)
     if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
     {
         ui_log_errno(LOG_ERR,
-                  "Setting socket options to reuse an already bound address failed!");
+                     "Setting socket options to reuse an already bound address failed!");
         close(s);
         return -1;
     }
@@ -568,21 +568,21 @@ handle_remote_input(int n)
     if (contact->name[0] != '\0' && strcmp(contact->name, pdu.nickname) != 0)
     {
         ui_log(LOG_INFO, "'%s' changed nickname to '%s'!", contact->name,
-                pdu.nickname);
+               pdu.nickname);
     }
 
     if (contact->onion_id[0] != '\0' &&
         strcmp(contact->onion_id, pdu.onion_id) != 0)
     {
         ui_log(LOG_ERR, "'%s' changed Onion-ID! Contact will be removed!",
-                contact->name);
+               contact->name);
         return -1;
     }
 
     if (contact->lport != 0 && contact->lport != pdu.lport)
     {
         ui_log(LOG_ERR, "'%s' changed Listening Port! Contact will be removed!",
-                contact->name);
+               contact->name);
         return -1;
     }
 
@@ -781,7 +781,6 @@ th_new_conn()
     {
         // read from pipe to get new address
         if ((ret = read(_cnf->connect_fd[0], onion_id, ONION_ADDRLEN)) == -1)
-        
         {
             ui_log(LOG_WARN, "Could not read Onion-ID from connection pipe!");
         }
@@ -845,18 +844,19 @@ th_new_input()
     while (1)
     {
         // read one line
-        if(read_line(_cnf->in_fd, &line) < 0)
+        if (read_line(_cnf->in_fd, &line) < 0)
         {
             //TODO error
             break;
         }
 
         // remove newline character
-        if((len = is_valid_termination(line)) < 0)
+        if ((len = is_valid_termination(line)) < 0)
         {
             //TODO error
             break;
         }
+
         line[len] = '\0';
 
         // EOF or user has entered "/exit"

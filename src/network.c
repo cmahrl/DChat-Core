@@ -202,8 +202,8 @@ create_tor_socket(char* hostname, uint16_t rport)
     if (pdu.command != 90)
     {
         ui_log(LOG_WARN,
-                "TOR Connection to remote host failed. Status code: %d - '%s'", pdu.command,
-                parse_socks_status(pdu.command));
+               "TOR Connection to remote host failed. Status code: %d - '%s'", pdu.command,
+               parse_socks_status(pdu.command));
         return -1;
     }
 
