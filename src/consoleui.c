@@ -154,7 +154,7 @@ local_log_errno(int lf, const char* fmt, ...)
 }
 
 /**
- * Prints an error message to log filedescriptor and terminates this program.
+ * Prints an error message to stdout and log filedescriptor and terminates this program.
  * @param fmt Format string
  * @param ... Arguments
 */
@@ -163,7 +163,14 @@ ui_fatal(char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    vlog_msgf(_cnf->log_fd, LOG_ERR, fmt, args, 0);
+    vlog_msgf(STDOUT_FILENO, LOG_ERR, fmt, args, 0);
+
+    // only write to log_fd if it is already initialized
+    if (_cnf->log_fd)
+    {
+        vlog_msgf(_cnf->log_fd, LOG_ERR, fmt, args, 0);
+    }
+
     va_end(args);
     exit(EXIT_FAILURE);
 }
@@ -184,12 +191,23 @@ usage(int exit_status, cli_options_t* options, const char* fmt, ...)
         va_list args;
         va_start(args, fmt);
         vlog_msgf(STDOUT_FILENO, LOG_ERR, fmt, args, 0);
-        vlog_msgf(_cnf->log_fd, LOG_ERR, fmt, args, 0);
+
+        // only write to log_fd if it is already initialized
+        if (_cnf->log_fd)
+        {
+            vlog_msgf(_cnf->log_fd, LOG_ERR, fmt, args, 0);
+        }
+
         va_end(args);
     }
 
     print_usage(STDOUT_FILENO, options);
-    print_usage(_cnf->log_fd, options);
+
+    // only write to log_fd if it is already initialized
+    if (_cnf->log_fd)
+    {
+        print_usage(_cnf->log_fd, options);
+    }
 
     exit(exit_status);
 }

@@ -87,11 +87,6 @@ main(int argc, char** argv)
         ui_fatal("Initialization of global configuration failed!");
     }
 
-    if (init_ui() == -1)
-    {
-        ui_fatal("Initialization of user interface failed!");
-    }
-
     if (init_cli_options(&options) == -1)
     {
         ui_fatal("Initialization of command line options failed!");
@@ -242,6 +237,11 @@ main(int argc, char** argv)
         // remote host
         write(_cnf->connect_fd[1], remote_onion, ONION_ADDRLEN);
         write(_cnf->connect_fd[1], &rport,       sizeof(uint16_t));
+    }
+
+    if (init_ui() == -1)
+    {
+        ui_fatal("Initialization of user interface failed!");
     }
 
     // handle userinput
