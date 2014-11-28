@@ -34,4 +34,6 @@ void* th_ipc_reconnector(void* ptr);
 
 void signal_reconnect();
 
+int ui_read_line(char** line);
+
 #endif

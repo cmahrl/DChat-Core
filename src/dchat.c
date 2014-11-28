@@ -844,10 +844,10 @@ th_new_input()
     while (1)
     {
         // read one line
-        if (read_line(_cnf->in_fd, &line) < 0)
+        if (ui_read_line(&line) <= 0)
         {
             //TODO error
-            break;
+            continue;
         }
 
         // remove newline character

@@ -19,14 +19,18 @@
 #endif
 
 #include "dchat_h/consoleui.h"
+#include "dchat_h/decoder.h"
 
 // log level
 static int level_ = LOG_DEBUG;
 static const char* flty_[8] = {"emerg", "alert", "crit", "err", "warning", "notice", "info", "debug"};
 
 static int _recival = 5;
+static int _reconnect = 0;
 static pthread_mutex_t _lock;
 static pthread_cond_t _cond;
+static pthread_mutex_t _lock2;
+static pthread_cond_t _cond2;
 
 static ipc_t _ipc_inp;
 static ipc_t _ipc_out;
@@ -61,10 +65,11 @@ init_ui()
         return -1;
     }
 
+    pthread_mutex_init(&_lock2, NULL);
+    pthread_cond_init(&_cond2, NULL);
     signal(SIGPIPE, SIG_IGN);
     ipc_connect();
     pthread_create(&_th_rec, NULL, (void*) th_ipc_reconnector, NULL);
-
     return 0;
 }
 
@@ -76,13 +81,13 @@ free_unix_socks()
 {
     if (_cnf->in_fd > 2)
     {
-        local_log_errno(1,"close in_fd %d", close(_cnf->in_fd));
+        close(_cnf->in_fd);
         _cnf->in_fd = -1;
     }
 
     if (_cnf->out_fd > 2)
     {
-        local_log_errno(1,"close in_fd %d", close(_cnf->out_fd));
+        close(_cnf->out_fd);
         _cnf->out_fd = -1;
     }
 
@@ -93,62 +98,93 @@ free_unix_socks()
     }
 }
 
-int
-unix_accept(char* path)
+void
+unix_accept_error(char* error)
 {
-    int acpt_sock, fd;
+    local_log_errno(1, error);
+    // cancel all accept threads
+    pthread_cancel(_th_acpt_inp);
+    pthread_cancel(_th_acpt_out);
+    pthread_cancel(_th_acpt_log);
+}
+
+void
+unix_accept(ipc_t* ipc)
+{
+    int fd;
     struct sockaddr_un sock_addr;
     memset(&sock_addr, 0, sizeof(sock_addr));
 
     // ENOENT means file does not exist
-    if (unlink(path) < 0/* && errno != ENOENT*/)
+    if (unlink(ipc->path) < 0 && errno != ENOENT)
     {
-        local_log_errno(1, "Unlink path failed!");
-        return -1;
+        unix_accept_error("Unlink path failed!");
+        pthread_testcancel();
     }
 
-    if ((acpt_sock = socket(PF_LOCAL, SOCK_STREAM, 0)) == -1)
+    if ((ipc->fd = socket(PF_LOCAL, SOCK_STREAM, 0)) == -1)
     {
-        local_log_errno(1, "Creation of socket failed!");
-        return -1;
+        unix_accept_error("Creation of socket failed!");
+        pthread_testcancel();
     }
 
     sock_addr.sun_family = PF_LOCAL;
-    strcpy(sock_addr.sun_path, path);
+    strcpy(sock_addr.sun_path, ipc->path);
 
-    if (bind(acpt_sock, (struct sockaddr*) &sock_addr, sizeof(sock_addr)) == -1)
+    if (bind(ipc->fd, (struct sockaddr*) &sock_addr, sizeof(sock_addr)) == -1)
     {
-        local_log_errno(1, "Binding to socket failed!");
-        return -1;
+        unix_accept_error("Binding to socket failed!");
+        pthread_testcancel();
     }
 
-    if (listen(acpt_sock, 1) == -1)
+    if (listen(ipc->fd, 1) == -1)
     {
-        local_log_errno(1, "Listening failed!");
-        return -1;
+        unix_accept_error("Listening failed!");
+        pthread_testcancel();
     }
 
-    local_log(1, "waiting for connect %s", path);
+    local_log(1, "waiting for connect %s", ipc->path);
 
-    if ((fd = accept(acpt_sock, 0, 0)) == -1)
+    if ((fd = accept(ipc->fd, 0, 0)) == -1)
     {
-        local_log_errno(1, "Accepting new connection failed!");
-        return -1;
+        unix_accept_error("Accepting new connection failed!");
+        pthread_testcancel();
     }
 
-    close(acpt_sock);
-    local_log(1, "Connected to %s", path);
-    return fd;
+    // close accept fd
+    close(ipc->fd);
+    // set ptr->fd from accept fd to actual filedescriptor
+    ipc->fd = fd;
+    local_log(1, "Connected to %s", ipc->path);
+}
+
+void
+ipc_accept_cleanup(void* ptr)
+{
+    ipc_t* ipc = (ipc_t*)ptr;
+    // close accept fd
+    close(ipc->fd);
+    ipc->fd = -1;
+    // unlink path
+    unlink(ipc->path);
 }
 
 void*
 th_ipc_accept(void* ptr)
 {
     ipc_t* ipc = (ipc_t*)ptr;
-    int fd = unix_accept(ipc->path);
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+    pthread_cleanup_push(&ipc_accept_cleanup, &ipc->path);
+    unix_accept(ipc);
+
     // filedescriptor mus be higher than 2;
-    fd = (fd>2)?fd:-1;
-    ipc->fd = fd;
+    if (ipc->fd <= 2)
+    {
+        ipc->fd = -1;
+    }
+
+    pthread_cleanup_pop(0);
     pthread_exit(NULL);
 }
 
@@ -158,15 +194,12 @@ ipc_connect()
     while (1)
     {
         free_unix_socks();
-
         pthread_create(&_th_acpt_inp, NULL, (void*) th_ipc_accept, &_ipc_inp);
         pthread_create(&_th_acpt_out, NULL, (void*) th_ipc_accept, &_ipc_out);
         pthread_create(&_th_acpt_log, NULL, (void*) th_ipc_accept, &_ipc_log);
-
         pthread_join(_th_acpt_inp, NULL);
         pthread_join(_th_acpt_out, NULL);
         pthread_join(_th_acpt_log, NULL);
-
         _cnf->in_fd = _ipc_out.fd;
         _cnf->out_fd = _ipc_inp.fd;
         _cnf->log_fd = _ipc_log.fd;
@@ -177,20 +210,34 @@ ipc_connect()
         }
 
         sleep(_recival);
+        local_log(1, "");
+        local_log(1, "RETRY");
+        local_log(1, "");
     }
 
     ui_write("nickname", _cnf->me.name);
     local_log(1, "in_fd: %d", _cnf->in_fd);
     local_log(1, "out_fd: %d", _cnf->out_fd);
     local_log(1, "log_fd: %d", _cnf->log_fd);
+    local_log(1, "");
 }
 
 void
-signal_reconnect()
+signal_reconnect(char* src)
 {
+    local_log(1,"ENTER RECONNECT %s", src);
     pthread_mutex_lock(&_lock);
-    pthread_cond_signal(&_cond);
+    local_log_errno(1, "cond_signal ret: %d", pthread_cond_signal(&_cond));
     pthread_mutex_unlock(&_lock);
+    pthread_mutex_lock(&_lock2);
+
+    if (_reconnect)
+    {
+        pthread_cond_wait(&_cond2, &_lock2);
+    }
+
+    pthread_mutex_unlock(&_lock2);
+    local_log(1,"EXIT RECONNECT %s", src);
 }
 
 void*
@@ -200,11 +247,14 @@ th_ipc_reconnector(void* ptr)
     {
         pthread_mutex_lock(&_lock);
         pthread_cond_wait(&_cond, &_lock);
+        _reconnect = 1;
         pthread_mutex_unlock(&_lock);
-
         local_log(1, "\nRECONNECTING...\n");
-
         ipc_connect();
+        pthread_mutex_lock(&_lock2);
+        _reconnect = 0;
+        pthread_cond_broadcast(&_cond2);
+        pthread_mutex_unlock(&_lock2);
     }
 
     free_unix_socks();
@@ -223,7 +273,12 @@ th_ipc_reconnector(void* ptr)
 int
 ui_write(char* nickname, char* msg)
 {
-    dprintf(_cnf->out_fd, "%s;%s\n", nickname, msg);
+    if (dprintf(_cnf->out_fd, "%s;%s\n", nickname, msg) < 0)
+    {
+        signal_reconnect("out");
+        return -1;
+    }
+
     return 0;
 }
 
@@ -249,19 +304,41 @@ vlog_msgf(int fd, int lf, const char* fmt, va_list ap, int with_errno)
 
     if (fd > -1)
     {
-        dprintf(fd, "%s;", flty_[level]);
-        vdprintf(fd, fmt, ap);
+        if (dprintf(fd, "%s;", flty_[level]) < 0)
+        {
+            signal_reconnect("vlog");
+            return -1;
+        }
+
+        if (vdprintf(fd, fmt, ap) < 0)
+        {
+            signal_reconnect("vlog");
+            return -1;
+        }
 
         if (with_errno)
         {
-            dprintf(fd, " (%s)", strerror(errno));
+            if (dprintf(fd, " (%s)", strerror(errno)) < 0)
+            {
+                signal_reconnect("vlog");
+                return -1;
+            }
         }
 
-        dprintf(fd, "\n");
+        if (dprintf(fd, "\n") < 0)
+        {
+            signal_reconnect("vlog");
+            return -1;
+        }
     }
     else
     {
-        vsnprintf(buf, sizeof(buf), fmt, ap);
+        if (vsnprintf(buf, sizeof(buf), fmt, ap) < 0)
+        {
+            signal_reconnect("vlog");
+            return -1;
+        }
+
         syslog(level | LOG_DAEMON, "%s", buf);
     }
 
@@ -451,4 +528,17 @@ print_usage(int fd, cli_options_t* options)
     dprintf(fd,
             " More detailed information can be found in the man page. See %s(1).\n",
             PACKAGE_NAME);
+}
+
+int
+ui_read_line(char** line)
+{
+    int ret = read_line(_cnf->in_fd, line);
+
+    if (ret <= 0)
+    {
+        signal_reconnect("in");
+    }
+
+    return ret;
 }
