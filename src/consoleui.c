@@ -215,7 +215,8 @@ ipc_connect()
         local_log(1, "");
     }
 
-    ui_write("nickname", _cnf->me.name);
+    ui_write(_cnf->me.name, "");
+
     local_log(1, "in_fd: %d", _cnf->in_fd);
     local_log(1, "out_fd: %d", _cnf->out_fd);
     local_log(1, "log_fd: %d", _cnf->log_fd);
