@@ -17,6 +17,7 @@ AC_DEFINE_UNQUOTED([LOG_SOCK_PATH], ["$PREFIX/var/run/dlog.sock"], [Location of 
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_CC_STDC
 
 #Doxygen
 DX_HTML_FEATURE(ON)
