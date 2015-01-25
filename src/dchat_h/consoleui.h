@@ -20,4 +20,20 @@ int vlog_msgf(int fd, int lf, const char* fmt, va_list ap, int with_errno);
 
 void usage(int exit_status, cli_options_t* options, const char* fmt, ...);
 void print_usage(int fd, cli_options_t* options);
+
+typedef struct ipc
+{
+    char* path;
+    int fd;
+} ipc_t;
+
+
+void ipc_connect();
+
+void* th_ipc_reconnector(void* ptr);
+
+void signal_reconnect();
+
+int ui_read_line(char** line);
+
 #endif

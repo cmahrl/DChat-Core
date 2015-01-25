@@ -1,5 +1,5 @@
 ACLOCAL_AMFLAGS = -I m4
-CFLAGS = --pedantic - Wall -std=c99
+CFLAGS = --pedantic -Wall
 
 SUBDIRS = src man
 

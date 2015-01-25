@@ -83,6 +83,15 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Location of user interface input socket */
+#undef INP_SOCK_PATH
+
+/* Location of user interface logging socket */
+#undef LOG_SOCK_PATH
+
+/* Location of user interface output socket */
+#undef OUT_SOCK_PATH
+
 /* Name of package */
 #undef PACKAGE
 
