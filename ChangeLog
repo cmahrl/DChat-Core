@@ -1,3 +1,76 @@
+2015-01-26  Christoph Mahrl  <is121018@fhstp.ac.at>
+
+	Bugfix: Fixed segfaults
+	-) fixed compiler warning due to missing _GNU_SOURCE needed by strptime
+
+	-) fixed segfaults in decoder module because of missing null check and
+	erroneous splitting
+
+2015-01-26  Christoph Mahrl  <is121018@fhstp.ac.at>
+
+	Cleanup: Static wait
+
+2015-01-25  Christoph Mahrl  <is121018@fhstp.ac.at>
+
+	Include: unistd.h
+	Included missing unistd.h in contact.c
+
+	Merge branch 'unixSockets'
+
+2015-01-24  Christoph Mahrl  <is121018@fhstp.ac.at>
+
+	Update: configure.ac
+	Added c99 check
+
+2014-11-28  Andreas Schmoll  <is121024@fhstp.ac.at>
+
+	Update: ConsoleUI
+	send nickname in form „<nickname>;“
+
+	Update: ConsoleUI
+	Reconnect if socket goes down. Cancel accept threads if one accept
+	fails.
+
+2014-11-25  Andreas Schmoll  <is121024@fhstp.ac.at>
+
+	Update: ConsoleUI
+	using unix sockets to communicate with ui
+
+	Update: dchat.c
+	Bring init_ui to the end of initialization
+
+2014-11-24  Andreas Schmoll  <is121024@fhstp.ac.at>
+
+	Update: configure.ac
+	Added AC_DEFINES for UI unix socket paths
+
+	Update: ConsoleUI
+	return value for functions using sockets
+
+	Code Formatting
+
+	Update: ConsoleUI
+	add functions for logging to stdout
+
+2014-11-14  Andreas Schmoll  <is121024@fhstp.ac.at>
+
+	Merge branch 'codeCleanup'
+
+	Update: Global Config
+	Pointer to global config as global variable. All functions are using
+	this global variable.
+
+2014-11-13  Andreas Schmoll  <is121024@fhstp.ac.at>
+
+	Created consoleui
+	All UI interactions are moved to consoleui. There are 3 File
+	Descriptors for User Interaction: fd_in, fd_out, fd_log. They are set
+	in the config struct.
+
+2014-11-12  Christoph Mahrl  <is121018@fhstp.ac.at>
+
+	Update: ChangeLog
+
 2014-11-12  Andreas Schmoll  <is121024@fhstp.ac.at>
 
 	Read User Input from File-Descriptor

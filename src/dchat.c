@@ -235,8 +235,12 @@ main(int argc, char** argv)
         del_contact(0);
         // inform connection handler to connect to the specified
         // remote host
-        write(_cnf->connect_fd[1], remote_onion, ONION_ADDRLEN);
-        write(_cnf->connect_fd[1], &rport,       sizeof(uint16_t));
+        if(write(_cnf->connect_fd[1], remote_onion, ONION_ADDRLEN) == -1){
+             ui_log_errno(LOG_WARN, "Remote onion id could not be written");
+	}
+        if(write(_cnf->connect_fd[1], &rport,       sizeof(uint16_t)) == -1){
+             ui_log_errno(LOG_WARN, "Remote port could not be written");
+	}
     }
 
     if (init_ui() == -1)
