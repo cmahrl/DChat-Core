@@ -36,4 +36,6 @@ void signal_reconnect();
 
 int ui_read_line(char** line);
 
+int read_line_sync(int fd, char** line);
+
 #endif

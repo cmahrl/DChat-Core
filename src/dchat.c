@@ -443,7 +443,7 @@ destroy()
     // close write pipe for thread function th_new_input
     close(_cnf->user_input[1]);
     // delete readline prompt and return to beginning of current line
-    ui_log(LOG_INFO, "Good Bye!");
+    local_log(LOG_INFO, "Good Bye!");
 }
 
 
@@ -846,7 +846,6 @@ th_new_input()
         // read one line
         if (ui_read_line(&line) <= 0)
         {
-            //TODO error
             continue;
         }
 
