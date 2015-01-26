@@ -78,7 +78,6 @@ init_ui()
 
     signal(SIGPIPE, SIG_IGN);
     pthread_create(&_th_rec, NULL, (void*) th_ipc_reconnector, NULL);
-
     return 0;
 }
 
@@ -124,7 +123,7 @@ unix_accept(ipc_t* ipc)
 
     if ((ipc->fd = socket(PF_LOCAL, SOCK_STREAM, 0)) == -1)
     {
-        local_log_errno(LOG_ERR, "Creation of socket failed!");
+        local_log_errno(LOG_ERR, "Creation of unix socket failed!");
         return -1;
     }
 
@@ -133,28 +132,26 @@ unix_accept(ipc_t* ipc)
 
     if (bind(ipc->fd, (struct sockaddr*) &sock_addr, sizeof(sock_addr)) == -1)
     {
-        local_log_errno(LOG_ERR, "Binding to socket failed!");
+        local_log_errno(LOG_ERR, "Binding to unix socket failed!");
         return -1;
     }
 
     if (listen(ipc->fd, 1) == -1)
     {
-        local_log_errno(LOG_ERR, "Listening failed!");
+        local_log_errno(LOG_ERR, "Listening on unix socket failed!");
         return -1;
     }
 
     if ((fd = accept(ipc->fd, 0, 0)) == -1)
     {
-        local_log_errno(LOG_ERR, "Accepting new connection failed!");
+        local_log_errno(LOG_ERR, "Accepting new connection on unix socket failed!");
         return -1;
     }
 
     // close accept fd
     close(ipc->fd);
-
     // set ptr->fd from accept fd to actual filedescriptor
     ipc->fd = fd;
-
     return fd;
 }
 
@@ -164,7 +161,6 @@ th_ipc_accept(void* ptr)
 {
     ipc_t* ipc = (ipc_t*)ptr;
     int ret;
-
     ret = unix_accept(ipc);
 
     // filedescriptor mus be higher than 2;
@@ -183,7 +179,7 @@ ipc_connect()
     while (1)
     {
         free_unix_socks();
-        local_log(LOG_DEBUG, "INIT LISTENING SOCKETS");
+        local_log(LOG_NOTICE, "INIT LISTEN SOCKS");
         pthread_create(&_th_acpt_inp, NULL, (void*) th_ipc_accept, &_ipc_inp);
         pthread_create(&_th_acpt_out, NULL, (void*) th_ipc_accept, &_ipc_out);
         pthread_create(&_th_acpt_log, NULL, (void*) th_ipc_accept, &_ipc_log);
@@ -193,23 +189,24 @@ ipc_connect()
         _cnf->in_fd = _ipc_out.fd;
         _cnf->out_fd = _ipc_inp.fd;
         _cnf->log_fd = _ipc_log.fd;
-        local_log(LOG_DEBUG, "CONNECTIONS ACCEPTED");
 
         if (_cnf->in_fd != -1 && _cnf->out_fd != -1 && _cnf->log_fd != -1)
         {
+            local_log(LOG_NOTICE, "CONNECTIONS ESTABLISHED");
             break;
         }
 
-        local_log(LOG_DEBUG, "CONNECTIONS FAILED - RE-INITIALIZING SOCKETS");
+        local_log(LOG_WARN, "CONNECTIONS FAILED");
+        local_log(LOG_NOTICE, "RE-INIT LISTEN SOCKS");
         sleep(_recival);
     }
-
 }
 
 
 void
 signal_reconnect()
 {
+    local_log(LOG_NOTICE, "WAITING FOR RECONNECTION");
     _reconnect = 1;
     pthread_cond_signal(&_cond);
 }
@@ -221,19 +218,18 @@ th_ipc_reconnector(void* ptr)
     while (1)
     {
         pthread_mutex_lock(&_lock);
-        while(!_reconnect)
+
+        while (!_reconnect)
         {
-            local_log(LOG_DEBUG, "WAIT FOR RECONNECT SIGNAL");
             pthread_cond_wait(&_cond, &_lock);
         }
+
         pthread_mutex_lock(&_lock_wake);
         ipc_connect();
         _reconnect = 0;
-        local_log(LOG_DEBUG, "SEND RECONNECTED SIGNAL");
         pthread_cond_broadcast(&_cond_wake);
         pthread_mutex_unlock(&_lock_wake);
         pthread_mutex_unlock(&_lock);
-
         ui_write(_cnf->me.name, "");
     }
 
@@ -254,8 +250,8 @@ int
 ui_write(char* nickname, char* msg)
 {
     int ret;
-
     pthread_mutex_lock(&_lock);
+
     if (dprintf(_cnf->out_fd, "%s;%s\n", nickname, msg) < 0)
     {
         pthread_mutex_lock(&_lock_wake);
@@ -263,7 +259,6 @@ ui_write(char* nickname, char* msg)
         pthread_mutex_unlock(&_lock);
         pthread_cond_wait(&_cond_wake, &_lock_wake);
         pthread_mutex_unlock(&_lock_wake);
-
         ret = -1;
     }
     else
@@ -347,8 +342,8 @@ ui_log(int lf,const char* fmt, ...)
     int ret;
     va_list ap;
     va_start(ap, fmt);
-
     pthread_mutex_lock(&_lock);
+
     if ((vlog_msgf(_cnf->log_fd, lf, fmt, ap, 0)) < 0)
     {
         pthread_mutex_lock(&_lock_wake);
@@ -356,7 +351,6 @@ ui_log(int lf,const char* fmt, ...)
         pthread_mutex_unlock(&_lock);
         pthread_cond_wait(&_cond_wake, &_lock_wake);
         pthread_mutex_unlock(&_lock_wake);
-
         ret = -1;
     }
     else
@@ -534,12 +528,18 @@ print_usage(int fd, cli_options_t* options)
 int
 ui_read_line(char** line)
 {
-    if(!_cnf->in_fd)
+    if (!_cnf->in_fd)
+    {
         return -1;
+    }
 
     int ret = read_line_sync(_cnf->in_fd, line);
-    if(ret > 0)
-        local_log(1, "'%s'", *line);
+
+    if (ret > 0)
+    {
+        local_log(LOG_DEBUG, "INPUT: '%s'", *line);
+    }
+
     return ret;
 }
 
@@ -578,7 +578,7 @@ read_line_sync(int fd, char** line)
         *line = alc_ptr;
         ptr = *line + len - 1;
         len++;
-    
+
         do
         {
             pthread_mutex_lock(&_lock);
@@ -586,25 +586,21 @@ read_line_sync(int fd, char** line)
             struct timeval tv;
             FD_ZERO(&fds);
             FD_SET(fd, &fds);
-            
             // non - blocking
             tv.tv_sec = 0;
             tv.tv_usec = 0;
+
             // if data is available
-            if ((ret = select(fd + 1, &fds, NULL, NULL, &tv)) == 1) 
+            if ((ret = select(fd + 1, &fds, NULL, NULL, &tv)) == 1)
             {
                 // on error or EOF of read
-                if((ret = read(fd, ptr, 1)) <= 0)
+                if ((ret = read(fd, ptr, 1)) <= 0)
                 {
                     pthread_mutex_lock(&_lock_wake);
-                    local_log(LOG_DEBUG, "SEND RECONNECT SIGNAL");
                     signal_reconnect();
-                    local_log(LOG_DEBUG, "WAIT FOR RECONNECTED SIGNAL");
                     pthread_mutex_unlock(&_lock);
                     pthread_cond_wait(&_cond_wake, &_lock_wake);
-                    local_log(LOG_DEBUG, "RECONNECTED SIGNAL RECEIVED");
                     pthread_mutex_unlock(&_lock_wake);
-
                     free(*line);
                     return ret;
                 }
@@ -613,15 +609,14 @@ read_line_sync(int fd, char** line)
                     pthread_mutex_unlock(&_lock);
                     break;
                 }
-
             }
-            pthread_mutex_unlock(&_lock);
 
+            pthread_mutex_unlock(&_lock);
             tv.tv_sec = 0;
             tv.tv_usec = 100; // 100ms
             select(0, NULL, NULL, NULL, &tv);
         }
-        while(1);
+        while (1);
     }
     while (*ptr != '\n');
 

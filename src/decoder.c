@@ -26,6 +26,7 @@
 #include "config.h"
 #endif
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -82,18 +83,17 @@ decode_header(dchat_pdu_t* pdu, char* line)
         free(temp);
         return -1;
     }
-    else if ((value = strtok_r(NULL, delim, &save_ptr)) == NULL)
+
+    // value token is NULL
+    if (save_ptr == NULL)
     {
         free(temp);
         return -1;
     }
 
-    // only split the very first token from temp, to keep
-    // the value one token (containing possible delim chars)
-    if (save_ptr != NULL)
-    {
-        value[strlen(value)] = *delim;
-    }
+    // key is the very first token of line, whereas
+    // value contains the rest of the line string (inc. possible delim chars e.g. date header)
+    value = save_ptr;
 
     // first character must be a whitespace
     if (strncmp(value, " ", 1) != 0)
