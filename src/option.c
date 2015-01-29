@@ -248,8 +248,11 @@ read_conf(char* filepath, int* required_set)
             }
         }
 
+        free(line);
+
         // raise error if read option is an unsupported option
-        if (!found_opt)
+        // or break loop on error
+        if (!found_opt || error)
         {
             error = 1;
             break;
@@ -257,7 +260,6 @@ read_conf(char* filepath, int* required_set)
 
         // increase line pointer
         lctr++;
-        free(line);
     }
 
     fclose(f);
